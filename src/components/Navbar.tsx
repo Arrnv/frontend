@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { navLinks } from "./navLinks";
 import { renderMenu } from "./MenuRenderer";
+import { JSX } from "react/jsx-runtime";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);

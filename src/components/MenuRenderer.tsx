@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 import { NavLinkItem } from "./navLinks";
+import { JSX } from "react/jsx-runtime";
+
 
 export const renderMenu = (items: NavLinkItem[], isSub: boolean = false): JSX.Element => {
   return (
