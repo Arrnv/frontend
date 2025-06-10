@@ -30,10 +30,15 @@ const page = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
+  const handleSelect = (section: string, itemId: string) => {
+    console.log('Selected:', section, itemId);
+  };
+  
+  
 
   return (
     <>
-      <Navbar />
+      <Navbar onSelect={handleSelect} />
       <section className='flex flex-row h-[30rem] ml-[6rem] mr-[1rem] gap-[1rem]'>
         <div className='flex flex-col gap-[3.5rem] w-2/5 justify-center px-[1rem] '>
           <h1 className='font-["Helvetica"] text-[3rem]/[3rem]'>

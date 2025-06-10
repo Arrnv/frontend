@@ -1,6 +1,6 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation'; // ✅ Next.js 13+ router
 import ServiceNav from '@/components/ServiceNav';
 import DetailPanel from '@/components/DetailPanel';
 import { AnimatePresence } from 'framer-motion';
@@ -12,15 +12,23 @@ const Page = () => {
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [selectedId2, setSelectedId2] = useState<string | null>(null);
 
+  const searchParams = useSearchParams(); 
+
+  useEffect(() => {
+    const sectionFromUrl = searchParams.get("section");
+    const idFromUrl = searchParams.get("id");
+
+    if (sectionFromUrl && idFromUrl) {
+      setSelectedSection(sectionFromUrl);
+      setSelectedId(idFromUrl);
+    }
+  }, [searchParams]); 
+
   const handleSelect = (sectionKey: string, itemId: string) => {
     setSelectedSection(sectionKey);
     setSelectedId(itemId);
+
     const relatedItems = data.filter((d) => d.id === itemId);
-    // if (relatedItems.length > 0) {
-    //   setSelectedId2(relatedItems[0].id2); // default to first
-    // } else {
-    //   setSelectedId2(null);
-    // }
   };
 
   const relatedItems = data.filter((item) => item.id === selectedId);
@@ -28,11 +36,16 @@ const Page = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <Navbar onSelect={handleSelect} />
       <div className="flex">
         <ServiceNav onSelect={handleSelect} selectedCategory={selectedSection} />
         <main className="flex-1 p-4 space-y-4">
-          {/* Secondary selection buttons */}
+          {selectedSection && (
+            <div className="text-gray-500 italic">
+              Showing results for section: <strong>{selectedSection}</strong>
+            </div>
+          )}
+
           {relatedItems.length > 1 && (
             <div className="flex gap-4 flex-wrap">
               {relatedItems.map((item) => (
