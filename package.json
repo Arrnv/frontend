@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@tailwindcss/postcss": "^4.1.8",
+    "framer-motion": "^12.16.0",
+    "gsap": "^3.13.0",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
     "postcss": "^8.5.4",

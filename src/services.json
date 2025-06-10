@@ -1,0 +1,32 @@
+[
+  {
+    "key": "restaurant",
+    "label": "Restaurants",
+    "icon": "Truck",
+    "items": [
+      {
+        "id": "fitzgerald-peterbilt",
+        "name": "Fitzgerald Peterbilt"
+      },
+      {
+        "id": "trp",
+        "name": "TRP"
+      }
+    ]
+  },
+  {
+    "key": "truck_stop",
+    "label": "Truck Stops",
+    "icon": "Clock",
+    "items": [
+      {
+        "id": "pilot",
+        "name": "Pilot Flying J"
+      },
+      {
+        "id": "loves",
+        "name": "Love's Travel Stop"
+      }
+    ]
+  }
+]

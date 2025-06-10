@@ -1,0 +1,17 @@
+[
+  {
+    "key": "warehouses",
+    "label": "Warehouses",
+    "icon": "Building2",
+    "items": [
+      {
+        "id": "fedex",
+        "name": "FedEx"
+      },
+      {
+        "id": "amazon",
+        "name": "Amazon Fulfillment Center"
+      }
+    ]
+  }
+]
