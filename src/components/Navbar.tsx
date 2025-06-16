@@ -1,98 +1,47 @@
-// Navbar.tsx
 'use client';
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { Menu, X } from 'lucide-react';
 
-import { useState } from "react";
-import { dynamicNavLinks } from "./generateNavLinks";
-import { useRouter } from 'next/navigation';
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
 
-interface NavbarProps {
-  onSelect: (section: string, itemId: string) => void;
-}
-
-export default function Navbar({ onSelect }: NavbarProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const router = useRouter();
-
-  const handleClick = (section: string, id: string) => {
-    onSelect(section, id); 
-    router.push(`/customer/Services?section=${section}&id=${id}`);
-  };
   return (
-    <nav className="bg-white shadow" role="navigation" aria-label="Main navigation">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="/customer/Home" className="text-xl font-bold" aria-label="TruckNav Home">
-          🚛 TruckNav
-        </a>
+    <nav className="bg-white border-b shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="text-xl font-bold text-gray-800">MyApp</div>
 
-        {/* Desktop Nav */}
-        <ul className="hidden md:flex gap-6 items-center" role="menubar">
-          {dynamicNavLinks.map((item, idx) => (
-            <li
-              key={idx}
-              className={`relative ${item.className || ''}`}
-              onMouseEnter={() => setOpenIndex(idx)}
-              onMouseLeave={() => setOpenIndex(null)}
-            >
-              {item.subLinks ? (
-                <div className="cursor-pointer flex items-center gap-1">
-                  {item.icon} {item.label}
-                </div>
-              ) : (
-                <a href={item.href} className="flex items-center gap-1">
-                  {item.icon} {item.label}
-                </a>
-              )}
+          {/* Desktop links */}
+          <div className="hidden md:flex space-x-6 items-center">
+            <Link href="/customer/services" className="text-gray-700 hover:text-blue-600">Services</Link>
+            <Link href="/customer/traffic-cameras" className="text-gray-700 hover:text-blue-600">Traffic Cameras</Link>
+            <Link href="/list-business" className="text-gray-700 hover:text-blue-600">List Your Business</Link>
+            <Link href="/customer/login" className="text-gray-700 hover:text-blue-600">Login</Link>
+            <Link href="/customer/Signup" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</Link>
+          </div>
 
-              {/* Dropdown */}
-              {item.subLinks && openIndex === idx && (
-                <ul className="absolute top-full left-0 bg-white border shadow-lg rounded w-48 z-10">
-                  {item.subLinks.map((subItem, subIdx) => (
-                    <li key={subIdx} className="border-b last:border-none">
-                      {subItem.subLinks ? (
-                        <div className="relative group">
-                          <div className="flex items-center justify-between px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            {subItem.icon} {subItem.label}
-                            <span className="ml-auto">▸</span>
-                          </div>
-                          <ul className="absolute left-full top-0 bg-white border shadow-md rounded w-48 hidden group-hover:block">
-                            {subItem.subLinks.map((nested, nestedIdx) => (
-                              <li key={nestedIdx}>
-                                <a
-                                  href="#"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    handleClick(item.label, nested.id!);
-                                  }}
-                                  className="block px-4 py-2 hover:bg-gray-100"
-                                >
-                                  {subItem.icon} {nested.id}
-                                </a>
-
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ) : (
-                        <a
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleClick(item.label, subItem.label);
-                          }}
-                          className="block px-4 py-2 hover:bg-gray-100"
-                        >
-                          {subItem.icon} {subItem.label}
-                        </a>
-
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
+          {/* Mobile menu toggle */}
+          <div className="md:hidden">
+            <button onClick={() => setIsOpen(!isOpen)} className="text-gray-700">
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Mobile dropdown */}
+      {isOpen && (
+        <div className="md:hidden bg-white shadow-md px-4 pt-4 pb-6 space-y-3">
+          <Link href="/customer/services" className="block text-gray-700 hover:text-blue-600">Services</Link>
+          <Link href="/customer/traffic-cameras" className="block text-gray-700 hover:text-blue-600">Traffic Cameras</Link>
+          <Link href="/list-business" className="block text-gray-700 hover:text-blue-600">List Your Business</Link>
+          <Link href="/customer/login" className="block text-gray-700 hover:text-blue-600">Login</Link>
+          <Link href="/customer/Signup" className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center">Sign Up</Link>
+        </div>
+      )}
     </nav>
   );
-}
+};
+
+export default Navbar;

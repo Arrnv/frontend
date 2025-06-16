@@ -1,82 +1,130 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation'; // ✅ Next.js 13+ router
+
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ServiceNav from '@/components/ServiceNav';
-import DetailPanel from '@/components/DetailPanel';
-import { AnimatePresence } from 'framer-motion';
-import data from '@/details.json';
-import Navbar from '@/components/Navbar';
+
+type Detail = {
+  id: string;
+  name: string;
+  rating?: number;
+  location?: string;
+  status?: string;
+  timings?: string;
+  contact?: string;
+  website?: string;
+  tags?: string[];
+};
 
 const Page = () => {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [selectedId2, setSelectedId2] = useState<string | null>(null);
-
-  const searchParams = useSearchParams(); 
+  const [details, setDetails] = useState<Detail[]>([]);
+  const [selectedDetail, setSelectedDetail] = useState<Detail | null>(null);
+  const [activeCategory, setActiveCategory] = useState<{ type: string; id: string } | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const sectionFromUrl = searchParams.get("section");
-    const idFromUrl = searchParams.get("id");
+    if (!activeCategory) return;
 
-    if (sectionFromUrl && idFromUrl) {
-      setSelectedSection(sectionFromUrl);
-      setSelectedId(idFromUrl);
-    }
-  }, [searchParams]); 
+    const { type, id } = activeCategory;
+    const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
 
-  const handleSelect = (sectionKey: string, itemId: string) => {
-    setSelectedSection(sectionKey);
-    setSelectedId(itemId);
+    const fetchDetails = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`http://localhost:8000/api/details/${normalizedType}/${id}`);
+        setDetails(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const relatedItems = data.filter((d) => d.id === itemId);
-  };
-
-  const relatedItems = data.filter((item) => item.id === selectedId);
-  const selectedItem = data.find((item) => item.id === selectedId && item.id2 === selectedId2);
+    fetchDetails();
+  }, [activeCategory]);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar onSelect={handleSelect} />
-      <div className="flex">
-        <ServiceNav onSelect={handleSelect} selectedCategory={selectedSection} />
-        <main className="flex-1 p-4 space-y-4">
-          {selectedSection && (
-            <div className="text-gray-500 italic">
-              Showing results for section: <strong>{selectedSection}</strong>
-            </div>
-          )}
+    <div className="flex">
+      {/* Sidebar Navigation */}
+      <ServiceNav
+        selectedCategory={null}
+        onSelect={(type, id) => {
+          setActiveCategory({ type, id });
+          setSelectedDetail(null);
+        }}
+      />
 
-          {relatedItems.length > 1 && (
-            <div className="flex gap-4 flex-wrap">
-              {relatedItems.map((item) => (
-                <button
-                  key={item.id2}
-                  onClick={() => setSelectedId2(item.id2)}
-                  className={`p-3 border rounded shadow-sm ${
-                    item.id2 === selectedId2 ? 'bg-blue-100 border-blue-500' : 'bg-white'
-                  }`}
-                >
-                  <div className="text-lg font-semibold">{item.name}</div>
-                  <div className="text-sm text-gray-600">Rating: {item.rating}</div>
-                  <div className="text-xs italic text-gray-500">{item.category}</div>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Main content */}
+      <div className="flex-1 p-6">
+        {activeCategory ? (
+          <>
+            <h1 className="text-2xl font-bold capitalize mb-4">
+              Entries for {activeCategory.type}
+            </h1>
 
-          <AnimatePresence>
-            {selectedItem && (
-              <DetailPanel
-                key={selectedItem.id2}
-                service={selectedItem}
-                onClose={() => {
-                  setSelectedId(null);
-                  setSelectedId2(null);
-                }}
-              />
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {details.map((detail) => (
+                  <div
+                    key={detail.id}
+                    className="cursor-pointer border p-4 rounded shadow hover:shadow-md"
+                    onClick={() => setSelectedDetail(detail)}
+                  >
+                    <h2 className="font-semibold">{detail.name}</h2>
+                    <p className="text-sm text-gray-600">Rating: {detail.rating ?? 'N/A'}</p>
+                    <p className="text-sm text-gray-600">Status: {detail.status ?? 'N/A'}</p>
+                  </div>
+                ))}
+              </div>
             )}
-          </AnimatePresence>
-        </main>
+
+        
+            {selectedDetail && (
+            <div className="relative">
+                <div className="absolute right-0 top-0 z-40 bg-white p-6 rounded-lg shadow-xl w-full max-w-md border">
+                <button
+                    className="absolute top-2 right-3 text-gray-700 text-xl"
+                    onClick={() => setSelectedDetail(null)}
+                >
+                    ×
+                </button>
+                <h2 className="text-xl font-bold mb-2">{selectedDetail.name}</h2>
+                <p><strong>Rating:</strong> {selectedDetail.rating ?? 'N/A'}</p>
+                <p><strong>Location:</strong> {selectedDetail.location ?? 'N/A'}</p>
+                <p><strong>Status:</strong> {selectedDetail.status ?? 'N/A'}</p>
+                <p><strong>Timings:</strong> {selectedDetail.timings ?? 'N/A'}</p>
+                <p><strong>Contact:</strong> {selectedDetail.contact ?? 'N/A'}</p>
+                <p>
+                    <strong>Website:</strong>{' '}
+                    {selectedDetail.website ? (
+                    <a href={selectedDetail.website} className="text-blue-600 underline" target="_blank" rel="noreferrer">
+                        {selectedDetail.website}
+                    </a>
+                    ) : (
+                    'N/A'
+                    )}
+                </p>
+                {(() => {
+                const tags = selectedDetail.tags;
+                return tags && tags.length > 0 ? (
+                    <p>
+                    <strong>Tags:</strong> {tags.join(', ')}
+                    </p>
+                ) : null;
+                })()}
+                </div>
+            </div>
+            )}
+
+          </>
+        ) : (
+          <>
+            <h1 className="text-xl font-bold">Welcome, customer!</h1>
+            <p>Select a category to get started.</p>
+          </>
+        )}
       </div>
     </div>
   );

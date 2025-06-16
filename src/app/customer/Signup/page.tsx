@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import AuthForm from '@/components/AuthForm';
 import { useRouter } from 'next/navigation';
 
-const LoginPage = () => {
+const SignupPage = () => {
   const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
   const router = useRouter();
 
@@ -29,7 +29,7 @@ const LoginPage = () => {
   if (user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h1 className="text-2xl mb-4">Welcome back, {user.fullName}!</h1>
+        <h1 className="text-2xl mb-4">Welcome, {user.fullName}!</h1>
       </div>
     );
   }
@@ -37,14 +37,14 @@ const LoginPage = () => {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <AuthForm
-        mode="login"
+        mode="signup"
         onSuccess={(user) => {
           setUser(user);
-          router.push('/'); // redirect to homepage after login
+          router.push('/'); 
         }}
       />
     </div>
   );
 };
 
-export default LoginPage;
+export default SignupPage;
