@@ -4,6 +4,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ServiceNav from '@/components/ServiceNav';
 
+import { jwtDecode } from 'jwt-decode';
+
+type JWTUser = {
+  email: string;
+  fullName: string;
+  role: 'visitor' | 'business_owner' | 'admin';
+  exp: number;
+};
+
+
 type Detail = {
   id: string;
   name: string;
@@ -21,6 +31,24 @@ const Page = () => {
   const [selectedDetail, setSelectedDetail] = useState<Detail | null>(null);
   const [activeCategory, setActiveCategory] = useState<{ type: string; id: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get('http://localhost:8000/api/auth/profile', {
+          withCredentials: true, // 🔑 send cookie
+        });
+        setUserRole(res.data.user.role);
+      } catch (err) {
+        console.log("User not logged in or token invalid");
+        setUserRole(null);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
 
   useEffect(() => {
     if (!activeCategory) return;
@@ -81,7 +109,7 @@ const Page = () => {
             )}
 
         
-            {selectedDetail && (
+            {selectedDetail && userRole ? (
             <div className="relative">
                 <div className="absolute right-0 top-0 z-40 bg-white p-6 rounded-lg shadow-xl w-full max-w-md border">
                 <button
@@ -116,7 +144,17 @@ const Page = () => {
                 })()}
                 </div>
             </div>
-            )}
+            ): selectedDetail && !userRole ? (
+            <div className="p-4 border bg-yellow-100 rounded">
+              <p className="text-yellow-800 font-semibold">You need to log in to view this detail.</p>
+              <button
+                onClick={() => window.location.href = '/customer/login'}
+                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Go to Login
+              </button>
+            </div>
+          ) : null}
 
           </>
         ) : (

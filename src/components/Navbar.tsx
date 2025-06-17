@@ -14,9 +14,9 @@ const Navbar = () => {
 
           {/* Desktop links */}
           <div className="hidden md:flex space-x-6 items-center">
-            <Link href="/customer/services" className="text-gray-700 hover:text-blue-600">Services</Link>
+            <Link href="/customer/Services" className="text-gray-700 hover:text-blue-600">Services</Link>
             <Link href="/customer/traffic-cameras" className="text-gray-700 hover:text-blue-600">Traffic Cameras</Link>
-            <Link href="/list-business" className="text-gray-700 hover:text-blue-600">List Your Business</Link>
+            <Link href="/business/login" className="block text-gray-700 hover:text-blue-600">List Your Business</Link>
             <Link href="/customer/login" className="text-gray-700 hover:text-blue-600">Login</Link>
             <Link href="/customer/Signup" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Sign Up</Link>
           </div>
@@ -30,12 +30,11 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile dropdown */}
       {isOpen && (
         <div className="md:hidden bg-white shadow-md px-4 pt-4 pb-6 space-y-3">
           <Link href="/customer/services" className="block text-gray-700 hover:text-blue-600">Services</Link>
           <Link href="/customer/traffic-cameras" className="block text-gray-700 hover:text-blue-600">Traffic Cameras</Link>
-          <Link href="/list-business" className="block text-gray-700 hover:text-blue-600">List Your Business</Link>
+          <Link href="/business/login" className="block text-gray-700 hover:text-blue-600">List Your Business</Link>
           <Link href="/customer/login" className="block text-gray-700 hover:text-blue-600">Login</Link>
           <Link href="/customer/Signup" className="block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-center">Sign Up</Link>
         </div>

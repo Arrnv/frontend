@@ -1,13 +1,15 @@
+// components/AuthForm.tsx
 'use client';
 
 import React, { useState } from 'react';
 
 type Props = {
   mode: 'login' | 'signup';
-  onSuccess: (user: { email: string; fullName: string }, token: string) => void;
+  defaultRole?: 'visitor' | 'business'; // Add this
+  onSuccess: (user: { email: string; fullName: string }) => void;
 };
 
-const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
+const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -29,10 +31,16 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
           ? 'http://localhost:8000/api/auth/login'
           : 'http://localhost:8000/api/auth/signup';
 
+      const payload =
+        mode === 'signup'
+          ? { email, password, fullName, role: defaultRole } // <- Role passed from prop
+          : { email, password };
+
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, ...(mode === 'signup' ? { fullName } : {}) }),
+        credentials: 'include',
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -41,8 +49,7 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
         throw new Error(data.message || 'Authentication failed');
       }
 
-      localStorage.setItem('token', data.token);
-      onSuccess(data.user, data.token);
+      onSuccess(data.user);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {

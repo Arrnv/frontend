@@ -1,30 +1,25 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-const SignupPage = () => {
+const BusinessSignup = () => {
   const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const checkUser = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/profile', {
-          withCredentials: true, 
-        });
+        const res = await axios.get('http://localhost:8000/api/auth/profile', { withCredentials: true });
         if (res.status === 200) {
           setUser(res.data.user);
-          router.push('/');
+          router.push('/business/dashboard');
         }
-      } catch (error) {
-        
-      }
+      } catch {}
     };
-
-    fetchUser();
+    checkUser();
   }, [router]);
 
   return (
@@ -32,13 +27,12 @@ const SignupPage = () => {
       {!user ? (
         <AuthForm
           mode="signup"
-          defaultRole="visitor"
+          defaultRole="business"
           onSuccess={(user) => {
             setUser(user);
-            router.push('/');
+            router.push('/business/onboarding');
           }}
         />
-
       ) : (
         <div>
           <h1 className="text-xl">Already logged in</h1>
@@ -48,4 +42,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default BusinessSignup;
