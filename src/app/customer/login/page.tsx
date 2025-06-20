@@ -9,22 +9,22 @@ const LoginPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) fetchUserProfile(token);
+    fetchUserProfile();
   }, []);
 
-  const fetchUserProfile = async (token: string) => {
+  const fetchUserProfile = async () => {
     try {
-      const res = await fetch('http://localhost:8000/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const res = await fetch('http://localhost:8000/api/auth/profile', {
+        credentials: 'include', // ✅ include cookies
       });
       if (!res.ok) return;
       const data = await res.json();
       setUser(data.user);
-    } catch {}
+    } catch (err) {
+      console.log('Not logged in');
+    }
   };
+
 
   if (user) {
     return (

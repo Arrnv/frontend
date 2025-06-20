@@ -32,7 +32,7 @@ const Navbar = () => {
 
       {isOpen && (
         <div className="md:hidden bg-white shadow-md px-4 pt-4 pb-6 space-y-3">
-          <Link href="/customer/services" className="block text-gray-700 hover:text-blue-600">Services</Link>
+          <Link href="/customer/Services" className="block text-gray-700 hover:text-blue-600">Services</Link>
           <Link href="/customer/traffic-cameras" className="block text-gray-700 hover:text-blue-600">Traffic Cameras</Link>
           <Link href="/business/login" className="block text-gray-700 hover:text-blue-600">List Your Business</Link>
           <Link href="/customer/login" className="block text-gray-700 hover:text-blue-600">Login</Link>
