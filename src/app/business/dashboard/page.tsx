@@ -82,6 +82,12 @@ export default function BusinessDashboard() {
                   <p className="text-sm text-gray-500">Rating: {service.rating ?? 'N/A'}</p>
                 </div>
                 <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2"
+                  onClick={() => router.push(`/business/dashboard2/${service.id}`)}
+                >
+                  View Dashboard
+                </button>
+                <button
                   className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                   onClick={() => router.push(`/business/edit-service/${service.id}`)}
                 >

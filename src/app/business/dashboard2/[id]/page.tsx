@@ -1,31 +1,34 @@
 'use client';
-
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend,
 } from 'recharts';
+import React from 'react';
 
 export default function ServiceDashboardPage({ params }: { params: { id: string } }) {
   const [service, setService] = useState<any>(null);
   const [analytics, setAnalytics] = useState<{ views: any[]; clicks: any[] }>({ views: [], clicks: [] });
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const serviceId = params.id;
+
+  const serviceId = params.id; // ✅ For future compatibility with React's use()
 
   useEffect(() => {
     const fetchServiceData = async () => {
       try {
-        const [serviceRes, analyticsRes] = await Promise.all([
-          axios.get(`http://localhost:8000/businesses/service/${serviceId}`, { withCredentials: true }),
+        const [serviceRes, insightsRes] = await Promise.all([
+          axios.get(`http://localhost:8000/businesses/service/${serviceId}`, {
+            withCredentials: true,
+          }),
           axios.get(`http://localhost:8000/api/analytics/insights/service?detailId=${serviceId}`, {
             withCredentials: true,
           }),
         ]);
 
         setService(serviceRes.data);
-        setAnalytics(analyticsRes.data);
+        setAnalytics(insightsRes.data);
       } catch (err: any) {
         if (err.response?.status === 401) {
           router.push('/business/login');
@@ -44,7 +47,7 @@ export default function ServiceDashboardPage({ params }: { params: { id: string 
 
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold">Service: {service?.name}</h1>
+      <h1 className="text-3xl font-bold">Service Dashboard: {service?.name}</h1>
 
       <div className="bg-white shadow rounded p-4 space-y-2">
         <h2 className="text-xl font-semibold mb-2">Service Info</h2>
@@ -58,8 +61,30 @@ export default function ServiceDashboardPage({ params }: { params: { id: string 
         <p><strong>Coordinates:</strong> {service?.latitude}, {service?.longitude}</p>
       </div>
 
-      <div className="bg-white shadow rounded p-4 space-y-4">
-        <h2 className="text-xl font-semibold">Engagement Insights</h2>
+      {/* ✅ Gallery Section */}
+      {Array.isArray(service?.gallery_urls) && service.gallery_urls.length > 0 && (
+        <div className="bg-white shadow rounded p-4 space-y-2">
+          <h2 className="text-xl font-semibold mb-2">Gallery</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {service.gallery_urls.map((url: string, index: number) => (
+              <img
+                key={index}
+                src={url}
+                alt={`Gallery ${index + 1}`}
+                className="w-full h-40 object-cover rounded shadow"
+                onError={(e) => {
+                  e.currentTarget.onerror = null; // prevent infinite loop
+                  e.currentTarget.src = "/fallback_image.jpg";
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Insights */}
+      <div className="bg-white shadow rounded p-4 space-y-6">
+        <h2 className="text-xl font-semibold mb-2">Engagement Insights</h2>
 
         <div>
           <h3 className="font-semibold mb-2">Views Over Time</h3>
@@ -88,15 +113,6 @@ export default function ServiceDashboardPage({ params }: { params: { id: string 
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          onClick={() => router.push(`/business/edit-service/${serviceId}`)}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Edit Service
-        </button>
       </div>
     </div>
   );
