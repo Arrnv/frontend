@@ -8,7 +8,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:8000/api/auth/logout', {}, { withCredentials: true });
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/logout', {}, { withCredentials: true });
       router.push('/business/login');
     } catch (err) {
       console.error('Logout failed:', err);

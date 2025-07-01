@@ -15,7 +15,7 @@ export default function FeedbackForm() {
     e.preventDefault();
     try {
             await axios.post(
-            'http://localhost:8000/customer/booking-feedback',
+            'https://phpstack-1383739-5654472.cloudwaysapps.com/customer/booking-feedback',
             {
                 booking_id: params.id,
                 rating,

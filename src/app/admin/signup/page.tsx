@@ -23,7 +23,7 @@ export default function AdminSignupPage() {
 
     try {
       const res = await axios.post(
-        'http://localhost:8000/api/auth/signup',
+        'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/signup',
         { ...form, role: 'admin' },
         { withCredentials: true }
       );

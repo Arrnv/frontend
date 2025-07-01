@@ -21,7 +21,7 @@ export default function EditServicePage() {
   useEffect(() => {
     const fetchService = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:8000/businesses/service/${id}`, { withCredentials: true });
+        const { data } = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/service/${id}`, { withCredentials: true });
         setForm({
           name: data.name || '',
           location: data.location || '',
@@ -48,7 +48,7 @@ export default function EditServicePage() {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:8000/businesses/service/${id}`,
+        `https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/service/${id}`,
         {
           ...form,
           rating: parseFloat(form.rating),

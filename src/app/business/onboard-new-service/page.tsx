@@ -33,9 +33,9 @@ const AddNewServicePage = () => {
     const fetchData = async () => {
       try {
         const [bizRes, servicesRes, placesRes] = await Promise.all([
-          axios.get('http://localhost:8000/businesses/my', { withCredentials: true }),
-          axios.get('http://localhost:8000/api/services'),
-          axios.get('http://localhost:8000/api/places'),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/my', { withCredentials: true }),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/services'),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/places'),
         ]);
 
         setBusinessId(bizRes.data.id);
@@ -97,7 +97,7 @@ const AddNewServicePage = () => {
     };
 
     try {
-      await axios.post('http://localhost:8000/businesses/add-detail', payload, {
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/add-detail', payload, {
         withCredentials: true,
       });
       router.push('/business/dashboard');

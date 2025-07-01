@@ -67,7 +67,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchTopRated = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/top-rated', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/top-rated', {
         withCredentials: true,
       });
       const formatted = res.data.map((d: any) => ({
@@ -83,7 +83,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchMostViewed = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/most-viewed', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/most-viewed', {
         withCredentials: true,
       });
       const formatted = res.data.map((d: any) => ({
@@ -99,7 +99,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchMonthlyStats = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/monthly', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/monthly', {
         withCredentials: true,
       });
       setMonthlyStats(res.data);
@@ -110,7 +110,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchCategoryStats = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/by-category', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/by-category', {
         withCredentials: true,
       });
       setCategoryStats(res.data);
@@ -121,7 +121,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchStatusStats = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/status-summary', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/status-summary', {
         withCredentials: true,
       });
       setStatusStats(res.data);
@@ -132,7 +132,7 @@ export default function AdminAnalyticsPage() {
 
   const fetchTopRevenueStats = async () => {
     try {
-      const res = await axios.get('http://localhost:8000/admin/services/stats/top-revenue', {
+      const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/top-revenue', {
         withCredentials: true,
       });
       setTopRevenueStats(res.data);

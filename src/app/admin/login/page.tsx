@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
 
     try {
       const res = await axios.post(
-        'http://localhost:8000/api/auth/login',
+        'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/login',
         { ...form },
         { withCredentials: true }
       );

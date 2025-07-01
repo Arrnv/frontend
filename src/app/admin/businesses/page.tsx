@@ -45,9 +45,9 @@ export default function AdminBusinessPage() {
   useEffect(() => {
     const fetchData = async () => {
       const [bizRes, createdRes, catRes] = await Promise.all([
-        axios.get('http://localhost:8000/admin/businesses', { withCredentials: true }),
-        axios.get('http://localhost:8000/admin/businesses/stats/created', { withCredentials: true }),
-        axios.get('http://localhost:8000/admin/businesses/stats/categories', { withCredentials: true }),
+        axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/businesses', { withCredentials: true }),
+        axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/businesses/stats/created', { withCredentials: true }),
+        axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/businesses/stats/categories', { withCredentials: true }),
       ]);
       setBusinesses(bizRes.data);
       setSignupStats(createdRes.data);
@@ -60,7 +60,7 @@ export default function AdminBusinessPage() {
     if (status === 'rejected' && !confirm('Are you sure to reject and delete this business?')) return;
 
     try {
-      await axios.put(`http://localhost:8000/admin/businesses/${id}/status`, { status }, { withCredentials: true });
+      await axios.put(`https://phpstack-1383739-5654472.cloudwaysapps.com/admin/businesses/${id}/status`, { status }, { withCredentials: true });
 
       setBusinesses(prev =>
         status === 'approved'

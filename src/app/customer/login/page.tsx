@@ -14,7 +14,7 @@ const LoginPage = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/auth/profile', {
+      const res = await fetch('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/profile', {
         credentials: 'include', // ✅ include cookies
       });
       if (!res.ok) return;

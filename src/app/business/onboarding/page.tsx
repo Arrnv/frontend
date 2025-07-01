@@ -29,7 +29,7 @@ const BusinessOnlyOnboarding = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/plans');
+        const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/plans');
         setPlans(res.data);
       } catch (err) {
         console.error('Failed to fetch plans:', err);
@@ -56,7 +56,7 @@ const BusinessOnlyOnboarding = () => {
         longitude: selectedPosition.lng,
       };
 
-      await axios.post('http://localhost:8000/businesses/onboard', payload, {
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/onboard', payload, {
         withCredentials: true,
       });
       router.push('/business/dashboard');

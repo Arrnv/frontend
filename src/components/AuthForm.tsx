@@ -28,8 +28,8 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' })
 
       const endpoint =
         mode === 'login'
-          ? 'http://localhost:8000/api/auth/login'
-          : 'http://localhost:8000/api/auth/signup';
+          ? 'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/login'
+          : 'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/signup';
 
       const payload =
         mode === 'signup'

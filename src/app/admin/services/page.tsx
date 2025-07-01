@@ -29,7 +29,7 @@ export default function AdminServicesPage() {
       const queryParams = new URLSearchParams();
       if (appliedFilters.category) queryParams.append('category', appliedFilters.category);
       if (appliedFilters.place) queryParams.append('place', appliedFilters.place);
-      const url = `http://localhost:8000/admin/services?${queryParams.toString()}`;
+      const url = `https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services?${queryParams.toString()}`;
 
       const res = await axios.get(url, { withCredentials: true });
       setServices(res.data);
@@ -49,7 +49,7 @@ export default function AdminServicesPage() {
     if (status === 'rejected' && !confirm('Reject and delete this service?')) return;
 
     try {
-      await axios.put(`http://localhost:8000/admin/services/${id}/status`, { status }, { withCredentials: true });
+      await axios.put(`https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/${id}/status`, { status }, { withCredentials: true });
       setServices(prev =>
         status === 'approved'
           ? prev.map(s => (s.id === id ? { ...s, status: 'approved' } : s))
@@ -62,7 +62,7 @@ export default function AdminServicesPage() {
   };
  const fetchTopRated = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/admin/services/stats/top-rated', {
+    const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/top-rated', {
       withCredentials: true,
     });
     setTopRated(res.data);
@@ -73,7 +73,7 @@ export default function AdminServicesPage() {
 
 const fetchMostViewed = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/admin/services/stats/most-viewed', {
+    const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/services/stats/most-viewed', {
       withCredentials: true,
     });
     setMostViewed(res.data);

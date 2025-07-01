@@ -38,11 +38,11 @@ export default function ServiceDashboardPage({ params }: { params: Promise<{ id:
     const fetchAllData = async () => {
       try {
         const [serviceRes, insightsRes, alertsRes, revenueRes, feedbacksRes] = await Promise.all([
-          axios.get(`http://localhost:8000/businesses/service/${serviceId}`, { withCredentials: true }),
-          axios.get(`http://localhost:8000/api/analytics/insights/service?detailId=${serviceId}`, { withCredentials: true }),
-          axios.get(`http://localhost:8000/businesses/alerts/${serviceId}`, { withCredentials: true }),
-          axios.get(`http://localhost:8000/api/analytics/revenue/${serviceId}`, { withCredentials: true }),
-          axios.get(`http://localhost:8000/businesses/feedbacks/${serviceId}`, { withCredentials: true })
+          axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/service/${serviceId}`, { withCredentials: true }),
+          axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/insights/service?detailId=${serviceId}`, { withCredentials: true }),
+          axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/alerts/${serviceId}`, { withCredentials: true }),
+          axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/revenue/${serviceId}`, { withCredentials: true }),
+          axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/feedbacks/${serviceId}`, { withCredentials: true })
         ]);
 
         setService(serviceRes.data);
@@ -68,8 +68,8 @@ export default function ServiceDashboardPage({ params }: { params: Promise<{ id:
 
   const updateBookingStatus = async (bookingId: string, status: string) => {
     try {
-      await axios.put(`http://localhost:8000/api/bookings/status/${bookingId}`, { status }, { withCredentials: true });
-      const res = await axios.get(`http://localhost:8000/businesses/alerts/${serviceId}`, { withCredentials: true });
+      await axios.put(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/bookings/status/${bookingId}`, { status }, { withCredentials: true });
+      const res = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/alerts/${serviceId}`, { withCredentials: true });
 
       const updatedAlerts = res.data;
       setCompletedToday(updatedAlerts.filter((a: any) => a.service_bookings?.status === 'completed' && isToday(a.service_bookings.updated_at)));

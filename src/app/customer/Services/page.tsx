@@ -127,7 +127,7 @@ const Page = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/auth/profile', { withCredentials: true });
+        const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/profile', { withCredentials: true });
         setUserRole(res.data.user.role);
       } catch {
         setUserRole(null);
@@ -144,7 +144,7 @@ const Page = () => {
     const fetchDetails = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`http://localhost:8000/api/details/${normalizedType}/${id}`);
+        const res = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/details/${normalizedType}/${id}`);
         setDetails(res.data);
       } catch (err) {
         console.error(err);
@@ -160,7 +160,7 @@ const Page = () => {
     if (!selectedDetail) return;
     const fetchOptions = async () => {
       try {
-        const res = await axios.get(`http://localhost:8000/api/details/${selectedDetail.id}/booking-options`);
+        const res = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/details/${selectedDetail.id}/booking-options`);
         setBookingOptions(res.data || []);
         if (res.data?.[0]?.id) setSelectedOptionId(res.data[0].id);
       } catch (err) {
@@ -192,8 +192,8 @@ const Page = () => {
     setReviews([]);
     if (!detail) return;
     try {
-      await axios.post('http://localhost:8000/api/analytics/track', { detailId: detail.id, eventType: 'view' }, { withCredentials: true });
-      const reviewRes = await axios.get(`http://localhost:8000/api/reviews/${detail.id}`, { withCredentials: true });
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/track', { detailId: detail.id, eventType: 'view' }, { withCredentials: true });
+      const reviewRes = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/reviews/${detail.id}`, { withCredentials: true });
       setReviews(reviewRes.data);
     } catch (err) {
       console.error('Error fetching detail or reviews', err);
@@ -203,7 +203,7 @@ const Page = () => {
   const handleReviewSubmit = async () => {
     if (!selectedDetail) return;
     try {
-      const res = await axios.post(`http://localhost:8000/api/reviews/${selectedDetail.id}`, newReview, { withCredentials: true });
+      const res = await axios.post(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/reviews/${selectedDetail.id}`, newReview, { withCredentials: true });
       setReviews((prev) => [...prev, res.data]);
       setNewReview({ comment: '', rating: 0 });
     } catch (err) {
@@ -216,8 +216,8 @@ const Page = () => {
     setIsBooking(true);
     setBookingStatus(null);
     try {
-      await axios.post('http://localhost:8000/api/analytics/track', { detailId: selectedDetail.id, eventType: 'click' }, { withCredentials: true });
-      await axios.post('http://localhost:8000/api/bookings', { option_id: selectedOptionId, note }, { withCredentials: true });
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/track', { detailId: selectedDetail.id, eventType: 'click' }, { withCredentials: true });
+      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/api/bookings', { option_id: selectedOptionId, note }, { withCredentials: true });
       setBookingStatus('Booking successful!');
       setNote('');
     } catch (err) {
@@ -298,7 +298,7 @@ const Page = () => {
                     onClick={async () => {
                       try {
                         await axios.post(
-                          'http://localhost:8000/api/analytics/track',
+                          'https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/track',
                           { detailId: selectedDetail.id, eventType: 'click' },
                           { withCredentials: true }
                         );

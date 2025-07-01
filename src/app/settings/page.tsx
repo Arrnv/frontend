@@ -24,7 +24,7 @@ const SettingsPage = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/auth/profile', {
+        const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/profile', {
           withCredentials: true,
         });
         setProfile(res.data.user);

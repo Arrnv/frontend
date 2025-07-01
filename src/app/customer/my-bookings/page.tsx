@@ -20,7 +20,7 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/customer/my-bookings', { withCredentials: true })
+    axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/customer/my-bookings', { withCredentials: true })
       .then(res => setBookings(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));

@@ -11,7 +11,7 @@ export default function CancelBooking({ bookingId }: { bookingId: string }) {
     if (!reason.trim()) return alert('Please provide a reason');
 
     try {
-      await axios.put(`http://localhost:8000/api/bookings/status/${bookingId}`, {
+      await axios.put(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/bookings/status/${bookingId}`, {
         status: 'cancelled',
         reason, // We'll add this on backend as a log or alert
       }, { withCredentials: true });

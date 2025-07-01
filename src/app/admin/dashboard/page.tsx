@@ -31,8 +31,8 @@ export default function AdminDashboardPage() {
     const fetchData = async () => {
       try {
         const [summaryRes, analyticsRes] = await Promise.all([
-          axios.get('http://localhost:8000/admin/dashboard', { withCredentials: true }),
-          axios.get('http://localhost:8000/admin/analytics', { withCredentials: true })
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/dashboard', { withCredentials: true }),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/analytics', { withCredentials: true })
         ]);
 
         setSummary(summaryRes.data);

@@ -21,22 +21,22 @@ export default function BusinessDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const bizRes = await axios.get('http://localhost:8000/businesses/my', { withCredentials: true });
+        const bizRes = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/my', { withCredentials: true });
         const businessId = bizRes.data.id;
 
         const servicesRes = await axios.get(
-          `http://localhost:8000/api/business-services?businessId=${businessId}`,
+          `https://phpstack-1383739-5654472.cloudwaysapps.com/api/business-services?businessId=${businessId}`,
           { withCredentials: true }
         );
 
         const insightsRes = await axios.get(
-          `http://localhost:8000/api/analytics/insights?businessId=${businessId}`,
+          `https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/insights?businessId=${businessId}`,
           { withCredentials: true }
         );
 
         const revStats: Record<string, any> = {};
         for (const service of servicesRes.data) {
-          const revenueRes = await axios.get(`http://localhost:8000/api/analytics/revenue/${service.id}`);
+          const revenueRes = await axios.get(`https://phpstack-1383739-5654472.cloudwaysapps.com/api/analytics/revenue/${service.id}`);
           revStats[service.id] = revenueRes.data;
         }
 
