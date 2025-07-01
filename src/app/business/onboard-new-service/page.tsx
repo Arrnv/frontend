@@ -15,6 +15,7 @@ const AddNewServicePage = () => {
     latitude: '', longitude: '', labelType: 'place', label: '', categoryLabel: '',
     newLabel: '', newCategoryLabel: '', booking_url: '', gallery_urls: '', video_url: '',
   });
+  const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
 
   const [bookings, setBookings] = useState([{ id: uuidv4(), type: '', price: '', note: '' }]);
   const [businessId, setBusinessId] = useState('');
@@ -116,9 +117,10 @@ const AddNewServicePage = () => {
       {/* Map Picker */}
       <div>
         <h3 className="font-semibold">Select Location on Map</h3>
-        <MapPicker onSelect={(lat, lng) => {
-          setForm(prev => ({ ...prev, latitude: lat.toString(), longitude: lng.toString() }));
-        }} />
+        <MapPicker
+                selectedPosition={selectedPosition}
+                onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
+            />
       </div>
 
       {planFeatures.allow_booking && bookings.map(b => (
