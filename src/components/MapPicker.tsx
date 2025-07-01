@@ -1,9 +1,15 @@
-// components/MapPicker.tsx
 'use client';
 
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import L from 'leaflet';
+
+type LatLng = { lat: number; lng: number };
+
+type Props = {
+  selectedPosition: LatLng | null;
+  onSelect: (lat: number, lng: number) => void;
+};
 
 // Fix for default marker icons not loading correctly
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -13,12 +19,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-type Props = {
+const LocationMarker = ({
+  onSelect,
+  selectedPosition,
+}: {
   onSelect: (lat: number, lng: number) => void;
-};
-
-const LocationMarker = ({ onSelect }: Props) => {
-  const [position, setPosition] = useState<{ lat: number; lng: number }>({ lat: 20.5937, lng: 78.9629 });
+  selectedPosition: LatLng | null;
+}) => {
+  const [position, setPosition] = useState<LatLng>(selectedPosition || { lat: 20.5937, lng: 78.9629 });
 
   useMapEvents({
     click(e) {
@@ -28,22 +36,28 @@ const LocationMarker = ({ onSelect }: Props) => {
     },
   });
 
+  // Sync external selectedPosition to local state
+  useEffect(() => {
+    if (selectedPosition) setPosition(selectedPosition);
+  }, [selectedPosition]);
+
   return <Marker position={position} />;
 };
 
-const MapPicker = ({ onSelect }: Props) => {
+const MapPicker = ({ selectedPosition, onSelect }: Props) => {
   return (
-    <div className="w-full h-[300px]">
+    <div className="w-full h-[300px] rounded-lg overflow-hidden shadow-md">
       <MapContainer
-        center={[20.5937, 78.9629]}
+        center={selectedPosition || { lat: 20.5937, lng: 78.9629 }}
         zoom={5}
         style={{ height: '100%', width: '100%' }}
+        scrollWheelZoom={true}
       >
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <LocationMarker onSelect={onSelect} />
+        <LocationMarker onSelect={onSelect} selectedPosition={selectedPosition} />
       </MapContainer>
     </div>
   );

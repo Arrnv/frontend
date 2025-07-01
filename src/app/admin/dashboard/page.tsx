@@ -7,15 +7,23 @@ import {
 } from 'recharts';
 import { useRouter } from 'next/navigation';
 import AdminNavbar from '@/components/AdminNavbar';
+import GlassTooltip from '@/components/GlassTooltip';
 
-
-export default function AdminDashboardPage() {
-  const [summary, setSummary] = useState<{
+type DashboardSummary = {
   totalUsers: number;
   totalBusinesses: number;
   totalServices: number;
-} | null>(null);
-  const [analytics, setAnalytics] = useState<any[]>([]);
+};
+
+type AnalyticsData = {
+  date: string;
+  view: number;
+  click: number;
+};
+
+export default function AdminDashboardPage() {
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -40,61 +48,74 @@ export default function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center p-8">Loading...</div>;
+  if (loading) return <div className="text-center p-8 text-white">Loading...</div>;
 
   return (
-    <main>
-        <AdminNavbar />
-        <div className="max-w-6xl mx-auto p-6 space-y-8">
-        
-        <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+    <main className="bg-[#0E1C2F] min-h-screen text-white">
+      <AdminNavbar />
+      <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
+        <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <DashboardCard title="Total Users" value={summary?.totalUsers ?? 0} />
-            <DashboardCard title="Total Businesses" value={summary?.totalBusinesses ?? 0} />
-            <DashboardCard title="Total Services" value={summary?.totalServices ?? 0} />
+          <DashboardCard title="Total Users" value={summary?.totalUsers ?? 0} />
+          <DashboardCard title="Total Businesses" value={summary?.totalBusinesses ?? 0} />
+          <DashboardCard title="Total Services" value={summary?.totalServices ?? 0} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <AnalyticsChart
+          <AnalyticsChart
             title="Views Over Time"
             data={analytics}
             dataKey="view"
-            stroke="#4F46E5"
-            />
-            <AnalyticsChart
+            stroke="#32E3C6"
+          />
+          <AnalyticsChart
             title="Clicks Over Time"
             data={analytics}
             dataKey="click"
-            stroke="#059669"
-            />
+            stroke="#C44EFF"
+          />
         </div>
-        </div>
+      </div>
     </main>
   );
 }
 
-function DashboardCard({ title, value }: { title: string; value: number }) {
+type DashboardCardProps = {
+  title: string;
+  value: number;
+};
+
+function DashboardCard({ title, value }: DashboardCardProps) {
   return (
-    <div className="bg-white rounded shadow p-4">
-      <h2 className="text-xl font-semibold">{title}</h2>
-      <p className="text-2xl mt-2">{value}</p>
+    <div className="bg-gradient-to-br from-[#1F3B79] to-[#2E60C3] backdrop-blur-xl rounded-2xl p-6 shadow-inner shadow-[#2E60C3]/40 transition-all duration-300 hover:shadow-blue-500/40 hover:-translate-y-2 hover:shadow-2xl hover:bg-gradient-to-tr hover:from-[#2E60C3] hover:to-[#1F3B79]">
+      <h2 className="text-lg font-semibold text-[#8B9AB2]">{title}</h2>
+      <p className="text-4xl font-bold text-white mt-2">{value}</p>
     </div>
   );
 }
 
-function AnalyticsChart({ title, data, dataKey, stroke }: any) {
+type AnalyticsChartProps = {
+  title: string;
+  data: AnalyticsData[];
+  dataKey: keyof AnalyticsData;
+  stroke: string;
+};
+
+function AnalyticsChart({ title, data, dataKey, stroke }: AnalyticsChartProps) {
   return (
-    <div>
-      <h3 className="font-semibold mb-2">{title}</h3>
+    <div className="bg-gradient-to-br from-[#1F3B79]/80 to-[#2E60C3]/70 backdrop-blur-xl rounded-2xl p-6 shadow-inner shadow-[#2E60C3]/40 transition-all duration-300 hover:shadow-blue-500/40 hover:-translate-y-2 hover:shadow-2xl hover:bg-gradient-to-tr hover:from-[#2E60C3]/80 hover:to-[#1F3B79]/70">
+      <h3 className="text-lg font-semibold text-[#8B9AB2] mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={250}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="date" />
-          <YAxis allowDecimals={false} />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey={dataKey} stroke={stroke} strokeWidth={2} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#2E60C3" />
+          <XAxis dataKey="date" stroke="#8B9AB2" />
+          <YAxis allowDecimals={false} stroke="#8B9AB2" />
+          <Tooltip
+            content={<GlassTooltip />}
+          />
+          <Legend wrapperStyle={{ color: '#FFFFFF' }} />
+          <Line type="monotone" dataKey={dataKey} stroke={stroke} strokeWidth={3} dot={{ r: 4 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

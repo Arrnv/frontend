@@ -35,8 +35,8 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect}) =>
     const fetchData = async () => {
       try {
         const [servicesRes, placesRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/services'),
-          axios.get('http://localhost:8000/api/places'),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/services'),
+          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/places'),
         ]);
 
         const services: Category[] = (servicesRes.data.data || []).map((service: any) => ({
@@ -162,7 +162,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect}) =>
   );
 
   return (
-    <aside className="w-64 bg-white border-r p-4 space-y-4">
+    <aside className="w-64 bg-[#0E1C2F]border-r space-y-4  p-[3rem] ">
       <button onClick={() => toggleSection('services')} className="w-full text-left font-bold">
         Services
       </button>

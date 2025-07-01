@@ -6,6 +6,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend,
   LineChart, Line
 } from 'recharts';
+import AdminNavbar from '@/components/AdminNavbar';
+
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { subDays } from 'date-fns';
@@ -86,6 +88,7 @@ export default function AdminBusinessPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-10">
+      <AdminNavbar />
       <h1 className="text-2xl font-bold">Business Management</h1>
 
       {/* Filter Section */}

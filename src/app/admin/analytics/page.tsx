@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import AdminNavbar from '@/components/AdminNavbar';
+import GlassTooltip from '@/components/GlassTooltip';
 import axios from 'axios';
 import {
   BarChart,
@@ -39,7 +41,12 @@ interface StatusStat {
   count: number;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA77FF'];
+interface RevenueStat {
+  name: string;
+  total_revenue: number;
+}
+
+const COLORS = ['#246BFD', '#00C49F', '#FFBB28', '#C44EFF', '#FF5E8A', '#32E3C6'];
 
 export default function AdminAnalyticsPage() {
   const [topRated, setTopRated] = useState<StatEntry[]>([]);
@@ -47,6 +54,7 @@ export default function AdminAnalyticsPage() {
   const [monthlyStats, setMonthlyStats] = useState<MonthlyStat[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
   const [statusStats, setStatusStats] = useState<StatusStat[]>([]);
+  const [topRevenueStats, setTopRevenueStats] = useState<RevenueStat[]>([]);
 
   useEffect(() => {
     fetchTopRated();
@@ -54,6 +62,7 @@ export default function AdminAnalyticsPage() {
     fetchMonthlyStats();
     fetchCategoryStats();
     fetchStatusStats();
+    fetchTopRevenueStats();
   }, []);
 
   const fetchTopRated = async () => {
@@ -121,121 +130,110 @@ export default function AdminAnalyticsPage() {
     }
   };
 
-  return (
-    <div className="p-6 max-w-6xl mx-auto space-y-12">
-      <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
+  const fetchTopRevenueStats = async () => {
+    try {
+      const res = await axios.get('http://localhost:8000/admin/services/stats/top-revenue', {
+        withCredentials: true,
+      });
+      setTopRevenueStats(res.data);
+    } catch (err) {
+      console.error('Error fetching top revenue stats:', err);
+    }
+  };
 
-      {/* Top Rated & Most Viewed */}
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* Top Rated Services Pie */}
-        <div className="bg-white shadow p-4 rounded border">
-          <h2 className="text-lg font-semibold mb-4">Top Rated Services</h2>
-          {topRated.length === 0 ? (
-            <p>No data</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
+  return (
+    <div className="bg-[#0E1C2F] min-h-screen text-white">
+      <AdminNavbar />
+      <div className="px-6 py-10 max-w-7xl mx-auto space-y-12">
+        <h1 className="text-4xl font-bold">Analytics Dashboard</h1>
+
+        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          <StatCard title="Top Rated Services">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
               <PieChart>
-                <Pie
-                  data={topRated}
-                  dataKey="avg_rating"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {topRated.map((entry, index) => (
-                    <Cell key={`cell-top-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Pie data={topRated} dataKey="avg_rating" nameKey="name" outerRadius={80} label>
+                  {topRated.map((_, i) => (
+                    <Cell key={`top-${i}`} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          )}
-        </div>
+          </StatCard>
 
-        {/* Most Viewed Bar */}
-        <div className="bg-white shadow p-4 rounded border">
-          <h2 className="text-lg font-semibold mb-4">Most Viewed Services</h2>
-          {mostViewed.length === 0 ? (
-            <p>No data</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={mostViewed}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
+          <StatCard title="Most Viewed Services">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
+              <BarChart data={mostViewed} className="rounded-2xl">
+                <XAxis dataKey="name" stroke="#8B9AB2" />
+                <YAxis stroke="#8B9AB2" />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
                 <Legend />
-                <Bar dataKey="total_views" fill="#00C49F" />
+                <Bar dataKey="total_views" fill="#32E3C6" radius={[8, 8, 0, 0]} activeBar={{ fill: '#32E3C6' }} />
               </BarChart>
             </ResponsiveContainer>
-          )}
-        </div>
-      </div>
+          </StatCard>
 
-      {/* Additional Analytics */}
-      <div className="grid md:grid-cols-2 gap-10">
-        {/* Monthly Growth Line */}
-        <div className="bg-white shadow p-4 rounded border">
-          <h2 className="text-lg font-semibold mb-4">Monthly Service Growth</h2>
-          {monthlyStats.length === 0 ? (
-            <p>No data</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyStats}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
+          <StatCard title="Monthly Growth">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
+              <LineChart data={monthlyStats} className="rounded-2xl">
+                <XAxis dataKey="month" stroke="#8B9AB2" />
+                <YAxis stroke="#8B9AB2" />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
                 <Legend />
-                <Line type="monotone" dataKey="count" stroke="#8884d8" />
+                <Line type="monotone" dataKey="count" stroke="#C44EFF" strokeWidth={3} dot={{ r: 5 }} />
               </LineChart>
             </ResponsiveContainer>
-          )}
-        </div>
+          </StatCard>
 
-        {/* Category Distribution Pie */}
-        <div className="bg-white shadow p-4 rounded border">
-          <h2 className="text-lg font-semibold mb-4">Service Distribution by Category</h2>
-          {categoryStats.length === 0 ? (
-            <p>No data</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
+          <StatCard title="Service by Category">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
               <PieChart>
-                <Pie
-                  data={categoryStats}
-                  dataKey="count"
-                  nameKey="category"
-                  outerRadius={100}
-                  label
-                >
-                  {categoryStats.map((entry, index) => (
-                    <Cell key={`cat-cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                <Pie data={categoryStats} dataKey="count" nameKey="category" outerRadius={80} label>
+                  {categoryStats.map((_, i) => (
+                    <Cell key={`cat-${i}`} fill={COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          )}
+          </StatCard>
+
+          <StatCard title="Status Breakdown">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
+              <BarChart data={statusStats} className="rounded-2xl">
+                <XAxis dataKey="status" stroke="#8B9AB2" />
+                <YAxis stroke="#8B9AB2" />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
+                <Legend />
+                <Bar dataKey="count" fill="#FF5E8A" radius={[8, 8, 0, 0]} activeBar={{ fill: '#FF5E8A' }} />
+              </BarChart>
+            </ResponsiveContainer>
+          </StatCard>
+
+          <StatCard title="Top Revenue Services">
+            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
+              <BarChart data={topRevenueStats} className="rounded-2xl">
+                <XAxis dataKey="name" stroke="#8B9AB2" />
+                <YAxis stroke="#8B9AB2" />
+                <Tooltip content={<GlassTooltip />} isAnimationActive={false} formatter={(v: number) => `₹${v.toLocaleString()}`} />
+                <Legend />
+                <Bar dataKey="total_revenue" fill="#AA77FF" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </StatCard>
         </div>
       </div>
+    </div>
+  );
+}
 
-      {/* Status Bar Chart */}
-      <div className="bg-white shadow p-4 rounded border">
-        <h2 className="text-lg font-semibold mb-4">Status Breakdown</h2>
-        {statusStats.length === 0 ? (
-          <p>No data</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={statusStats}>
-              <XAxis dataKey="status" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="#FF8042" />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+function StatCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-gradient-to-br from-[#1F3B79]/70 to-[#2E60C3]/70 backdrop-blur-xl border border-[#2E60C3]/30 hover:shadow-2xl hover:shadow-blue-500/50 hover:-translate-y-2 transition-all duration-500 ease-in-out rounded-[2rem] p-6">
+      <h2 className="text-xl font-semibold text-white mb-4">{title}</h2>
+      {children}
     </div>
   );
 }

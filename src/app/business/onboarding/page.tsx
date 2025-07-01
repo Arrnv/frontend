@@ -1,4 +1,6 @@
 'use client';
+import React from 'react';
+
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -64,83 +66,90 @@ const BusinessOnlyOnboarding = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white rounded shadow space-y-4">
-      <h1 className="text-2xl font-bold">Onboard Business</h1>
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Business Name"
-          value={form.name}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          name="location"
-          placeholder="Business Location"
-          value={form.location}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          name="contact"
-          placeholder="Contact"
-          value={form.contact}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <input
-          type="url"
-          name="website"
-          placeholder="Website (optional)"
-          value={form.website}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-        />
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="w-full max-w-2xl p-8 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/20">
+          <h1 className="text-3xl font-semibold text-white mb-6 text-center">
+            ✨ Onboard Your Business
+          </h1>
 
-        <select
-          name="plan_id"
-          value={form.plan_id}
-          onChange={handleChange}
-          className="w-full border p-2 rounded"
-          required
-        >
-          <option value="">Select a Subscription Plan</option>
-          {plans.map((plan: any) => (
-            <option key={plan.id} value={plan.id}>
-              {plan.name} - ₹{plan.price} ({plan.duration})
-            </option>
-          ))}
-        </select>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="name"
+              placeholder="Business Name"
+              value={form.name}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none border border-white/30 focus:ring-2 focus:ring-white/50"
+              required
+            />
+            <input
+              type="text"
+              name="location"
+              placeholder="Business Location"
+              value={form.location}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none border border-white/30"
+              required
+            />
+            <input
+              type="text"
+              name="contact"
+              placeholder="Contact"
+              value={form.contact}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none border border-white/30"
+              required
+            />
+            <input
+              type="url"
+              name="website"
+              placeholder="Website (optional)"
+              value={form.website}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none border border-white/30"
+            />
 
-        <div>
-          <p className="text-sm font-medium mb-2">📍 Select Business Location on Map</p>
-          <MapPicker
-            selectedPosition={selectedPosition}
-            onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
-          />
-          {selectedPosition && (
-            <p className="text-xs mt-2 text-gray-600">
-              Selected Coordinates: {selectedPosition.lat.toFixed(4)}, {selectedPosition.lng.toFixed(4)}
-            </p>
-          )}
+            <select
+              name="plan_id"
+              value={form.plan_id}
+              onChange={handleChange}
+              className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-300 outline-none border border-white/30"
+              required
+            >
+              <option value="">Select a Subscription Plan</option>
+              {plans.map((plan: any) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.name} - ₹{plan.price} ({plan.duration})
+                </option>
+              ))}
+            </select>
+
+            <div>
+              <p className="text-sm text-white font-medium mb-2">📍 Select Business Location on Map</p>
+              <MapPicker
+                selectedPosition={selectedPosition}
+                onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
+              />
+              {selectedPosition && (
+                <p className="text-xs mt-2 text-gray-200">
+                  Selected Coordinates: {selectedPosition.lat.toFixed(4)}, {selectedPosition.lng.toFixed(4)}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-2 rounded-lg hover:opacity-90 transition-all"
+            >
+              🚀 Continue to Add Service
+            </button>
+
+            {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+          </form>
         </div>
+      </div>
+    );
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-        >
-          Continue to Add Service
-        </button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-      </form>
-    </div>
-  );
 };
 
 export default BusinessOnlyOnboarding;

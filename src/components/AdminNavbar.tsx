@@ -3,61 +3,49 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FaShoppingBag, FaChartBar, FaHome, FaBriefcase, FaCog } from 'react-icons/fa';
 
 const navLinks = [
-  { label: 'Dashboard', path: '/admin/dashboard' },
-  { label: 'Analytics', path: '/admin/analytics' },
-  { label: 'Users', path: '/admin/users' },
-  { label: 'Reviews', path: '/admin/reviews' },
-  { label: 'Settings', path: '/settings' },
+  { label: 'Dashboard', path: '/admin/dashboard', icon:FaHome  },
+  { label: 'Analytics', path: '/admin/analytics', icon: FaChartBar },
+  { label: 'Users', path: '/admin/users', icon: FaShoppingBag },
+  { label: 'Reviews', path: '/admin/reviews', icon: FaBriefcase },
+  { label: 'Settings', path: '/settings', icon: FaCog },
 ];
 
 const AdminNavbar = () => {
   const pathname = usePathname();
   const router = useRouter();
-  const [active, setActive] = useState(pathname);
+  const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
-    setActive(pathname);
-  }, [pathname]);
+    setHasMounted(true);
+  }, []);
 
-  const handleLogout = async () => {
-    try {
-      await fetch('http://localhost:8000/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      router.push('/admin/login');
-    } catch (err) {
-      console.error('Logout failed:', err);
-    }
-  };
+  if (!hasMounted) return null; // Prevent mismatch during SSR
 
   return (
-    <nav className="bg-white shadow p-4 border-b flex justify-between items-center sticky top-0 z-50">
-      <div className="flex items-center gap-6">
-        <h1 className="font-bold text-lg">Admin Panel</h1>
-        {navLinks.map((link) => (
-          <Link
-            key={link.path}
-            href={link.path}
-            className={`text-sm ${
-              active === link.path
-                ? 'text-blue-600 font-semibold'
-                : 'text-gray-700 hover:text-blue-500'
-            }`}
-          >
-            {link.label}
-          </Link>
-        ))}
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+      <div className="flex bg-gradient-to-r from-[#1e3a8a]/60 to-[#2563eb]/60 backdrop-blur-xl border border-white/20 shadow-xl rounded-full px-6 py-3 space-x-8">
+        {navLinks.map((item) => {
+          const Icon = item.icon;
+          const isActive = pathname === item.path;
+
+          return (
+            <Link
+              key={item.label}
+              href={item.path}
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
+                isActive ? 'bg-blue-500/70 text-white shadow-md' : 'text-blue-200 hover:text-white'
+              }`}
+              title={item.label}
+            >
+              <Icon size={20} />
+            </Link>
+          );
+        })}
       </div>
-      <button
-        onClick={handleLogout}
-        className="text-sm bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
-    </nav>
+    </div>
   );
 };
 

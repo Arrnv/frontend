@@ -1,53 +1,22 @@
-// app/layout.tsx or RootLayout.tsx
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import "react-datepicker/dist/react-datepicker.css";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import 'leaflet/dist/leaflet.css';
 import jsonLdOrganization from '@/data/StructuredData';
+import ClientLayout from './ClientLayout';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
+const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Find Services for Truck Drivers & Fleets | TruckNav",
-  description: "Join TruckNav to discover over 450,000 verified service points for truck drivers and fleet managers across the USA.",
-  metadataBase: new URL("https://your-domain.com"),
-  openGraph: {
-    title: "Find Services for Truck Drivers & Fleets | TruckNav",
-    description:
-      "Explore 450K+ trusted service locations for truckers nationwide through TruckNav’s innovative and feature-rich platform.",
-    url: "https://your-domain.com",
-    siteName: "TruckNav",
-    images: [
-      {
-        url: "/main-img.webp",
-        width: 800,
-        height: 600,
-        alt: "Map with 450,000 service points",
-      },
-    ],
-    type: "website",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
+  title: 'Find Services for Truck Drivers & Fleets | TruckNav',
+  description: 'Join TruckNav to discover over 450,000 verified service points...',
+  metadataBase: new URL('https://your-domain.com'),
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-
   return (
     <html lang="en">
       <head>
@@ -56,8 +25,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
         />
       </head>
-      <body className={``}>
-        {children}
+<body className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]`}>
+
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

@@ -1,3 +1,5 @@
+// File: AdminUsersPage.tsx
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -11,7 +13,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { subDays, format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import AdminNavbar from '@/components/AdminNavbar';
 
+// --- Types ---
 type User = {
   id: string;
   full_name: string;
@@ -30,6 +34,7 @@ type SignupStat = {
   count: number;
 };
 
+// --- Component ---
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [roleStats, setRoleStats] = useState<RoleStat[]>([]);
@@ -52,10 +57,7 @@ export default function AdminUsersPage() {
           axios.get('http://localhost:8000/admin/analytics', { withCredentials: true }),
         ]);
 
-        const parsedRoleStats: RoleStat[] = Object.entries(roleRes.data).map(([role, count]) => ({
-          role,
-          count: Number(count),
-        }));
+        const parsedRoleStats: RoleStat[] = Object.entries(roleRes.data).map(([role, count]) => ({ role, count: Number(count) }));
 
         setUsers(userRes.data);
         setRoleStats(parsedRoleStats);
@@ -97,12 +99,7 @@ export default function AdminUsersPage() {
 
   const exportCSV = () => {
     const header = ['Full Name', 'Email', 'Role', 'Created At'];
-    const rows = users.map(user => [
-      user.full_name,
-      user.email,
-      user.role,
-      format(new Date(user.created_at), 'yyyy-MM-dd')
-    ]);
+    const rows = users.map(user => [user.full_name, user.email, user.role, format(new Date(user.created_at), 'yyyy-MM-dd')]);
     const csv = [header, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     saveAs(blob, 'users.csv');
@@ -123,158 +120,97 @@ export default function AdminUsersPage() {
     const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
     saveAs(blob, 'users.xlsx');
   };
- 
-  if (loading) return <p className="p-4 text-center">Loading users...</p>;
+
+  if (loading) return <p className="text-center text-white mt-10">Loading users...</p>;
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-10">
-      <h1 className="text-2xl font-bold">User Management</h1>
-
-      {/* Export Buttons */}
-      <div className="flex gap-4 mb-4">
-        <button onClick={exportCSV} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-          Export CSV
-        </button>
-        <button onClick={exportExcel} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-          Export Excel
-        </button>
-      </div>
-
-      {/* User Table */}
-      <table className="w-full table-auto border-collapse shadow">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Name</th>
-            <th className="p-2 border">Email</th>
-            <th className="p-2 border">Role</th>
-            <th className="p-2 border">Created</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map(user => (
-            <tr key={user.id} className="text-center">
-              <td className="p-2 border">{user.full_name}</td>
-              <td className="p-2 border">{user.email}</td>
-              <td className="p-2 border">
-                <select
-                  value={user.role}
-                  onChange={e => handleRoleChange(user.id, e.target.value)}
-                  className="border rounded px-2 py-1"
-                >
-                  <option value="visitor">Visitor</option>
-                  <option value="business">Business</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </td>
-              <td className="p-2 border">{format(new Date(user.created_at), 'yyyy-MM-dd')}</td>
-              <td className="p-2 border">
-                <button
-                  onClick={() => handleDelete(user.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Charts Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Users by Role */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">Users by Role</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={roleStats} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="role" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="#6366F1" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Signups Over Time */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">User Signups Over Time</h2>
-          <div className="flex gap-4 items-center mb-4">
-            <div>
-              <label className="text-sm font-medium mr-2">From:</label>
-              <DatePicker selected={startDate} onChange={date => setStartDate(date)} />
+    <div className="bg-[#0E1C2F] min-h-screen text-white pt-[10rem]">
+      <AdminNavbar />
+      <div className="p-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1 flex flex-col gap-8">
+            <div className="bg-white/5 border border-[#2E60C3]/30 backdrop-blur-md rounded-2xl p-6 hover:shadow-[0_0_12px_#2E60C3] transition-shadow duration-300">
+              <h2 className="text-xl font-semibold mb-4">Users by Role</h2>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={roleStats}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="role" stroke="#8B9AB2" />
+                  <YAxis stroke="#8B9AB2" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#48AFFF" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-            <div>
-              <label className="text-sm font-medium mr-2">To:</label>
-              <DatePicker selected={endDate} onChange={date => setEndDate(date)} />
+            <div className="bg-white/5 border border-[#2E60C3]/30 backdrop-blur-md rounded-2xl p-6 hover:shadow-[0_0_12px_#32E3C6] transition-shadow duration-300">
+              <h2 className="text-xl font-semibold mb-4">Signups Over Time</h2>
+              <div className="flex gap-4 mb-4">
+                <DatePicker selected={startDate} onChange={date => setStartDate(date)} className="text-black px-2 py-1 rounded" />
+                <DatePicker selected={endDate} onChange={date => setEndDate(date)} className="text-black px-2 py-1 rounded" />
+              </div>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={filteredSignupStats}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" stroke="#8B9AB2" tickFormatter={tick => format(new Date(tick), 'MMM d')} />
+                  <YAxis stroke="#8B9AB2" />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#32E3C6" strokeWidth={3} dot={{ r: 5 }} activeDot={{ r: 7 }} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={filteredSignupStats} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis
-                dataKey="date"
-                tickFormatter={(tick) => format(new Date(tick), 'MMM d')}
-              />
-              <YAxis allowDecimals={false} />
-              <Tooltip labelFormatter={(value) => `Date: ${format(new Date(value), 'yyyy-MM-dd')}`} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="count"
-                stroke="#10B981"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-                activeDot={{ r: 7 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+          <div className="lg:col-span-2">
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-3xl font-bold">User Management</h1>
+              <div className="flex gap-3">
+                <button onClick={exportCSV} className="bg-[#246BFD] px-4 py-2 rounded text-white hover:brightness-110">Export CSV</button>
+                <button onClick={exportExcel} className="bg-[#32E3C6] px-4 py-2 rounded text-white hover:brightness-110">Export Excel</button>
+              </div>
+            </div>
 
-        {/* Views & Clicks Over Time */}
-        <div className="bg-white p-4 rounded shadow col-span-1 md:col-span-2">
-          <h2 className="text-lg font-semibold mb-4">User Interaction Analytics</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={analyticsStats} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="view" stroke="#3B82F6" name="Views" />
-              <Line type="monotone" dataKey="click" stroke="#F59E0B" name="Clicks" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+            <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+              {users.map(user => (
+                <div
+                  key={user.id}
+                  className="bg-white/5 border border-[#2E60C3]/30 backdrop-blur-lg rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between shadow-md hover:shadow-[0_0_12px_#415CBB] transition duration-300"
+                >
+                  <div className="flex-1">
+                    <p className="text-lg font-semibold text-white">{user.full_name}</p>
+                    <p className="text-sm text-[#8B9AB2] mt-1">{user.email}</p>
+                    <p className="text-sm text-[#8B9AB2] mt-1">
+                      Created on <span className="text-white font-medium">{format(new Date(user.created_at), 'yyyy-MM-dd')}</span>
+                    </p>
+                  </div>
 
-        {/* Role Distribution Pie Chart */}
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">Role Distribution</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={roleStats}
-                dataKey="count"
-                nameKey="role"
-                cx="50%"
-                cy="50%"
-                outerRadius={90}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-              >
-                {roleStats.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={['#6366F1', '#10B981', '#F59E0B'][index % 3]}
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+                  <div className="mt-4 md:mt-0 flex items-center gap-4">
+                    <select
+                      value={user.role}
+                      onChange={e => handleRoleChange(user.id, e.target.value)}
+                      className="bg-[#415CBB]/60 text-white border border-[#2E60C3]/50 rounded-md px-3 py-2 text-sm focus:outline-none hover:shadow-md transition"
+                    >
+                      <option value="visitor">Visitor</option>
+                      <option value="business">Business</option>
+                      <option value="admin">Admin</option>
+                    </select>
+
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="bg-[#FF5E8A] hover:bg-[#e54a74] text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7L5 21M5 7l14 14" />
+                      </svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
+
     </div>
   );
 }

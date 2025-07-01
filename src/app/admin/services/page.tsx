@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import AdminNavbar from '@/components/AdminNavbar';
 
 interface Service {
   id: string;
@@ -91,6 +92,7 @@ const fetchMostViewed = async () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-8">
+      <AdminNavbar/>
       <h1 className="text-2xl font-bold">Service Management</h1>
 
       {/* Filters */}
