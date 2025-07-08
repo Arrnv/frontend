@@ -11,7 +11,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/login', form, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, form, {
         withCredentials: true,
       });
       if (res.data?.user?.role === 'business') {

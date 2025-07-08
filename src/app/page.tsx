@@ -1,7 +1,17 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-import { redirect } from 'next/navigation';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+
 
 export default function Home() {
-  return redirect('/customer/Home');
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/customer/Home');
+  }, [router]);
+
+  return null;
 }

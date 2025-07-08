@@ -1,4 +1,3 @@
-// components/ClientLayout.tsx
 'use client';
 
 import React from 'react';
@@ -9,7 +8,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-blue-700 origin-top scale-y-100 revealer" />
+      <div className="fixed inset-0 z-100 bg-blue-700 origin-top scale-y-100 revealer" />
       {children}
     </>
   );

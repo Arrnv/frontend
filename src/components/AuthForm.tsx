@@ -28,8 +28,8 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' })
 
       const endpoint =
         mode === 'login'
-          ? 'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/login'
-          : 'https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/signup';
+          ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`
+          : `${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`;
 
       const payload =
         mode === 'signup'
@@ -58,7 +58,7 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' })
   };
 
   return (
-    <div className="max-w-md w-full bg-white rounded shadow p-6">
+    <div className="max-w-md w-full rounded shadow p-6 text-black">
       <h2 className="text-2xl font-semibold mb-4 text-center">
         {mode === 'login' ? 'Login' : 'Sign Up'}
       </h2>

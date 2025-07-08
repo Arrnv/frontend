@@ -51,10 +51,10 @@ export default function AdminUsersPage() {
     const fetchUsers = async () => {
       try {
         const [userRes, roleRes, createdRes, analyticsRes] = await Promise.all([
-          axios.get<User[]>('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/users', { withCredentials: true }),
-          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/users/stats/roles', { withCredentials: true }),
-          axios.get<SignupStat[]>('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/users/stats/created', { withCredentials: true }),
-          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/admin/analytics', { withCredentials: true }),
+          axios.get<User[]>(`${process.env.NEXT_PUBLIC_API_URL}/admin/users`, { withCredentials: true }),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/stats/roles`, { withCredentials: true }),
+          axios.get<SignupStat[]>(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/stats/created`, { withCredentials: true }),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics`, { withCredentials: true }),
         ]);
 
         const parsedRoleStats: RoleStat[] = Object.entries(roleRes.data).map(([role, count]) => ({ role, count: Number(count) }));
@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (id: string, newRole: string) => {
     try {
-      await axios.put(`https://phpstack-1383739-5654472.cloudwaysapps.com/admin/users/${id}/role`, { role: newRole }, { withCredentials: true });
+      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${id}/role`, { role: newRole }, { withCredentials: true });
       setUsers(prev => prev.map(user => user.id === id ? { ...user, role: newRole as User['role'] } : user));
     } catch (err) {
       console.error('Failed to update role:', err);
@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this user?')) return;
     try {
-      await axios.delete(`https://phpstack-1383739-5654472.cloudwaysapps.com/admin/users/${id}`, { withCredentials: true });
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/admin/users/${id}`, { withCredentials: true });
       setUsers(prev => prev.filter(user => user.id !== id));
     } catch (err) {
       console.error('Failed to delete user:', err);

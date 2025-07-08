@@ -12,7 +12,7 @@ const SignupPage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/profile', {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/profile`, {
           withCredentials: true, 
         });
         if (res.status === 200) {

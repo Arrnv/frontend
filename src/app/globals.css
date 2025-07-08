@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @tailwind base;
+
+@import 'slick-carousel/slick/slick.css';
+@import 'slick-carousel/slick/slick-theme.css';
+
 :root {
   --background-dark: #0E1C2F;
   --primary-blue: #246BFD;
@@ -47,7 +51,7 @@ section.card h2 {
 
 /* Button Styling */
 button {
-  background-color: var(--primary-blue);
+
   border: none;
   color: var(--white);
   padding: 8px 16px;
@@ -57,9 +61,7 @@ button {
   transition: background 0.3s ease;
 }
 
-button:hover {
-  background-color: var(--lavender-blue);
-}
+
 
 /* Alerts + Feedbacks */
 .alert-card, .feedback-card {
@@ -68,13 +70,11 @@ button:hover {
   border-radius: 16px;
   padding: 16px;
   margin-bottom: 12px;
-  color: var(--white);
+
   backdrop-filter: blur(8px);
 }
 
-.alert-card p, .feedback-card p {
-  margin: 4px 0;
-}
+
 
 /* Analytics Chart Container */
 .analytics-container {
@@ -87,5 +87,5 @@ button:hover {
 /* Headings */
 h1, h2, h3 {
   font-weight: 600;
-  color: var(--white);
+
 }

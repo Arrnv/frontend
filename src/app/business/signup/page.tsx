@@ -12,7 +12,7 @@ const BusinessSignup = () => {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const res = await axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/auth/profile', { withCredentials: true });
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
         if (res.status === 200) {
           setUser(res.data.user);
           router.push('/business/dashboard');

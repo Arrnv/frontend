@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import dynamic from 'next/dynamic';
 
-// Dynamically import Leaflet Map component to prevent SSR issues
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 
 const AddNewServicePage = () => {
@@ -16,7 +15,6 @@ const AddNewServicePage = () => {
     newLabel: '', newCategoryLabel: '', booking_url: '', gallery_urls: '', video_url: '',
   });
   const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
-
   const [bookings, setBookings] = useState([{ id: uuidv4(), type: '', price: '', note: '' }]);
   const [businessId, setBusinessId] = useState('');
   const [placeOptions, setPlaceOptions] = useState<string[]>([]);
@@ -25,17 +23,21 @@ const AddNewServicePage = () => {
   const [serviceCatOptions, setServiceCatOptions] = useState<string[]>([]);
   const [planFeatures, setPlanFeatures] = useState({ allow_booking: false, allow_gallery: false, allow_video: false });
   const [error, setError] = useState('');
-  
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [amenities, setAmenities] = useState<{ id: string; name: string; icon_url: string }[]>([]);
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
   const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [bizRes, servicesRes, placesRes] = await Promise.all([
-          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/my', { withCredentials: true }),
-          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/services'),
-          axios.get('https://phpstack-1383739-5654472.cloudwaysapps.com/api/places'),
+        const [bizRes, servicesRes, placesRes, amenitiesRes] = await Promise.all([
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/businesses/my`, { withCredentials: true }),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`),
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/places`),
+           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/amenities`),
         ]);
 
         setBusinessId(bizRes.data.id);
@@ -52,6 +54,8 @@ const AddNewServicePage = () => {
         setServiceCatOptions([...new Set(services.flatMap(s => s.subcategories?.map(sc => sc.label) || []))]);
         setPlaceOptions([...new Set(places.map(p => p.label))]);
         setPlaceCatOptions([...new Set(places.flatMap(p => p.subcategories?.map(pc => pc.label) || []))]);
+        setAmenities(amenitiesRes.data); // assuming it's correct
+
       } catch (err) {
         console.error('Error fetching business or categories:', err);
         router.push('/business/dashboard');
@@ -76,35 +80,61 @@ const AddNewServicePage = () => {
     e.preventDefault();
     setError('');
 
+    if (!selectedPosition) {
+      setError('Please select a location on the map.');
+      return;
+    }
+
+    form.latitude = String(selectedPosition.lat);
+    form.longitude = String(selectedPosition.lng);
+
     const label = form.label === '__new__' ? form.newLabel : form.label;
     const categoryLabel = form.categoryLabel === '__new__' ? form.newCategoryLabel : form.categoryLabel;
 
-    const payload = {
-      ...form,
-      rating: parseFloat(form.rating),
-      latitude: parseFloat(form.latitude),
-      longitude: parseFloat(form.longitude),
-      tags: form.tags.split(',').map(t => t.trim()),
-      business_id: businessId,
-      placeLabel: form.labelType === 'place' ? label : '',
-      placeCategoryLabel: form.labelType === 'place' ? categoryLabel : '',
-      serviceLabel: form.labelType === 'service' ? label : '',
-      serviceCategoryLabel: form.labelType === 'service' ? categoryLabel : '',
-      booking_url: planFeatures.allow_booking ? form.booking_url : null,
-      gallery_urls: planFeatures.allow_gallery ? form.gallery_urls.split(',').map(i => i.trim()) : [],
-      video_url: planFeatures.allow_video ? form.video_url : null,
-      bookings: planFeatures.allow_booking ? bookings : [],
-    };
+    const formData = new FormData();
+
+    formData.append('name', form.name);
+    formData.append('location', form.location);
+    formData.append('contact', form.contact);
+    formData.append('website', form.website);
+    formData.append('status', form.status);
+    formData.append('timings', form.timings);
+    formData.append('rating', form.rating);
+    formData.append('tags', form.tags);
+    formData.append('latitude', form.latitude);
+    formData.append('longitude', form.longitude);
+    formData.append('business_id', businessId);
+    formData.append('labelType', form.labelType);
+    formData.append('placeLabel', form.labelType === 'place' ? label : '');
+    formData.append('placeCategoryLabel', form.labelType === 'place' ? categoryLabel : '');
+    formData.append('serviceLabel', form.labelType === 'service' ? label : '');
+    formData.append('serviceCategoryLabel', form.labelType === 'service' ? categoryLabel : '');
+    formData.append('selectedAmenities', JSON.stringify(selectedAmenities));
+
+
+    if (planFeatures.allow_booking) formData.append('booking_url', form.booking_url);
+    if (planFeatures.allow_gallery && galleryFiles.length > 0) {
+      galleryFiles.forEach(file => formData.append('galleryFiles', file));
+    }
+    if (planFeatures.allow_video && videoFile) {
+      formData.append('videoFile', videoFile);
+    }
+    if (planFeatures.allow_booking) {
+      formData.append('bookings', JSON.stringify(bookings));
+    }
 
     try {
-      await axios.post('https://phpstack-1383739-5654472.cloudwaysapps.com/businesses/add-detail', payload, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/businesses/add-detail`, formData, {
         withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       router.push('/business/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to add new service');
     }
   };
+
+
 
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-4 p-4">
@@ -114,13 +144,34 @@ const AddNewServicePage = () => {
         <input key={field} name={field} placeholder={field} className="w-full p-2 border rounded" onChange={handleChange} />
       ))}
 
-      {/* Map Picker */}
       <div>
         <h3 className="font-semibold">Select Location on Map</h3>
         <MapPicker
-                selectedPosition={selectedPosition}
-                onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
-            />
+          selectedPosition={selectedPosition}
+          onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
+        />
+      </div>
+      <div className="border p-4 rounded space-y-2">
+        <h2 className="font-semibold text-lg">Select Amenities</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {amenities.map(a => (
+            <label key={a.id} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                value={a.id}
+                checked={selectedAmenities.includes(a.id)}
+                onChange={e => {
+                  if (e.target.checked)
+                    setSelectedAmenities(prev => [...prev, a.id]);
+                  else
+                    setSelectedAmenities(prev => prev.filter(id => id !== a.id));
+                }}
+              />
+              <img src={a.icon_url} alt={a.name} className="w-5 h-5" />
+              <span>{a.name}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       {planFeatures.allow_booking && bookings.map(b => (
@@ -135,8 +186,24 @@ const AddNewServicePage = () => {
       ))}
       {planFeatures.allow_booking && <button type="button" onClick={addBooking} className="text-blue-600 underline mt-2">+ Add another booking</button>}
 
-      {planFeatures.allow_gallery && <input name="gallery_urls" placeholder="Gallery URLs (comma-separated)" className="w-full p-2 border rounded" onChange={handleChange} />}
-      {planFeatures.allow_video && <input name="video_url" placeholder="Video URL" className="w-full p-2 border rounded" onChange={handleChange} />}
+      {planFeatures.allow_gallery && (
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          onChange={e => setGalleryFiles(Array.from(e.target.files || []))}
+          className="w-full p-2 border rounded"
+        />
+      )}
+
+      {planFeatures.allow_video && (
+        <input
+          type="file"
+          accept="video/*"
+          onChange={e => setVideoFile(e.target.files?.[0] || null)}
+          className="w-full p-2 border rounded"
+        />
+      )}
 
       <div className="border p-4 rounded space-y-2">
         <h2 className="font-semibold text-lg">Categorization</h2>
@@ -169,3 +236,7 @@ const AddNewServicePage = () => {
 };
 
 export default AddNewServicePage;
+function setAmenities(data: any) {
+  throw new Error('Function not implemented.');
+}
+
