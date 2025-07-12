@@ -88,16 +88,17 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
 
 
-useEffect(() => {
-  const subcategory = searchParams.get('subcategory');
-  const type = searchParams.get('type');
+const type = searchParams.get('type');
+const subcategory = searchParams.get('subcategory');
 
+useEffect(() => {
   if (subcategory && type && !activeCategory) {
     setActiveCategory({ type, id: subcategory });
-    setSelectedSubcategories([subcategory]); // ✅ Needed for fetching details
+    setSelectedSubcategories([subcategory]);
     handleDetailClick(null);
   }
-}, [searchParams.get('subcategory'), searchParams.get('type')]);
+}, [subcategory, type, activeCategory]);
+
 
 
   const { isLoaded } = useLoadScript({
