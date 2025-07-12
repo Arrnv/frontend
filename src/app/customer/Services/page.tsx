@@ -11,7 +11,8 @@ import { gsap } from 'gsap';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import Slider from 'react-slick';
-
+import ParamsInitializer from '@/components/ParamsInitializer';
+import { Suspense } from 'react';
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
 
 
@@ -86,18 +87,6 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
   const drawerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-
-
-const type = searchParams.get('type');
-const subcategory = searchParams.get('subcategory');
-
-useEffect(() => {
-  if (subcategory && type && !activeCategory) {
-    setActiveCategory({ type, id: subcategory });
-    setSelectedSubcategories([subcategory]);
-    handleDetailClick(null);
-  }
-}, [subcategory, type, activeCategory]);
 
 
 
@@ -290,7 +279,17 @@ return (
 
 
         </div>
-
+<Suspense fallback={null}>
+  <ParamsInitializer
+    onInit={(type, subcategory) => {
+      if (!activeCategory) {
+        setActiveCategory({ type, id: subcategory });
+        setSelectedSubcategories([subcategory]);
+        handleDetailClick(null);
+      }
+    }}
+  />
+</Suspense>
         {/* Main Content */}
         <div className="w-2/5 p-6 overflow-y-auto relative">
           {activeCategory ? (
