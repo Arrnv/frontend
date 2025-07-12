@@ -23,7 +23,7 @@
 /* Base Layout */
 body {
   font-family: var(--font-family);
-  background-color: var(--background-dark);
+  background-color: var(--white);
   color: var(--white);
   margin: 0;
   padding: 0;

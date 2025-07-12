@@ -5,9 +5,9 @@ import {
   GoogleMap,
   DirectionsRenderer,
   Marker,
+  OverlayView,
+  useJsApiLoader,
 } from '@react-google-maps/api';
-import { OverlayView } from '@react-google-maps/api';
-
 
 const containerStyle = {
   width: '100%',
@@ -25,8 +25,6 @@ type Detail = {
   place_category?: { icon_url?: string };
 };
 
-
-
 type Props = {
   origin: LatLng;
   details: Detail[];
@@ -34,6 +32,11 @@ type Props = {
 };
 
 const MapSection = ({ origin, details, selectedDetail }: Props) => {
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    libraries: ['places', 'geometry'],
+  });
+
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [steps, setSteps] = useState<google.maps.DirectionsStep[]>([]);
   const [userPosition, setUserPosition] = useState<LatLng>(origin);
@@ -41,12 +44,10 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
   const spokenSteps = useRef<Set<number>>(new Set());
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  // Watch real-time location
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
-        const newPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setUserPosition(newPos);
+        setUserPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
       (err) => {
         console.warn('Failed to track position:', err);
@@ -57,9 +58,8 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // Handle directions if a detail is selected
   useEffect(() => {
-    if (!selectedDetail || !selectedDetail.latitude || !selectedDetail.longitude) {
+    if (!isLoaded || !selectedDetail || !selectedDetail.latitude || !selectedDetail.longitude) {
       setDirections(null);
       setSteps([]);
       return;
@@ -86,9 +86,8 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
         }
       }
     );
-  }, [selectedDetail, userPosition]);
+  }, [isLoaded, selectedDetail, userPosition]);
 
-  // Voice navigation logic
   useEffect(() => {
     if (!steps.length) return;
 
@@ -119,19 +118,20 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     return div.textContent || div.innerText || '';
   };
 
-  // Fit bounds to all markers (if no selectedDetail)
   useEffect(() => {
-    if (mapRef.current && details.length && !selectedDetail) {
-      const bounds = new google.maps.LatLngBounds();
-      details.forEach((d) => {
-        if (d.latitude && d.longitude) {
-          bounds.extend({ lat: d.latitude, lng: d.longitude });
-        }
-      });
-      bounds.extend(origin); // include user
-      mapRef.current.fitBounds(bounds);
-    }
+    if (!mapRef.current || !details.length || selectedDetail) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    details.forEach((d) => {
+      if (d.latitude && d.longitude) {
+        bounds.extend({ lat: d.latitude, lng: d.longitude });
+      }
+    });
+    bounds.extend(origin);
+    mapRef.current.fitBounds(bounds);
   }, [mapRef, details, origin, selectedDetail]);
+
+  if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <div className="h-full w-full relative">
@@ -139,9 +139,15 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
         mapContainerStyle={containerStyle}
         center={userPosition}
         zoom={15}
-        onLoad={(map) => void (mapRef.current = map)}
+        onLoad={(map) => {
+          mapRef.current = map;
+        }}
       >
-        <Marker position={userPosition} label="You" icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png" />
+        <Marker
+          position={userPosition}
+          label="You"
+          icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+        />
 
         {!selectedDetail &&
           details.map(
@@ -163,17 +169,13 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
                       className="w-10 h-10 rounded-full border-2 border-black shadow-md object-contain bg-white"
                       alt={d.name}
                     />
-
-                    
                     <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
                       {d.name}
                     </div>
                   </div>
                 </OverlayView>
-
               )
           )}
-
 
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>

@@ -70,7 +70,7 @@ type Review = {
 const Page = () => {
   const [details, setDetails] = useState<Detail[]>([]);
   const [selectedDetail, setSelectedDetail] = useState<Detail | null>(null);
-  const [activeCategory, setActiveCategory] = useState<{ type: string; id: string } | null>(null);
+const [activeCategory, setActiveCategory] = useState<{ type: string; id: string | string[] } | null>(null);
   const [loading, setLoading] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -85,16 +85,20 @@ const Page = () => {
   const cardRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
 
-  useEffect(() => {
-    const subcategory = searchParams.get('subcategory');
-    const type = searchParams.get('type');
 
-    if (subcategory && type && !activeCategory) {
-      setActiveCategory({ type, id: subcategory });
-      handleDetailClick(null);
-    }
-  }, [searchParams]);
+useEffect(() => {
+  const subcategory = searchParams.get('subcategory');
+  const type = searchParams.get('type');
+
+  if (subcategory && type && !activeCategory) {
+    setActiveCategory({ type, id: subcategory });
+    setSelectedSubcategories([subcategory]); // ✅ Needed for fetching details
+    handleDetailClick(null);
+  }
+}, [searchParams.get('subcategory'), searchParams.get('type')]);
+
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -160,16 +164,19 @@ const Page = () => {
     const { type, id } = activeCategory;
     const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
     const fetchDetails = async () => {
-      setLoading(true);
+      if (!selectedSubcategories.length || !type) return;
+      const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
+
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}/${id}`);
-        setDetails(res.data); 
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}?ids=${selectedSubcategories.join(',')}`
+        );
+        setDetails(res.data);
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+        console.error('❌ Failed to fetch details for multiple subcategories:', err);
       }
     };
+
     fetchDetails();
   }, [activeCategory]);
 
@@ -270,13 +277,17 @@ return (
       <Navbar />
       <div className="flex flex-1 overflow-visible">
         <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
-          <ServiceNav
-            selectedCategory={null}
-            onSelect={(type, id) => {
-              setActiveCategory({ type, id });
-              handleDetailClick(null);
-            }}
-          />
+        <ServiceNav
+          selectedCategory={null}
+          onSelect={(type, ids) => {
+            const firstId = Array.isArray(ids) ? ids[0] : ids;
+            setActiveCategory({ type, id: firstId });
+            setSelectedSubcategories(ids);
+            handleDetailClick(null);
+          }}
+        />
+
+
         </div>
 
         {/* Main Content */}

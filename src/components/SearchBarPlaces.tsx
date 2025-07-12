@@ -8,10 +8,9 @@ type Category = {
   id: string;
   label: string;
   icon_url: string;
-  type: 'services' | 'places';
 };
 
-const SearchBar = () => {
+const SearchBarPlaces = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filtered, setFiltered] = useState<Category[]>([]);
@@ -20,24 +19,23 @@ const SearchBar = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/search/categories`);
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/search/places`);
         setCategories(res.data);
       } catch (err) {
-        console.error('Failed to fetch categories', err);
+        console.error('Failed to fetch place categories', err);
       }
     };
     fetchCategories();
   }, []);
 
   useEffect(() => {
-    if (searchTerm === '') return setFiltered([]);
     const term = searchTerm.toLowerCase();
-    const matched = categories.filter((c) => c.label.toLowerCase().includes(term));
-    setFiltered(matched);
+    const filtered = categories.filter(c => c.label.toLowerCase().includes(term));
+    setFiltered(term ? filtered : []);
   }, [searchTerm]);
 
   const handleSelect = (category: Category) => {
-    router.push(`/customer/Services?type=${category.type}&subcategory=${category.id}`);
+    router.push(`/customer/Services?type=places&subcategory=${category.id}`);
   };
 
   return (
@@ -45,7 +43,7 @@ const SearchBar = () => {
       <input
         type="text"
         value={searchTerm}
-        placeholder="Search places or services..."
+        placeholder="Search places..."
         onChange={(e) => setSearchTerm(e.target.value)}
         className="w-full px-4 py-2 border rounded-lg"
       />
@@ -59,7 +57,6 @@ const SearchBar = () => {
             >
               {cat.icon_url && <img src={cat.icon_url} className="w-5 h-5" />}
               <span>{cat.label}</span>
-              <span className="ml-auto text-xs text-gray-400">({cat.type})</span>
             </li>
           ))}
         </ul>
@@ -68,4 +65,4 @@ const SearchBar = () => {
   );
 };
 
-export default SearchBar;
+export default SearchBarPlaces;

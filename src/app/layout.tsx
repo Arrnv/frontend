@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrganization) }}
         />
       </head> 
-      <body className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-gradient-to-br `}>
 
        {children}
       </body>

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import React from 'react';
-import Navbar from '@/components/Navbar';
 import ClientLayout from '@/app/ClientLayout';
 import { gsap } from 'gsap';
 import ServiceNav from '@/components/ServiceNav';
-import SearchBar from '@/components/Search';
+import SearchBarServices from '@/components/SearchBarServices';
+import SearchBarPlaces from '@/components/SearchBarPlaces';
 
 const faqs = [
   {
@@ -45,10 +45,10 @@ const Page = () => {
       <ServiceNav selectedCategory={null} onSelect={function (section: 'services' | 'places', subcategoryId: string): void {
         throw new Error('Function not implemented.');
       } } />
-      <div className="min-h-screen bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] py-12 px-6 text-white">
+      <div className="min-h-screen  py-12 px-6 text-white">
         <div className="max-w-7xl mx-auto">
           
-        <section className="relative bg-gradient-to-br from-white/5 to-white/0 border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
+        <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
           <div className="flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             
             <div className="w-full md:w-1/2 text-center md:text-left">
@@ -72,11 +72,18 @@ const Page = () => {
           </div>
         </section>
 
-        <div className='m-[4rem]'>
-          <SearchBar />
+        <div className="flex flex-row bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] p-[3rem] rounded-3xl justify-center gap-6 m-8">
+          <div className='flex flex-col items-center gap-6 '>
+              <h1 className="text-2xl font-bold">Search Services</h1>
+              <SearchBarServices />
+          </div>
+          <div className='flex flex-col items-center gap-6 '>
+              <h1 className="text-2xl font-bold">Search Places</h1>
+              <SearchBarPlaces />
+          </div>
         </div>
         
-        <section className="relative bg-white/5 border border-[#2E60C3] backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
+        <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
 
             <div className="w-full lg:w-1/2 text-center lg:text-left">
@@ -121,7 +128,7 @@ const Page = () => {
           </div>
         </section>
 
-        <section className="relative bg-gradient-to-br from-white/5 to-white/0 border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
+        <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
           <div className="flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
@@ -149,7 +156,7 @@ const Page = () => {
 
           </div>
         </section>
-        <section className="relative bg-gradient-to-br from-white/5 to-white/0 border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
+        <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
           <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 text-center md:text-left">
               <p className="text-[#F15A24] font-semibold text-sm uppercase tracking-wide mb-2">
@@ -177,7 +184,7 @@ const Page = () => {
 
           </div>
         </section>
-        <section className="relative bg-gradient-to-br from-white/5 to-white/0 border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
+        <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
           <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 flex justify-center relative max-w-lg rounded-lg">
               <img
@@ -202,7 +209,7 @@ const Page = () => {
             </div>            
           </div>
         </section>
-        <section className="glass-card rounded-3xl bg-white/5 border border-[#48AFFF] backdrop-blur-lg p-10 mb-16">
+        <section className=" bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] glass-card rounded-3xl bg-white/5 border border-[#48AFFF] backdrop-blur-lg p-10 mb-16">
             <h2 className="text-3xl font-bold mb-6">
               Got Questions? <span className="text-[#e95800]">We Got Answers</span>
             </h2>
@@ -232,8 +239,8 @@ const Page = () => {
             ))}
           </section>
 
-          <div className="text-center">
-            <button className="bg-[#e95800] text-white px-6 py-3 rounded-lg shadow-md hover:brightness-110 transition-all">
+          <div className="text-center ">
+            <button className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white px-6 py-3 rounded-lg shadow-md hover:brightness-110 transition-all">
               Explore TruckNav
             </button>
           </div>
