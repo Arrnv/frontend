@@ -42,7 +42,7 @@ const Page = () => {
 
   return (
     <ClientLayout>
-      <ServiceNav selectedCategory={null} onSelect={function (section: 'services' | 'places', subcategoryId: string): void {
+      <ServiceNav selectedCategory={null}  onSelect={function (section: 'services' | 'places', subcategoryIds: string[]):void {
         throw new Error('Function not implemented.');
       } } />
       <div className="min-h-screen  py-12 px-6 text-white">
