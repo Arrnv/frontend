@@ -9,7 +9,6 @@ import ClientLayout from '@/app/ClientLayout';
 import {  useLoadScript } from '@react-google-maps/api';
 import { gsap } from 'gsap';
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
 import Slider from 'react-slick';
 import ParamsInitializer from '@/components/ParamsInitializer';
 import { Suspense } from 'react';
@@ -85,7 +84,6 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
   const [directions, setDirections] = useState<any>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
-  const searchParams = useSearchParams();
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
 
 
