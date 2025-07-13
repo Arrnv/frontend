@@ -124,7 +124,7 @@ export default function AdminUsersPage() {
   if (loading) return <p className="text-center text-white mt-10">Loading users...</p>;
 
   return (
-    <div className="bg-[#0E1C2F] min-h-screen text-white pt-[10rem]">
+    <div className="bg-[#0E1C2F] min-h-screen text-white pt-[10rem] bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <AdminNavbar />
       <div className="p-6 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

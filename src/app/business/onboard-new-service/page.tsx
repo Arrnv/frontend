@@ -137,7 +137,7 @@ const AddNewServicePage = () => {
 
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-4 p-4">
+    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-4 p-4 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <h1 className="text-2xl font-bold mb-4">Add New Service</h1>
 
       {["name", "location", "contact", "website", "status", "timings", "rating", "tags"].map(field => (

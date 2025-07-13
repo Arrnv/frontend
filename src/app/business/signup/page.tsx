@@ -23,7 +23,7 @@ const BusinessSignup = () => {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       {!user ? (
         <AuthForm
           mode="signup"

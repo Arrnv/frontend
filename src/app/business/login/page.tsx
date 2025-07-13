@@ -25,7 +25,7 @@ export default function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 space-y-4 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <h2 className="text-2xl font-bold text-center">Business Login</h2>
       <input
         type="email"

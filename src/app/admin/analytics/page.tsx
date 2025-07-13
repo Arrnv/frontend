@@ -142,7 +142,7 @@ export default function AdminAnalyticsPage() {
   };
 
   return (
-    <div className="bg-[#0E1C2F] min-h-screen text-white">
+    <div className="bg-[#0E1C2F] min-h-screen text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <AdminNavbar />
       <div className="px-6 py-10 max-w-7xl mx-auto space-y-12">
         <h1 className="text-4xl font-bold">Analytics Dashboard</h1>

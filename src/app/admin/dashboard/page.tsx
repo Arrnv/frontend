@@ -48,10 +48,10 @@ export default function AdminDashboardPage() {
     fetchData();
   }, []);
 
-  if (loading) return <div className="text-center p-8 text-white">Loading...</div>;
+  if (loading) return <div className="text-center p-8 text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">Loading...</div>;
 
   return (
-    <main className="bg-[#0E1C2F] min-h-screen text-white">
+    <main className="bg-[#0E1C2F] min-h-screen text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <AdminNavbar />
       <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
         <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>

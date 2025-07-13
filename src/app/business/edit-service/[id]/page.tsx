@@ -65,7 +65,7 @@ export default function EditServicePage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded mt-6">
+    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded mt-6 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <h1 className="text-2xl font-bold mb-4">Edit Service</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         {['name', 'location', 'contact', 'website', 'timings', 'status', 'tags', 'rating'].map((field) => (

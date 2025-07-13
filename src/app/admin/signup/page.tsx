@@ -39,7 +39,7 @@ export default function AdminSignupPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 mt-10 bg-white rounded shadow">
+    <div className="max-w-md mx-auto p-6 mt-10 bg-white rounded shadow bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <h1 className="text-2xl font-bold mb-4 text-center">Admin Signup</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>

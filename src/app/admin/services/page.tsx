@@ -91,7 +91,7 @@ const fetchMostViewed = async () => {
     }, {});
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
+    <div className="p-6 max-w-6xl mx-auto space-y-8 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <AdminNavbar/>
       <h1 className="text-2xl font-bold">Service Management</h1>
 

@@ -87,7 +87,7 @@ export default function AdminBusinessPage() {
   });
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-10">
+    <div className="p-6 max-w-6xl mx-auto space-y-10 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <AdminNavbar />
       <h1 className="text-2xl font-bold">Business Management</h1>
 

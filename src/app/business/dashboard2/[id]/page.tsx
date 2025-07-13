@@ -82,7 +82,7 @@ export default function ServiceDashboardPage({ params }: { params: Promise<{ id:
   if (!mounted || loading) return <p className="text-center p-6">Loading service dashboard...</p>;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto text-white" style={{ fontFamily: 'var(--font-family)' }}>
+    <div className="p-6 max-w-7xl mx-auto text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]" style={{ fontFamily: 'var(--font-family)' }}>
       <h1 className="text-4xl font-bold mb-8">Service Dashboard: {service?.name}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">

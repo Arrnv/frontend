@@ -86,7 +86,7 @@ const BusinessOnlyOnboarding = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen px-4">
+    <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <div className="w-full max-w-2xl p-8 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/20">
         <h1 className="text-3xl font-semibold text-white mb-6 text-center">✨ Onboard Your Business</h1>
 
