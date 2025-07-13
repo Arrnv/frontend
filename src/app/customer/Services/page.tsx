@@ -1,20 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import axios from 'axios';
-import ServiceNav from '@/components/ServiceNav';
+import { useLoadScript } from '@react-google-maps/api';
+import dynamic from 'next/dynamic';
+import { gsap } from 'gsap';
+import Slider from 'react-slick';
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import Navbar from '@/components/Navbar';
 import ClientLayout from '@/app/ClientLayout';
-import {  useLoadScript } from '@react-google-maps/api';
-import { gsap } from 'gsap';
-import dynamic from 'next/dynamic';
-import Slider from 'react-slick';
+import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
-import { Suspense } from 'react';
+
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
-
-
 
 const libraries: any = ['places'];
 
@@ -44,11 +42,7 @@ type Detail = {
   price?: number;
   bookings?: Booking[];
   gallery_urls?: string[];
-  businesses?: {
-    id: string;
-    name: string;
-    logo_url?: string;
-  };
+  businesses?: { id: string; name: string; logo_url?: string };
   detail_amenities?: {
     amenities: {
       id: string;
@@ -56,7 +50,6 @@ type Detail = {
       icon_url: string;
     };
   }[];
-
 };
 
 type Review = {
@@ -70,8 +63,12 @@ type Review = {
 const Page = () => {
   const [details, setDetails] = useState<Detail[]>([]);
   const [selectedDetail, setSelectedDetail] = useState<Detail | null>(null);
-const [activeCategory, setActiveCategory] = useState<{ type: string; id: string | string[] } | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<{ type: string; id: string | string[] } | null>(null);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [selectedCity, setSelectedCity] = useState<string>(''); // ✅ For filtering by city
+
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [directions, setDirections] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({ comment: '', rating: 0 });
@@ -80,13 +77,9 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
   const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const [bookingOptions, setBookingOptions] = useState<{ id: string; type: string; price: number; note?: string }[]>([]);
   const [selectedOptionId, setSelectedOptionId] = useState<string>('');
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [directions, setDirections] = useState<any>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+
   const drawerRef = useRef<HTMLDivElement>(null);
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-
-
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
@@ -94,46 +87,11 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
   });
 
   useEffect(() => {
-    if (!drawerRef.current) return;
-    if (selectedDetail) {
-      drawerRef.current.style.display = 'block';
-      gsap.fromTo(drawerRef.current, { x: '-100%' }, { x: 0, duration: 0.5, ease: 'power3.out' });
-    } else {
-      gsap.to(drawerRef.current, {
-        x: '-100%',
-        duration: 0.4,
-        ease: 'power3.in',
-        onComplete: () => {
-          if (drawerRef.current) drawerRef.current.style.display = 'none';
-        },
-      });
-    }
-  }, [selectedDetail]);
-
-  useEffect(() => {
-    if (!cardRef.current || !selectedDetail) return;
-    gsap.fromTo(
-      cardRef.current,
-      { opacity: 0, y: 40, scale: 0.98 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'power3.out' }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setUserLocation({ lat: 18.5204, lng: 73.8567 }) // Fallback: Pune
     );
-  }, [selectedDetail?.id]);
-
-  useEffect(() => {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const loc = { lat: position.coords.latitude, lng: position.coords.longitude };
-      console.log("📍 User Location:", loc);
-      setUserLocation(loc);
-    },
-    (err) => {
-      console.warn('Geolocation permission denied or unavailable', err);
-      // Set fallback location (example: Pune)
-      setUserLocation({ lat: 18.5204, lng: 73.8567 });
-    }
-  );
-}, []);
-
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -147,80 +105,85 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
     fetchProfile();
   }, []);
 
+  // ✅ Fetch and Filter Details
   useEffect(() => {
-    if (!activeCategory) return;
-    const { type, id } = activeCategory;
-    const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
     const fetchDetails = async () => {
-      if (!selectedSubcategories.length || !type) return;
-      const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
+      if (!activeCategory || !selectedSubcategories.length) return;
+      const { type } = activeCategory;
+      const normalizedType = type === 'services' ? 'service' : type;
 
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}?ids=${selectedSubcategories.join(',')}`
         );
-        setDetails(res.data);
+
+        const filtered = selectedCity
+          ? res.data.filter((d: Detail) =>
+              d.location?.toLowerCase().includes(selectedCity.toLowerCase())
+            )
+          : res.data;
+
+        setDetails(filtered);
       } catch (err) {
-        console.error('❌ Failed to fetch details for multiple subcategories:', err);
+        console.error('Failed to fetch details:', err);
       }
     };
 
     fetchDetails();
-  }, [activeCategory]);
-
+  }, [activeCategory, selectedSubcategories, selectedCity]);
 
   useEffect(() => {
     if (!selectedDetail) return;
+
     const fetchOptions = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/details/${selectedDetail.id}/booking-options`);
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/details/${selectedDetail.id}/booking-options`
+        );
         setBookingOptions(res.data || []);
         if (res.data?.[0]?.id) setSelectedOptionId(res.data[0].id);
       } catch (err) {
         console.error('Failed to fetch booking options', err);
       }
     };
+
     fetchOptions();
   }, [selectedDetail]);
 
   useEffect(() => {
-    if (userLocation && selectedDetail?.latitude && selectedDetail?.longitude) {
-      const directionsService = new google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: userLocation,
-          destination: { lat: selectedDetail.latitude, lng: selectedDetail.longitude },
-          travelMode: google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === 'OK') setDirections(result);
-          else console.error(`Directions request failed due to ${status}`);
-        }
-      );
-    }
-  }, [userLocation, selectedDetail]);
+    if (!selectedDetail || !userLocation) return;
+
+    const directionsService = new google.maps.DirectionsService();
+    directionsService.route(
+      {
+        origin: userLocation,
+        destination: { lat: selectedDetail.latitude!, lng: selectedDetail.longitude! },
+        travelMode: google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === 'OK') setDirections(result);
+      }
+    );
+  }, [selectedDetail, userLocation]);
 
   const handleDetailClick = async (detail: Detail | null) => {
     setSelectedDetail(detail);
     setReviews([]);
     if (!detail) return;
+
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`, { detailId: detail.id, eventType: 'view' }, { withCredentials: true });
-      const reviewRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${detail.id}`, { withCredentials: true });
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`,
+        { detailId: detail.id, eventType: 'view' },
+        { withCredentials: true }
+      );
+
+      const reviewRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${detail.id}`, {
+        withCredentials: true,
+      });
       setReviews(reviewRes.data);
     } catch (err) {
       console.error('Error fetching detail or reviews', err);
-    }
-  };
-
-  const handleReviewSubmit = async () => {
-    if (!selectedDetail) return;
-    try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedDetail.id}`, newReview, { withCredentials: true });
-      setReviews((prev) => [...prev, res.data]);
-      setNewReview({ comment: '', rating: 0 });
-    } catch (err) {
-      console.error('Failed to submit review', err);
     }
   };
 
@@ -228,28 +191,25 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
     if (!selectedOptionId || !selectedDetail) return;
     setIsBooking(true);
     setBookingStatus(null);
-    try {
-      // Optional: track click
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`, {
-        detailId: selectedDetail.id,
-        eventType: 'click',
-      }, { withCredentials: true });
 
-      // Create Stripe Checkout session
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`,
+        { detailId: selectedDetail.id, eventType: 'click' },
+        { withCredentials: true }
+      );
+
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/create-checkout-session`,
         { option_id: selectedOptionId, note },
         { withCredentials: true }
       );
 
-      const { url } = res.data;
-
-      if (url) {
-        window.location.href = url; 
+      if (res.data.url) {
+        window.location.href = res.data.url;
       } else {
         setBookingStatus('Error: Invalid session URL');
       }
-
     } catch (err) {
       console.error(err);
       setBookingStatus('Booking failed.');
@@ -257,88 +217,94 @@ const [activeCategory, setActiveCategory] = useState<{ type: string; id: string 
       setIsBooking(false);
     }
   };
+  const handleReviewSubmit = async () => {
+  if (!selectedDetail || !newReview.comment || newReview.rating === 0) return;
+
+  try {
+    const res = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/create`,
+      {
+        detail_id: selectedDetail.id,
+        comment: newReview.comment,
+        rating: newReview.rating,
+      },
+      { withCredentials: true }
+    );
+
+    setReviews((prev) => [...prev, res.data]);
+    setNewReview({ comment: '', rating: 0 });
+  } catch (err) {
+    console.error('Error submitting review:', err);
+  }
+};
 
 
-return (
-  <ClientLayout>
-    <div className="flex h-screen bg-[#0E1C2F]">
-      <Navbar />
-      <div className="flex flex-1 overflow-visible">
-        <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
-        <ServiceNav
-          selectedCategory={null}
-          onSelect={(type, ids) => {
-            const firstId = Array.isArray(ids) ? ids[0] : ids;
-            setActiveCategory({ type, id: firstId });
-            setSelectedSubcategories(ids);
-            handleDetailClick(null);
-          }}
-        />
+  return (
+    <ClientLayout>
+      <div className="flex h-screen bg-[#0E1C2F]">
+        <Navbar />
+        <div className="flex flex-1 overflow-visible">
+          {/* Left Sidebar */}
+          <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
+            <ServiceNav
+              selectedCategory={null}
+              onSelect={(type, ids) => {
+                const firstId = Array.isArray(ids) ? ids[0] : ids;
+                setActiveCategory({ type, id: firstId });
+                setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
+                handleDetailClick(null);
+              }}
+            />
+          </div>
 
+          {/* ParamsInitializer reads from URL */}
+          <Suspense fallback={null}>
+            <ParamsInitializer
+              onInit={(type, subcategory, location) => {
+                setActiveCategory({ type, id: subcategory });
+                setSelectedSubcategories([subcategory]);
+                setSelectedCity(location || '');
+                handleDetailClick(null);
+              }}
+            />
+          </Suspense>
 
-        </div>
-<Suspense fallback={null}>
-  <ParamsInitializer
-    onInit={(type, subcategory) => {
-      if (!activeCategory) {
-        setActiveCategory({ type, id: subcategory });
-        setSelectedSubcategories([subcategory]);
-        handleDetailClick(null);
-      }
-    }}
-  />
-</Suspense>
-        {/* Main Content */}
-        <div className="w-2/5 p-6 overflow-y-auto relative">
-          {activeCategory ? (
-            <>
-              <h1 className="text-2xl font-bold capitalize mb-4 text-[#FFFFFF]">
-                Entries for {activeCategory.type}
-              </h1>
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                <div className="flex flex-col gap-4">
-                  {details.map((detail) => (
-                    <div
-                      key={detail.id}
-                      className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#415CBB] backdrop-blur-lg hover:scale-105 transform transition duration-300"
-                      onClick={() => handleDetailClick(detail)}
-                    >
-                      {/* ✅ Show logo if available */}
-                      {detail.businesses?.logo_url && (
-                        <img
-                          src={detail.businesses.logo_url}
-                          alt="Business logo"
-                          className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
-                        />
-                      )}
-                      <h2 className="font-semibold text-white">{detail.name}</h2>
-                      <p className="text-sm text-[#8B9AB2]">Rating: {detail.rating ?? 'N/A'}</p>
-                      <p className="text-sm text-[#8B9AB2]">Status: {detail.status ?? 'N/A'}</p>
-                      
-                    </div>
-                  ))}
+          {/* Center Content */}
+          <div className="w-2/5 p-6 overflow-y-auto relative">
+            <h1 className="text-2xl font-bold capitalize mb-4 text-[#FFFFFF]">
+              {activeCategory ? `Entries for ${activeCategory.type}` : 'Welcome, customer!'}
+            </h1>
+            <div className="flex flex-col gap-4">
+              {details.map((detail) => (
+                <div
+                  key={detail.id}
+                  onClick={() => handleDetailClick(detail)}
+                  className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#415CBB] backdrop-blur-lg hover:scale-105 transition"
+                >
+                  {detail.businesses?.logo_url && (
+                    <img
+                      src={detail.businesses.logo_url}
+                      alt="logo"
+                      className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
+                    />
+                  )}
+                  <h2 className="font-semibold text-white">{detail.name}</h2>
+                  <p className="text-sm text-[#8B9AB2]">Rating: {detail.rating ?? 'N/A'}</p>
+                  <p className="text-sm text-[#8B9AB2]">Status: {detail.status ?? 'N/A'}</p>
                 </div>
-              )}
-            </>
-          ) : (
-            <div>
-              <h1 className="text-xl font-bold text-white">Welcome, customer!</h1>
-              <p className="text-[#8B9AB2]">Select a category to get started.</p>
+              ))}
             </div>
-          )}
 
-          {/* Drawer */}
-          <div
-            ref={drawerRef}
-            className="absolute top-0 left-0 w-full h-full bg-[#1B2944] text-white p-6 shadow-2xl overflow-y-auto rounded-r-2xl z-50 border border-[#2E60C3]/60"
-          >
-            <button className="absolute top-3 right-4 text-xl" onClick={() => setSelectedDetail(null)}>
-              ×
-            </button>
-
-            {selectedDetail && (
+            {/* Drawer: Detail View */}
+            <div
+              ref={drawerRef}
+              className="absolute top-0 left-0 w-full h-full bg-[#1B2944] text-white p-6 shadow-2xl overflow-y-auto rounded-r-2xl z-50 border border-[#2E60C3]/60"
+              style={{ display: selectedDetail ? 'block' : 'none' }}
+            >
+              <button className="absolute top-3 right-4 text-xl" onClick={() => setSelectedDetail(null)}>
+                ×
+              </button>
+              {selectedDetail && (
               <>
                 {/* ✅ Show logo in drawer */}
                 {selectedDetail.businesses?.logo_url && (

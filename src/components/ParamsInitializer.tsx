@@ -1,23 +1,18 @@
 'use client';
-
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-const ParamsInitializer = ({ onInit }: { onInit: (type: string, subcategory: string) => void }) => {
-  const searchParams = useSearchParams();
-  const [initialized, setInitialized] = useState(false);
+const ParamsInitializer = ({ onInit }: { onInit: (type: string, subcategory: string, location: string) => void }) => {
+  const params = useSearchParams();
+  const type = params.get('type');
+  const subcategory = params.get('subcategory');
+  const location = params.get('location') || '';
 
   useEffect(() => {
-    if (initialized) return;
-
-    const type = searchParams.get('type');
-    const subcategory = searchParams.get('subcategory');
-
     if (type && subcategory) {
-      onInit(type, subcategory);
-      setInitialized(true);
+      onInit(type, subcategory, location);
     }
-  }, [searchParams, initialized, onInit]);
+  }, [type, subcategory, location]);
 
   return null;
 };

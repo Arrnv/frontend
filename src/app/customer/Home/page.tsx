@@ -45,7 +45,7 @@ const Page = () => {
       <ServiceNav selectedCategory={null}  onSelect={function (section: 'services' | 'places', subcategoryIds: string[]):void {
         throw new Error('Function not implemented.');
       } } />
-      <div className="min-h-screen  py-12 px-6 text-white">
+      <div className="min-h-screen  py-12 px-6 text-white bg-white">
         <div className="max-w-7xl mx-auto">
           
         <section className="relative bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB] border border-[#2E60C3] backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
@@ -76,10 +76,6 @@ const Page = () => {
           <div className='flex flex-col items-center gap-6 '>
               <h1 className="text-2xl font-bold">Search Services</h1>
               <SearchBarServices />
-          </div>
-          <div className='flex flex-col items-center gap-6 '>
-              <h1 className="text-2xl font-bold">Search Places</h1>
-              <SearchBarPlaces />
           </div>
         </div>
         
