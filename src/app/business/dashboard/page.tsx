@@ -61,7 +61,7 @@ export default function BusinessDashboard() {
   if (loading) return <p className="text-center p-6">Loading...</p>;
 
   return (
-    <div className="p-6 max-w-screen-2xl mx-auto text-white">
+    <div className="p-6 max-w-screen-2xl mx-auto text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <h1 className="text-3xl font-bold mb-6">👋 Welcome, {business?.name}!</h1>
 
       <div className="grid grid-cols-2 gap-6 h-auto">
