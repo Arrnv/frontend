@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
 import axios from 'axios';
 import { useLoadScript } from '@react-google-maps/api';
 import dynamic from 'next/dynamic';
@@ -66,7 +66,7 @@ const Page = () => {
   const [activeCategory, setActiveCategory] = useState<{ type: string; id: string | string[] } | null>(null);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string>(''); // ✅ For filtering by city
-
+  const [hasInitializedParams, setHasInitializedParams] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [directions, setDirections] = useState<any>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
@@ -104,33 +104,37 @@ const Page = () => {
     };
     fetchProfile();
   }, []);
+useEffect(() => {
+  const fetchDetails = async () => {
+    if (!activeCategory || !selectedSubcategories.length) return;
 
-  // ✅ Fetch and Filter Details
-  useEffect(() => {
-    const fetchDetails = async () => {
-      if (!activeCategory || !selectedSubcategories.length) return;
-      const { type } = activeCategory;
-      const normalizedType = type === 'services' ? 'service' : type;
+    const validIds = selectedSubcategories.filter(id => id && id.trim() !== '');
+    if (validIds.length === 0) return;
 
-      try {
-        const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}?ids=${selectedSubcategories.join(',')}`
-        );
+    const { type } = activeCategory;
+    const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
 
-        const filtered = selectedCity
-          ? res.data.filter((d: Detail) =>
-              d.location?.toLowerCase().includes(selectedCity.toLowerCase())
-            )
-          : res.data;
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}?ids=${validIds.join(',')}`
+      );
 
-        setDetails(filtered);
-      } catch (err) {
-        console.error('Failed to fetch details:', err);
+      let results = res.data;
+
+      // ✅ Optional location filtering
+      if (selectedCity.trim()) {
+        const cityLower = selectedCity.toLowerCase();
+        results = results.filter((d: Detail) => d.location?.toLowerCase().includes(cityLower));
       }
-    };
 
-    fetchDetails();
-  }, [activeCategory, selectedSubcategories, selectedCity]);
+      setDetails(results);
+    } catch (err) {
+      console.error('❌ Failed to fetch details:', err);
+    }
+  };
+
+  fetchDetails();
+}, [activeCategory?.type, activeCategory?.id, selectedSubcategories.join(','), selectedCity]);
 
   useEffect(() => {
     if (!selectedDetail) return;
@@ -246,28 +250,30 @@ const Page = () => {
         <div className="flex flex-1 overflow-visible">
           {/* Left Sidebar */}
           <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
-            <ServiceNav
-              selectedCategory={null}
-              onSelect={(type, ids) => {
-                const firstId = Array.isArray(ids) ? ids[0] : ids;
-                setActiveCategory({ type, id: firstId });
-                setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
-                handleDetailClick(null);
-              }}
-            />
+          <ServiceNav
+            selectedCategory={null}
+            onSelect={(type, ids) => {
+              const firstId = Array.isArray(ids) ? ids[0] : ids;
+              setActiveCategory({ type, id: firstId });
+              setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
+              setSelectedCity(''); // ✅ Reset location filter when user selects via ServiceNav
+              handleDetailClick(null);
+            }}
+          />
+
           </div>
 
-          {/* ParamsInitializer reads from URL */}
           <Suspense fallback={null}>
             <ParamsInitializer
               onInit={(type, subcategory, location) => {
                 setActiveCategory({ type, id: subcategory });
                 setSelectedSubcategories([subcategory]);
                 setSelectedCity(location || '');
-                handleDetailClick(null);
+                handleDetailClick(null); // Reset selection
               }}
             />
           </Suspense>
+
 
           {/* Center Content */}
           <div className="w-2/5 p-6 overflow-y-auto relative">

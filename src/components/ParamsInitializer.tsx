@@ -1,18 +1,28 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 
-const ParamsInitializer = ({ onInit }: { onInit: (type: string, subcategory: string, location: string) => void }) => {
-  const params = useSearchParams();
-  const type = params.get('type');
-  const subcategory = params.get('subcategory');
-  const location = params.get('location') || '';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+
+const ParamsInitializer = ({
+  onInit,
+}: {
+  onInit: (type: string, subcategory: string, location?: string) => void;
+}) => {
+  const searchParams = useSearchParams();
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
+    if (initialized) return;
+
+    const type = searchParams.get('type');
+    const subcategory = searchParams.get('subcategory');
+    const location = searchParams.get('location');
+
     if (type && subcategory) {
-      onInit(type, subcategory, location);
+      onInit(type, subcategory, location || '');
+      setInitialized(true); // ✅ Prevent future re-runs
     }
-  }, [type, subcategory, location]);
+  }, [searchParams, initialized, onInit]);
 
   return null;
 };
