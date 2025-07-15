@@ -5,6 +5,7 @@ type Props = {
   userId: string;
 };
 
+
 const BusinessSettings = ({ userId }: Props) => {
   return (
     <div className="border p-4 rounded shadow">

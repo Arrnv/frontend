@@ -256,7 +256,7 @@ useEffect(() => {
               const firstId = Array.isArray(ids) ? ids[0] : ids;
               setActiveCategory({ type, id: firstId });
               setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
-              setSelectedCity(''); // ✅ Reset location filter when user selects via ServiceNav
+              setSelectedCity(''); 
               handleDetailClick(null);
             }}
           />
