@@ -217,7 +217,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
       </div>
     </div>
   ) : (
-    <nav className="w-full bg-white border-b border-[#8B9AB2] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
+    <nav className="w-screen bg-white border-b border-[#8B9AB2] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
       <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
         <img src="/logo.svg" alt="Logo" className="h-6" />
         <span className="font-bold text-xl text-[#0E1C2F]">
