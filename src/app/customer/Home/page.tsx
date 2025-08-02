@@ -74,7 +74,7 @@ const Page = () => {
 
         <div className="flex flex-row w-full justify-center">
           <div className='flex flex-col items-center bg-[#FFFFFF] w-1/2 justify-center'>
-          <div className="w-full h-20 flex justify-center items-center px-3 shadow-xl rounded-sm border border-gray-200">
+          <div className="w-full h-20 flex flex-col justify-center items-center px-3 shadow-xl rounded-sm border border-gray-200">
               <SearchBarServices />
           </div>
           </div>

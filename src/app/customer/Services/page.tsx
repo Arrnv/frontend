@@ -249,7 +249,7 @@ useEffect(() => {
   return (
     <ClientLayout>
       <Navbar />
-      <div className="flex h-screen bg-[#0E1C2F] w-screen">
+      <div className="flex h-full bg-[#0E1C2F] w-screen">
         
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}

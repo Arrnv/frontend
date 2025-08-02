@@ -65,9 +65,10 @@ const handleSelectService = (service: Service) => {
   };
 
   return (
-    <>
+<div className="relative w-full">
+  {/* Your search bar here (the whole div with inputs + button) */}
   <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white h-15 w-full">
-    {/* Location input */} 
+    {/* Location input */}
     <div className="flex items-center px-4 w-1/2 border-r border-gray-200 ">
       <svg className="w-5 h-5 text-[#0099E8] mr-2" fill="currentColor" viewBox="0 0 20 20">
         <path d="M10 20s6-5.686 6-10a6 6 0 10-12 0c0 4.314 6 10 6 10zM10 11a2 2 0 110-4 2 2 0 010 4z" />
@@ -103,9 +104,9 @@ const handleSelectService = (service: Service) => {
     </button>
   </div>
 
-
+  {/* City dropdown */}
   {cityQuery && (
-    <ul className="absolute bg-white  mt-2 rounded shadow z-50 w-full max-w-sm text-black">
+    <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-black text-sm border">
       {citySuggestions
         .filter(city => city.toLowerCase().includes(cityQuery.toLowerCase()))
         .map(city => (
@@ -120,9 +121,9 @@ const handleSelectService = (service: Service) => {
     </ul>
   )}
 
-  {/* Service Suggestions */}
+  {/* Service suggestions */}
   {serviceQuery && filteredServices.length > 0 && (
-    <ul className="absolute bg-white border mt-2 rounded shadow z-50 w-full max-w-sm">
+    <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-sm border">
       {filteredServices.map((service) => (
         <li
           key={service.id}
@@ -136,7 +137,8 @@ const handleSelectService = (service: Service) => {
       ))}
     </ul>
   )}
-</>
+</div>
+
 
   );
 };
