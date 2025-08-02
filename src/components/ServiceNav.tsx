@@ -193,14 +193,14 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
 
   // 🔁 Dual-mode rendering
   return isSidebar ? (
-    <div className="bg-[#0E1C2F] border-r space-y-4 p-6 min-h-screen sticky top-0 overflow-y-auto w-72 z-40">
+    <div className="bg-[#F7F6F9] border-r space-y-4 p-6 min-h-screen sticky top-0 overflow-y-auto w-full z-40">
       <div className="space-y-6">
         <div>
           <button
             onClick={() => toggleSection('services')}
-            className="w-full text-left font-bold text-lg mb-2"
+            className="w-full text-left font-bold text-lg mb-2  bg-[#FFFFFF]"
           >
-            <p className="text-white">Services</p>
+            <p className="text-[#202231]">Services</p>
           </button>
           {visibleSection === 'services' && <div ref={servicesRef}>{renderCategories(servicesData, 'services')}</div>}
         </div>
@@ -208,9 +208,9 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
         <div>
           <button
             onClick={() => toggleSection('places')}
-            className="w-full text-left font-bold text-lg mb-2"
+            className="w-full text-left font-bold text-lg mb-2 bg-[#FFFFFF]"
           >
-            <p className="text-white">Places</p>
+            <p className="text-[#202231]">Places</p>
           </button>
           {visibleSection === 'places' && <div ref={placesRef}>{renderCategories(placesData, 'places')}</div>}
         </div>

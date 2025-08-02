@@ -11,6 +11,9 @@ import Navbar from '@/components/Navbar';
 import ClientLayout from '@/app/ClientLayout';
 import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
+import DetailDrawer from '@/components/DetailDrawer';
+
+
 
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
 
@@ -226,7 +229,7 @@ useEffect(() => {
 
   try {
     const res = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/create`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedDetail.id}`,
       {
         detail_id: selectedDetail.id,
         comment: newReview.comment,
@@ -245,9 +248,10 @@ useEffect(() => {
 
   return (
     <ClientLayout>
-      <div className="flex h-screen bg-[#0E1C2F]">
-        <Navbar />
-        <div className="flex flex-1 overflow-visible">
+      <Navbar />
+      <div className="flex h-screen bg-[#0E1C2F] w-screen">
+        
+        <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
           <ServiceNav
@@ -262,30 +266,30 @@ useEffect(() => {
           />
 
           </div>
+        <Suspense fallback={null}>
+          <ParamsInitializer
+            onInit={(type, subcategory, location) => {
+              setActiveCategory({ type, id: subcategory });
+              setSelectedSubcategories([subcategory]);
+              setSelectedCity(location || '');
+              handleDetailClick(null); // Reset selection
+            }}
+          />
+        </Suspense>
 
-          <Suspense fallback={null}>
-            <ParamsInitializer
-              onInit={(type, subcategory, location) => {
-                setActiveCategory({ type, id: subcategory });
-                setSelectedSubcategories([subcategory]);
-                setSelectedCity(location || '');
-                handleDetailClick(null); // Reset selection
-              }}
-            />
-          </Suspense>
 
 
           {/* Center Content */}
-          <div className="w-2/5 p-6 overflow-y-auto relative">
-            <h1 className="text-2xl font-bold capitalize mb-4 text-[#FFFFFF]">
+          <div className="w-2/5 p-6 overflow-y-auto relative bg-[#FFFFFF]">
+            <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
               {activeCategory ? `Entries for ${activeCategory.type}` : 'Welcome, customer!'}
             </h1>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 ">
               {details.map((detail) => (
                 <div
                   key={detail.id}
                   onClick={() => handleDetailClick(detail)}
-                  className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#415CBB] backdrop-blur-lg hover:scale-105 transition"
+                  className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
                 >
                   {detail.businesses?.logo_url && (
                     <img
@@ -294,201 +298,35 @@ useEffect(() => {
                       className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
                     />
                   )}
-                  <h2 className="font-semibold text-white">{detail.name}</h2>
-                  <p className="text-sm text-[#8B9AB2]">Rating: {detail.rating ?? 'N/A'}</p>
-                  <p className="text-sm text-[#8B9AB2]">Status: {detail.status ?? 'N/A'}</p>
+                  <div className='flex flex-row place-content-between'>
+                    <h2 className="font-semibold text-[#202231]">{detail.name}</h2>
+                    <p className="text-sm text-[#8B9AB2]">{detail.rating ?? 'N/A'} ⭐️</p>
+                  </div>
+                  
+                  <p className="text-sm text-[#56575B]">location: {detail.location ?? 'N/A'}</p>
                 </div>
               ))}
             </div>
 
             {/* Drawer: Detail View */}
-            <div
-              ref={drawerRef}
-              className="absolute top-0 left-0 w-full h-full bg-[#1B2944] text-white p-6 shadow-2xl overflow-y-auto rounded-r-2xl z-50 border border-[#2E60C3]/60"
-              style={{ display: selectedDetail ? 'block' : 'none' }}
-            >
-              <button className="absolute top-3 right-4 text-xl" onClick={() => setSelectedDetail(null)}>
-                ×
-              </button>
-              {selectedDetail && (
-              <>
-                {/* ✅ Show logo in drawer */}
-                {selectedDetail.businesses?.logo_url && (
-                  <img
-                    src={selectedDetail.businesses.logo_url}
-                    alt="Business logo"
-                    className="w-16 h-16 mb-4 rounded-full object-cover border border-white"
-                  />
-                )}
-                <h2 className="text-xl font-bold mb-2">{selectedDetail.name}</h2>
-                <p><strong>Rating:</strong> {selectedDetail.rating ?? 'N/A'}</p>
-                <p><strong>Location:</strong> {selectedDetail.location ?? 'N/A'}</p>
-                <p><strong>Status:</strong> {selectedDetail.status ?? 'N/A'}</p>
-                <p><strong>Timings:</strong> {selectedDetail.timings ?? 'N/A'}</p>
-                <p><strong>Contact:</strong> {selectedDetail.contact ?? 'N/A'}</p>
-                {selectedDetail.gallery_urls && selectedDetail.gallery_urls.length > 0 && (
-                  <div className="mb-4 ">
-                    <div className="relative h-[15rem] bg-no-repeat  overflow-hidden rounded-xl border border-white/20 ">
-                      <Slider
-                        dots={true}
-                        infinite={true}
-                        speed={500}
-                        slidesToShow={1}
-                        slidesToScroll={1}
-                      >
-                        {selectedDetail.gallery_urls.map((url, idx) => (
-                          <div key={idx} className="w-full h-60">
-                            <img
-                              src={url}
-                              alt={`Gallery image ${idx + 1}`}
-                              className="w-full h-full bg-no-repeat "
-                            />
-                          </div>
-                        ))}
-                      </Slider>
-                    </div>
-                  </div>
-                )}
+            <DetailDrawer
+              selectedDetail={selectedDetail}
+              onClose={() => setSelectedDetail(null)}
+              reviews={reviews}
+              userRole={userRole}
+              newReview={newReview}
+              setNewReview={setNewReview}
+              bookingOptions={bookingOptions}
+              selectedOptionId={selectedOptionId}
+              setSelectedOptionId={setSelectedOptionId}
+              note={note}
+              setNote={setNote}
+              handleBooking={handleBooking}
+              bookingStatus={bookingStatus}
+              isBooking={isBooking}
+              handleReviewSubmit={handleReviewSubmit}
+            />
 
-
-                <p>
-                  <strong>Website:</strong>{' '}
-                  <a
-                    href={selectedDetail.website ?? '#'}
-                    target="_blank"
-                    className="text-blue-600"
-                    onClick={async () => {
-                      try {
-                        await axios.post(
-                          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`,
-                          { detailId: selectedDetail.id, eventType: 'click' },
-                          { withCredentials: true }
-                        );
-                      } catch (err) {
-                        console.error('Failed to track website click', err);
-                      }
-                    }}
-                  >
-                    {selectedDetail.website}
-                  </a>
-                </p>
-
-                  {Array.isArray(selectedDetail?.detail_amenities) && selectedDetail.detail_amenities.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-semibold mb-2">Amenities</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedDetail.detail_amenities.map(({ amenities }) => (
-                          <div
-                            key={amenities.id}
-                            className="flex flex-col items-center  gap-2 px-3 py-1 border border-white/20 rounded-xl bg-white text-sm text-black w-[7rem] h-[6rem]"
-                          >
-                            {amenities.icon_url && (
-                              <img
-                                src={amenities.icon_url}
-                                alt={amenities.name}
-                                className="w-[3rem] h-[3rem] object-contain"
-                              />
-                            )}
-                            {amenities.name}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                {/* Navigate button */}
-                {selectedDetail.latitude && selectedDetail.longitude && (
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=AIzaSyB0zwhBlkBl8bfOlsXGm5TBWuheeoTLa9w&destination=${selectedDetail.latitude},${selectedDetail.longitude}&travelmode=driving`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                  >
-                    Navigate with Google Maps
-                  </a>
-                )}
-
-                <div className="mt-4">
-                  <h3 className="text-lg font-semibold">Reviews</h3>
-                  {reviews.length > 0 ? (
-                    reviews.map((r, index) => (
-                      <div key={r.id || `${r.user_id}-${index}`} className="border-b py-2">
-                        <p className="font-semibold">{r.full_name || r.user_id}</p>
-                        <p>Rating: {r.rating}</p>
-                        <p>{r.comment}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-gray-600">No reviews yet.</p>
-                  )}
-
-                  {userRole && (
-                    <div className="mt-6 border-t pt-4">
-                      <h3 className="text-lg font-bold">Book This Service</h3>
-                      {bookingOptions.length === 0 ? (
-                        <p className="text-sm text-gray-600">No booking options available.</p>
-                      ) : (
-                        <>
-                          <label className="block text-sm font-medium text-gray-700 mt-2 mb-1">Select Option:</label>
-                          <select
-                            value={selectedOptionId}
-                            onChange={(e) => setSelectedOptionId(e.target.value)}
-                            className="w-full border p-2 rounded mb-3"
-                          >
-                            {bookingOptions.map((opt) => (
-                              <option key={opt.id} value={opt.id}>
-                                {opt.type} — ₹{opt.price} {opt.note ? `(${opt.note})` : ''}
-                              </option>
-                            ))}
-                          </select>
-                          <textarea
-                            placeholder="Any note for the service provider?"
-                            className="w-full border p-2 my-2"
-                            value={note}
-                            onChange={(e) => setNote(e.target.value)}
-                          />
-                          <button
-                            onClick={handleBooking}
-                            disabled={isBooking || !selectedOptionId}
-                            className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-                          >
-                            {isBooking ? 'Booking...' : 'Book Now'}
-                          </button>
-                          {bookingStatus && (
-                            <p className={`mt-2 text-sm ${bookingStatus.includes('failed') ? 'text-red-600' : 'text-green-600'}`}>
-                              {bookingStatus}
-                            </p>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {userRole ? (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-semibold">Public Reviews</h3>
-                      <textarea
-                        value={newReview.comment}
-                        onChange={(e) => setNewReview((prev) => ({ ...prev, comment: e.target.value }))}
-                        className="w-full border p-2 mb-2"
-                        placeholder="Leave a comment"
-                      />
-                      <StarSelector
-                        rating={newReview.rating}
-                        onChange={(val) => setNewReview((prev) => ({ ...prev, rating: val }))}
-                      />
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2" onClick={handleReviewSubmit}>
-                        Submit Review
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-2 text-sm text-yellow-800">
-                      <p>You need to <a href="/customer/login" className="text-blue-600 underline">log in</a> to leave a review.</p>
-                    </div>
-                  )}
-                </div>
-                </>
-                )}
-              </div>
             
           </div>
 

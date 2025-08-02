@@ -2,69 +2,45 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import {
-  ShoppingBag,
-  Camera,
-  Home,
-  Briefcase,
-  Settings,
-} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import SearchBarServices from './SearchBarServices'; // adjust path as needed
 
+const TopNav = () => {
+  const router = useRouter();
 
-
-const Navbar = () => {
-  const pathname = usePathname();
-  const navItems = [
-    {
-      name: 'Services',
-      href: '/customer/Services',
-      icon: ShoppingBag,
-    },
-    {
-      name: 'Traffic Cameras',
-      href: '/customer/traffic-cameras',
-      icon: Camera,
-    },
-    {
-      name: 'Home',
-      href: '/customer/Home',
-      icon: Home,
-    },
-    {
-      name: 'List Business',
-      href: '/business/login',
-      icon: Briefcase,
-    },
-    {
-      name: 'Settings',
-      href: '/customer/login',
-      icon: Settings,
-    },
-  ];
-  
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="flex bg-gradient-to-r from-[#1e3a8a]/60 to-[#2563eb]/60 backdrop-blur-xl border border-white/20 shadow-xl rounded-full px-6 py-3 space-x-8">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href;
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                isActive ? 'bg-blue-500/70 text-white shadow-md' : 'text-blue-200 hover:text-white'
-              }`}
-            >
-              <Icon size={20} />
-            </Link>
-          );
-        })}
+    <header className="w-screen shadow-sm border-b border-gray-200 bg-white sticky top-0 z-50">
+      <div className="p-4 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
+          <img src="/logo.svg" alt="Logo" className="h-6" />
+          <span className="font-bold text-xl text-[#0E1C2F]">
+            DailEn<span className="text-[#246BFD]">Search</span>
+          </span>
+        </div>
+      <div className="">
+        <SearchBarServices />
       </div>
-    </div>
+        {/* Navigation Links */}
+        <div className="hidden md:flex items-center space-x-6">
+          <Link
+            href="/business/signup"
+            className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white font-medium px-4 py-2 rounded-xl hover:opacity-90 transition shadow-sm"
+          >
+            List Your Business
+          </Link>
+          <Link href="/login" className="text-sm font-semibold text-[#0E1C2F] hover:text-[#246BFD]">
+            Log In
+          </Link>
+          <Link href="/signup" className="text-sm font-semibold text-[#246BFD] hover:underline">
+            Sign Up
+          </Link>
+        </div>
+      </div>
+
+      
+    </header>
   );
 };
 
-export default Navbar;
+export default TopNav;

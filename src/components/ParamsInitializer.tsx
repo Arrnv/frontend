@@ -1,28 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-const ParamsInitializer = ({
-  onInit,
-}: {
-  onInit: (type: string, subcategory: string, location?: string) => void;
-}) => {
+type Props = {
+  onInit: (type: string, subcategory: string, location: string) => void;
+};
+
+const ParamsInitializer = ({ onInit }: Props) => {
   const searchParams = useSearchParams();
-  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    if (initialized) return;
-
-    const type = searchParams.get('type');
-    const subcategory = searchParams.get('subcategory');
-    const location = searchParams.get('location');
+    const type = searchParams.get('type') || '';
+    const subcategory = searchParams.get('subcategory') || '';
+    const location = searchParams.get('location') || '';
 
     if (type && subcategory) {
-      onInit(type, subcategory, location || '');
-      setInitialized(true); // ✅ Prevent future re-runs
+      onInit(type, subcategory, location);
     }
-  }, [searchParams, initialized, onInit]);
+  }, [searchParams]); // 🚨 Listen to param changes
 
   return null;
 };

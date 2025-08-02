@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   GoogleMap,
   DirectionsRenderer,
@@ -9,9 +9,10 @@ import {
   useJsApiLoader,
 } from '@react-google-maps/api';
 
-const containerStyle = {
+const containerStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
+  position: 'relative',
 };
 
 type LatLng = { lat: number; lng: number };
@@ -31,6 +32,8 @@ type Props = {
   selectedDetail: Detail | null;
 };
 
+const CIRCLE_RADIUS_PX = 100; // Radius in pixels (diameter = 200px)
+
 const MapSection = ({ origin, details, selectedDetail }: Props) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -43,7 +46,9 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
   const spokenSteps = useRef<Set<number>>(new Set());
   const mapRef = useRef<google.maps.Map | null>(null);
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
 
+  // Track user's location
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
@@ -58,6 +63,7 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
+  // Route directions
   useEffect(() => {
     if (!isLoaded || !selectedDetail || !selectedDetail.latitude || !selectedDetail.longitude) {
       setDirections(null);
@@ -88,6 +94,7 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     );
   }, [isLoaded, selectedDetail, userPosition]);
 
+  // Voice prompts
   useEffect(() => {
     if (!steps.length) return;
 
@@ -118,30 +125,70 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     return div.textContent || div.innerText || '';
   };
 
-  useEffect(() => {
-    if (!mapRef.current || !details.length || selectedDetail) return;
+  const detectVisibleMarkers = useCallback(() => {
+    if (!mapRef.current) return;
 
-    const bounds = new google.maps.LatLngBounds();
-    details.forEach((d) => {
-      if (d.latitude && d.longitude) {
-        bounds.extend({ lat: d.latitude, lng: d.longitude });
-      }
-    });
-    bounds.extend(origin);
-    mapRef.current.fitBounds(bounds);
-  }, [mapRef, details, origin, selectedDetail]);
+    const overlay = new window.google.maps.OverlayView();
+    overlay.onAdd = () => {};
+    overlay.draw = () => {
+      const projection = overlay.getProjection();
+      if (!projection) return;
+
+      const idsInCircle = new Set<string>();
+
+      const bounds = mapRef.current!.getDiv().getBoundingClientRect();
+      const centerX = bounds.width / 2;
+      const centerY = bounds.height / 2;
+
+      details.forEach((d) => {
+        if (!d.latitude || !d.longitude) return;
+        const latLng = new google.maps.LatLng(d.latitude, d.longitude);
+        const pixel = projection.fromLatLngToContainerPixel(latLng);
+        if (!pixel) return;
+
+        const dx = pixel.x - centerX;
+        const dy = pixel.y - centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance <= CIRCLE_RADIUS_PX) {
+          idsInCircle.add(d.id);
+        }
+      });
+
+      setVisibleIds(idsInCircle);
+    };
+    overlay.setMap(mapRef.current);
+  }, [details]);
 
   if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <div className="h-full w-full relative">
+      {/* Circle Overlay in center of screen */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: `${CIRCLE_RADIUS_PX * 2}px`,
+          height: `${CIRCLE_RADIUS_PX * 2}px`,
+          transform: 'translate(-50%, -50%)',
+          borderRadius: '50%',
+          border: '3px solid red',
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
+      />
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={userPosition}
-        zoom={15}
+        zoom={3}
         onLoad={(map) => {
           mapRef.current = map;
+          setTimeout(() => detectVisibleMarkers(), 500); // Wait for projection
         }}
+        onIdle={detectVisibleMarkers}
       >
         <Marker
           position={userPosition}
@@ -149,33 +196,37 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
           icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
         />
 
-        {!selectedDetail &&
-          details.map(
-            (d) =>
-              d.latitude &&
-              d.longitude && (
-                <OverlayView
-                  key={d.id}
-                  position={{ lat: d.latitude, lng: d.longitude }}
-                  mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+        {details
+          .filter((d) => d.latitude && d.longitude)
+          .map((d) => {
+            const isInside = visibleIds.has(d.id);
+            return (
+              <OverlayView
+                key={d.id}
+                position={{ lat: d.latitude!, lng: d.longitude! }}
+                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+              >
+                <div
+                  className={`flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full transition-opacity duration-300 ${
+                    isInside ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
                 >
-                  <div className="flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full">
-                    <img
-                      src={
-                        d.service_category?.icon_url ||
-                        d.place_category?.icon_url ||
-                        'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                      }
-                      className="w-10 h-10 rounded-full border-2 border-black shadow-md object-contain bg-white"
-                      alt={d.name}
-                    />
-                    <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-                      {d.name}
-                    </div>
+                  <img
+                    src={
+                      d.service_category?.icon_url ||
+                      d.place_category?.icon_url ||
+                      'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    }
+                    className="w-10 h-10 rounded-full border-2 border-white shadow-md object-contain bg-white"
+                    alt={d.name}
+                  />
+                  <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                    {d.name}
                   </div>
-                </OverlayView>
-              )
-          )}
+                </div>
+              </OverlayView>
+            );
+          })}
 
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>

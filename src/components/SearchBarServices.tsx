@@ -49,90 +49,95 @@ const SearchBarServices = () => {
     setFilteredServices(matched);
   }, [serviceQuery, cityQuery, services]);
 
-  const handleSelectService = (service: Service) => {
-    router.push(
-      `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(service.city ?? '')}`
-    );
-  };
+const handleSelectService = (service: Service) => {
+  router.push(
+    `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(service.city ?? '')}`
+  );
+
+  // Reset the input fields and suggestions
+  setCityQuery('');
+  setServiceQuery('');
+  setFilteredServices([]);
+};
 
   const handleSelectCity = (city: string) => {
     setCityQuery(city);
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-4 space-y-4 relative">
-      {/* Inputs */}
-      <div className="flex space-x-2 relative">
-        {/* Location input */}
-        <div className="flex-1 relative">
-          <div className="flex items-center border rounded-lg px-4 py-2 text-white">
-            <span className="text-orange-600 text-xl mr-2">📍</span>
-            <input
-              type="text"
-              placeholder="Location"
-              className="flex-1 outline-none text-white"
-              value={cityQuery}
-              onChange={(e) => setCityQuery(e.target.value)}
-            />
-          </div>
-
-          {/* City Suggestions */}
-          {cityQuery && (
-            <ul className="absolute bg-blue-600 text-white w-full rounded-lg mt-1 z-50 max-h-48 overflow-auto">
-              {citySuggestions
-                .filter((city) => city?.toLowerCase().includes(cityQuery.toLowerCase()))
-                .map((city) => (
-                  <li
-                    key={city}
-                    className="px-4 py-2 hover:bg-blue-500 cursor-pointer"
-                    onClick={() => handleSelectCity(city)}
-                  >
-                    {city}
-                  </li>
-                ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Services input */}
-        <div className="flex-1 relative">
-          <div className="flex items-center border rounded-lg px-4 py-2 text-white">
-            <span className="text-orange-600 text-xl mr-2">🧭</span>
-            <input
-              type="text"
-              placeholder="Services & Companies"
-              className="flex-1 outline-none text-white"
-              value={serviceQuery}
-              onChange={(e) => setServiceQuery(e.target.value)}
-            />
-          </div>
-
-          {/* Services Suggestions */}
-          {serviceQuery && filteredServices.length > 0 && (
-            <ul className="absolute bg-blue-600 text-white w-full rounded-lg mt-1 z-50 max-h-48 overflow-auto">
-              {filteredServices.map((service) => (
-                <li
-                  key={service.id}
-                  className="flex items-center px-4 py-2 cursor-pointer hover:bg-blue-500"
-                  onClick={() => handleSelectService(service)}
-                >
-                  {service.icon_url && (
-                    <img src={service.icon_url} alt="icon" className="w-5 h-5 mr-2" />
-                  )}
-                  <span>{service.label}</span>
-                  {service.city && <span className="ml-auto text-sm italic">{service.city}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Search button */}
-        <button className="bg-orange-600 px-5 rounded-lg text-white text-xl">
-          🔍
-        </button>
-      </div>
+    <>
+  <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white h-15 w-full">
+    {/* Location input */} 
+    <div className="flex items-center px-4 w-1/2 border-r border-gray-200 ">
+      <svg className="w-5 h-5 text-[#0099E8] mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 20s6-5.686 6-10a6 6 0 10-12 0c0 4.314 6 10 6 10zM10 11a2 2 0 110-4 2 2 0 010 4z" />
+      </svg>
+      <input
+        type="text"
+        placeholder="Location"
+        className="w-full outline-none text-sm text-gray-700 bg-transparent placeholder-gray-400"
+        value={cityQuery}
+        onChange={(e) => setCityQuery(e.target.value)}
+      />
     </div>
+
+    {/* Services input */}
+    <div className="flex items-center px-4 w-1/2 border-r border-gray-200">
+      <svg className="w-5 h-5 text-[#0099E8] mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10.894 2.553a.5.5 0 00-.788.168L8.136 7H5a.5.5 0 000 1h3.136l1.97 4.279a.5.5 0 00.788.168l7-6.5a.5.5 0 000-.894l-7-6.5z" />
+      </svg>
+      <input
+        type="text"
+        placeholder="Services & Companies"
+        className="w-full outline-none text-sm text-gray-700 bg-transparent placeholder-gray-400"
+        value={serviceQuery}
+        onChange={(e) => setServiceQuery(e.target.value)}
+      />
+    </div>
+
+    {/* Search button */}
+    <button className="flex items-center justify-center w-16 bg-[#0099E8] hover:bg-[#007cc5] transition text-white">
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 3a7.5 7.5 0 006.15 13.65z" />
+      </svg>
+    </button>
+  </div>
+
+
+  {cityQuery && (
+    <ul className="absolute bg-white  mt-2 rounded shadow z-50 w-full max-w-sm text-black">
+      {citySuggestions
+        .filter(city => city.toLowerCase().includes(cityQuery.toLowerCase()))
+        .map(city => (
+          <li
+            key={city}
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => handleSelectCity(city)}
+          >
+            {city}
+          </li>
+        ))}
+    </ul>
+  )}
+
+  {/* Service Suggestions */}
+  {serviceQuery && filteredServices.length > 0 && (
+    <ul className="absolute bg-white border mt-2 rounded shadow z-50 w-full max-w-sm">
+      {filteredServices.map((service) => (
+        <li
+          key={service.id}
+          className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          onClick={() => handleSelectService(service)}
+        >
+          {service.icon_url && <img src={service.icon_url} className="w-4 h-4 mr-2" />}
+          <span>{service.label}</span>
+          {service.city && <span className="ml-auto text-xs italic text-gray-500">{service.city}</span>}
+        </li>
+      ))}
+    </ul>
+  )}
+</>
+
   );
 };
 
