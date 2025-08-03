@@ -85,7 +85,7 @@ const Page = () => {
 
             <div className="w-full lg:w-1/2 text-center lg:text-left">
               <h2 className="text-3xl md:text-4xl font-semibold mb-6 text-[#202231]">
-                IMPROVE <span className="text-[#FF6B00] font-bold">ROUTING</span> . ENSURE <span className="text-[#FF6B00] font-bold">SAFETY</span>
+                IMPROVE <span className="text-[#0099E8] font-bold">ROUTING</span> . ENSURE <span className="text-[#0099E8] font-bold">SAFETY</span>
               </h2>
 
               <div className="w-full max-w-4xl mx-auto text-center mb-8">
