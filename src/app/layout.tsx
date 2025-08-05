@@ -4,7 +4,6 @@ import './globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'leaflet/dist/leaflet.css';
 import jsonLdOrganization from '@/data/StructuredData';
-import ClientLayout from './ClientLayout';
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });

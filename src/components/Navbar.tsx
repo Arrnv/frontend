@@ -13,7 +13,7 @@ const TopNav = () => {
       <div className="p-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
-          <img src="/logo.svg" alt="Logo" className="h-6" />
+          <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
           <span className="font-bold text-xl text-[#0E1C2F]">
             DailEn<span className="text-[#246BFD]">Search</span>
           </span>

@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import React from 'react';
-import ClientLayout from '@/app/ClientLayout';
 import { gsap } from 'gsap';
 import ServiceNav from '@/components/ServiceNav';
 import SearchBarServices from '@/components/SearchBarServices';
-import SearchBarPlaces from '@/components/SearchBarPlaces';
+import Link from 'next/link';
 
 const faqs = [
   {
@@ -41,7 +40,7 @@ const Page = () => {
   }, []);
 
   return (
-    <ClientLayout>
+    <>
       <ServiceNav selectedCategory={null}  onSelect={function (section: 'services' | 'places', subcategoryIds: string[]):void {
         throw new Error('Function not implemented.');
       } } />
@@ -146,9 +145,11 @@ const Page = () => {
               <p className="text-[#56575B] text-lg md:text-xl max-w-xl mx-auto md:mx-0 mb-6">
                 Our truck-friendly navigation system offers precise directions, avoiding low bridges, weight limits, and no-truck areas, customized for your truck and trailer dimensions.
               </p>
+              <Link href="/customer/Navigation">
               <button className="bg-[#0099E8] text-white font-semibold py-3 px-6 rounded-md transition">
                 Learn More
               </button>
+              </Link>
             </div>
 
           </div>
@@ -165,9 +166,11 @@ const Page = () => {
               <p className="text-[#56575B] text-lg md:text-xl max-w-xl mx-auto md:mx-0 mb-6">
                 Keep truck drivers in the loop with the latest business updates and boost your visibility through eye-catching banners and engaging promotional videos.
               </p>
-              <button className="bg-[#0099E8]  text-white font-semibold py-3 px-6 rounded-md transition">
+              <Link href="/customer/Listing">
+              <button className="bg-[#0099E8] text-white font-semibold py-3 px-6 rounded-md transition">
                 Learn More
               </button>
+              </Link>
             </div>
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
@@ -192,21 +195,26 @@ const Page = () => {
             </div>
             <div className="w-full md:w-1/2 text-center md:text-left">
               <p className="text-[#0099E8] font-semibold text-sm uppercase tracking-wide mb-2">
-                Solutions for Vendors
+                SOLUTIONS FOR DISPATCHERS
               </p>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-[#202231] mb-6">
-                Business Listing
+                Route Planner
               </h2>
               <p className="text-[#56575B] text-lg md:text-xl max-w-xl mx-auto md:mx-0 mb-6">
-                Keep truck drivers in the loop with the latest business updates and boost your visibility through eye-catching banners and engaging promotional videos.
+                Maximize your route efficiency with our web-based
+                app. Find low clearances, locate the best diesel prices,
+                check parking availability, and stay updated on weigh
+                station statuses.              
               </p>
-              <button className="bg-[#0099E8]  text-white font-semibold py-3 px-6 rounded-md transition">
+              <Link href="/customer/Navigation">
+              <button className="bg-[#0099E8] text-white font-semibold py-3 px-6 rounded-md transition">
                 Learn More
               </button>
+              </Link>
             </div>            
           </div>
         </section>
-        <section className="bg-[#D9E4EF]   mb-16 w-full">
+        <section className="bg-[#F7F7F9] mb-16 w-screen px-50 py-25">
             <h2 className="text-3xl font-bold mb-6 text-[#0099E8]">
               Got Questions? We Got Answers
             </h2>
@@ -234,16 +242,17 @@ const Page = () => {
                 )}
               </div>
             ))}
-          </section>
+        </section>
 
-          <div className="text-center ">
-            <button className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white px-6 py-3 rounded-lg shadow-md hover:brightness-110 transition-all">
-              Explore TruckNav
-            </button>
+          <div
+            className="w-screen h-64 bg-[url('/Footer.png')] bg-cover bg-center "
+          >
+
           </div>
+
         </div>
       </div>
-    </ClientLayout>
+    </>
   );
 };
 

@@ -247,7 +247,7 @@ useEffect(() => {
 
 
   return (
-    <ClientLayout>
+    <>
       <Navbar />
       <div className="flex h-full bg-[#0E1C2F] w-screen">
         
@@ -340,7 +340,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </ClientLayout>
+    </>
   );
 };
 

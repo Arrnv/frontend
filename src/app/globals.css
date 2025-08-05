@@ -6,13 +6,17 @@
 
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
-
-/* Your other styles come after this */
+html,
 body {
-  font-family: 'Roboto', sans-serif;
+  height: 100%;
   margin: 0;
   padding: 0;
-  color: black;
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 :root {
@@ -61,16 +65,7 @@ section.card h2 {
 }
 
 /* Button Styling */
-button {
 
-  border: none;
-  color: var(--white);
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
 
 
 
