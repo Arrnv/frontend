@@ -39,11 +39,15 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
   const servicesRef = useRef<HTMLDivElement | null>(null);
   const placesRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
-  const pathname = usePathname();
-  const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => setIsClient(true), []);
-  const isSidebar = isClient && pathname.includes('/customer/Services');
+const [isSidebar, setIsSidebar] = useState(false);
+const pathname = usePathname();
+
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    setIsSidebar(pathname.includes('/customer/Services'));
+  }
+}, [pathname]);
 
   useEffect(() => {
     const fetchData = async () => {
