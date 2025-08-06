@@ -253,7 +253,7 @@ useEffect(() => {
         
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
-          <div className="w-1/5 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
+          <div className="w-1/6 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
           <ServiceNav
             selectedCategory={null}
             onSelect={(type, ids) => {
@@ -280,7 +280,7 @@ useEffect(() => {
 
 
           {/* Center Content */}
-          <div className="w-2/5 p-6 overflow-y-auto relative bg-[#FFFFFF]">
+          <div className="w-2/6 p-6 overflow-y-auto relative bg-[#FFFFFF]">
             <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
               {activeCategory ? `Entries for ${activeCategory.type}` : 'Welcome, customer!'}
             </h1>
@@ -330,7 +330,7 @@ useEffect(() => {
             
           </div>
 
-          <div className="w-2/5 border-l border-[#415CBB]/60">
+          <div className="w-3/6 border-l border-[#415CBB]/60">
            {userLocation ? (
               <MapSection origin={userLocation} details={details} selectedDetail={selectedDetail} />
             ) : (

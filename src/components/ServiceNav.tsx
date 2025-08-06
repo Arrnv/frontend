@@ -33,6 +33,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
   const [openCategoryKey, setOpenCategoryKey] = useState<string | null>(null);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [floatingAnchor, setFloatingAnchor] = useState<DOMRect | null>(null);
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
   const categoryButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const servicesRef = useRef<HTMLDivElement | null>(null);
@@ -41,10 +42,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
+  useEffect(() => setIsClient(true), []);
   const isSidebar = isClient && pathname.includes('/customer/Services');
 
   useEffect(() => {
@@ -55,30 +53,21 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/places`),
         ]);
 
-        const services: Category[] = (servicesRes.data.data || []).map((service: any) => ({
-          key: service.id,
-          label: service.label,
-          icon: service.icon || 'Wrench',
-          icon_url: service.icon_url || '',
-          subcategories: (service.subcategories || []).map((cat: any) => ({
-            key: cat.id,
-            label: cat.label,
-          })),
-        }));
+        setServicesData((servicesRes.data.data || []).map((s: any) => ({
+          key: s.id,
+          label: s.label,
+          icon: s.icon || 'Wrench',
+          icon_url: s.icon_url || '',
+          subcategories: (s.subcategories || []).map((sc: any) => ({ key: sc.id, label: sc.label })),
+        })));
 
-        const places: Category[] = (placesRes.data.data || []).map((place: any) => ({
-          key: place.id,
-          label: place.label,
+        setPlacesData((placesRes.data.data || []).map((p: any) => ({
+          key: p.id,
+          label: p.label,
           icon: 'MapPin',
-          icon_url: place.icon_url || '',
-          subcategories: (place.subcategories || []).map((cat: any) => ({
-            key: cat.id,
-            label: cat.label,
-          })),
-        }));
-
-        setServicesData(services);
-        setPlacesData(places);
+          icon_url: p.icon_url || '',
+          subcategories: (p.subcategories || []).map((sc: any) => ({ key: sc.id, label: sc.label })),
+        })));
       } catch (err) {
         console.error("🔥 Axios fetch error:", err);
       }
@@ -86,30 +75,6 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
 
     fetchData();
   }, []);
-
-  const toggleSection = (section: 'services' | 'places') => {
-    if (openSection === section) {
-      const ref = section === 'services' ? servicesRef.current : placesRef.current;
-      if (ref) {
-        gsap.to(ref, {
-          opacity: 0,
-          y: -10,
-          height: 0,
-          duration: 0.4,
-          ease: 'power2.in',
-          onComplete: () => {
-            setOpenSection(null);
-            setVisibleSection(null);
-          },
-        });
-      }
-    } else {
-      setVisibleSection(section);
-      setOpenSection(section);
-    }
-    setOpenCategoryKey(null);
-    setFloatingAnchor(null);
-  };
 
   const toggleCategory = (key: string) => {
     setOpenCategoryKey(prev => {
@@ -123,13 +88,6 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
     });
   };
 
-  useGSAP(() => {
-    const ref = openSection === 'services' ? servicesRef.current : placesRef.current;
-    if (ref) {
-      gsap.fromTo(ref, { opacity: 0, y: -10, height: 0 }, { opacity: 1, y: 0, height: 'auto', duration: 0.2 });
-    }
-  }, [openSection]);
-
   const handleSubcategoryClick = (section: 'services' | 'places', subcategoryId: string) => {
     setSelectedSubcategories(prev => {
       const updated = prev.includes(subcategoryId)
@@ -137,7 +95,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
         : [...prev, subcategoryId];
 
       if (isSidebar) {
-        onSelect(section, updated); // ✅ pass array back to parent
+        onSelect(section, updated);
       } else {
         const query = updated.map(id => `subcategory=${id}`).join('&');
         router.push(`/customer/Services?type=${section}&${query}`);
@@ -191,28 +149,49 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
     </div>
   );
 
+  useGSAP(() => {
+    const ref = openSection === 'services' ? servicesRef.current : placesRef.current;
+    if (ref) {
+      gsap.fromTo(ref, { opacity: 0, y: -10, height: 0 }, { opacity: 1, y: 0, height: 'auto', duration: 0.2 });
+    }
+  }, [openSection]);
+
+  const handleHover = (section: 'services' | 'places', enter: boolean) => {
+    if (hoverTimeout) clearTimeout(hoverTimeout);
+
+    const timeout = setTimeout(() => {
+      if (enter) {
+        setVisibleSection(section);
+        setOpenSection(section);
+      } else {
+        setVisibleSection(null);
+        setOpenSection(null);
+        setOpenCategoryKey(null);
+        setFloatingAnchor(null);
+      }
+    }, 200);
+
+    setHoverTimeout(timeout);
+  };
+
   // 🔁 Dual-mode rendering
   return isSidebar ? (
     <div className="bg-[#F7F6F9] border-r space-y-4 p-6 min-h-screen sticky top-0 overflow-y-auto w-full z-40">
       <div className="space-y-6">
         <div>
-          <button
-            onClick={() => toggleSection('services')}
-            className="w-full text-left font-bold text-lg mb-2  bg-[#FFFFFF]"
-          >
+          <button onClick={() => setOpenSection(openSection === 'services' ? null : 'services')}
+            className="w-full text-left font-bold text-lg mb-2 bg-[#FFFFFF]">
             <p className="text-[#202231]">Services</p>
           </button>
-          {visibleSection === 'services' && <div ref={servicesRef}>{renderCategories(servicesData, 'services')}</div>}
+          {openSection === 'services' && <div ref={servicesRef}>{renderCategories(servicesData, 'services')}</div>}
         </div>
 
         <div>
-          <button
-            onClick={() => toggleSection('places')}
-            className="w-full text-left font-bold text-lg mb-2 bg-[#FFFFFF]"
-          >
+          <button onClick={() => setOpenSection(openSection === 'places' ? null : 'places')}
+            className="w-full text-left font-bold text-lg mb-2 bg-[#FFFFFF]">
             <p className="text-[#202231]">Places</p>
           </button>
-          {visibleSection === 'places' && <div ref={placesRef}>{renderCategories(placesData, 'places')}</div>}
+          {openSection === 'places' && <div ref={placesRef}>{renderCategories(placesData, 'places')}</div>}
         </div>
       </div>
     </div>
@@ -226,8 +205,10 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
       </div>
 
       <div className="flex items-center space-x-4">
-        <div className="relative">
-          <button onClick={() => toggleSection('services')} className="flex items-center text-sm font-medium">
+        <div className="relative"
+             onMouseEnter={() => handleHover('services', true)}
+             onMouseLeave={() => handleHover('services', false)}>
+          <button className="flex items-center text-sm font-medium">
             <img src="/app.svg" alt="services" className="h-6" />
             <p className="ml-1 text-black">Services</p>
             {openSection === 'services' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -239,8 +220,10 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
           )}
         </div>
 
-        <div className="relative">
-          <button onClick={() => toggleSection('places')} className="flex items-center text-sm font-medium">
+        <div className="relative"
+             onMouseEnter={() => handleHover('places', true)}
+             onMouseLeave={() => handleHover('places', false)}>
+          <button className="flex items-center text-sm font-medium">
             <img src="/svg/tool.svg" alt="places" className="h-6" />
             <p className="ml-1 text-black">Places</p>
             {openSection === 'places' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}

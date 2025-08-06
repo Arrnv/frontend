@@ -65,7 +65,7 @@ const handleSelectService = (service: Service) => {
   };
 
   return (
-<div className="relative w-full">
+<div className="relative w-full p-4">
   {/* Your search bar here (the whole div with inputs + button) */}
   <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white h-15 w-full">
     {/* Location input */}

@@ -6,6 +6,8 @@ import { gsap } from 'gsap';
 import ServiceNav from '@/components/ServiceNav';
 import SearchBarServices from '@/components/SearchBarServices';
 import Link from 'next/link';
+import QuickSearchShortcuts from '@/components/QuickSearchShortcuts';
+
 
 const faqs = [
   {
@@ -72,8 +74,9 @@ const Page = () => {
         </section>
 
         <div className="flex flex-row w-full justify-center">
-          <div className='flex flex-col items-center bg-[#FFFFFF] w-1/2 justify-center'>
-          <div className="w-full h-20 flex flex-col justify-center items-center px-3 shadow-xl rounded-sm border border-gray-200">
+          <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-1/2 justify-center'>
+          <QuickSearchShortcuts />
+          <div className="w-full h-auto flex flex-col justify-center items-center shadow-xl rounded-sm border border-gray-200">
               <SearchBarServices />
           </div>
           </div>
