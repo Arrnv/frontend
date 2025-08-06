@@ -10,7 +10,7 @@ const TopNav = () => {
 
   return (
     <header className="w-screen shadow-sm border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="p-4 flex items-center justify-between">
+      <div className="px-4 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
           <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
@@ -29,10 +29,10 @@ const TopNav = () => {
           >
             List Your Business
           </Link>
-          <Link href="/login" className="text-sm font-semibold text-[#0E1C2F] hover:text-[#246BFD]">
+          <Link href="/customer/login" className="text-sm font-semibold text-[#0E1C2F] hover:text-[#246BFD]">
             Log In
           </Link>
-          <Link href="/signup" className="text-sm font-semibold text-[#246BFD] hover:underline">
+          <Link href="/customer/signup" className="text-sm font-semibold text-[#246BFD] hover:underline">
             Sign Up
           </Link>
         </div>

@@ -78,7 +78,7 @@ const [showAddForm, setShowAddForm] = useState(false);
     </div>
 
     {/* Contact Buttons */}
-    <div className="flex flex-wrap gap-4 mb-6 justify-between">
+    <div className="flex flex-row gap-2 mb-6 justify-between">
         <a href={`tel:${selectedDetail.contact}`} className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center">
         <FaPhoneAlt /> Phone
         </a>
