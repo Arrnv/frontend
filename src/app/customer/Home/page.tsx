@@ -7,6 +7,7 @@ import ServiceNav from '@/components/ServiceNav';
 import SearchBarServices from '@/components/SearchBarServices';
 import Link from 'next/link';
 import QuickSearchShortcuts from '@/components/QuickSearchShortcuts';
+import Footer from '@/components/Footer';
 
 
 const faqs = [
@@ -246,13 +247,7 @@ const Page = () => {
               </div>
             ))}
         </section>
-
-          <div
-            className="w-screen h-64 bg-[url('/Footer.png')] bg-cover bg-center "
-          >
-
-          </div>
-
+        <Footer/>
         </div>
       </div>
     </>

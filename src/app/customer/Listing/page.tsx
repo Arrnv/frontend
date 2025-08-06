@@ -1,4 +1,5 @@
 'use client'
+import Footer from '@/components/Footer';
 import ServiceNav from '@/components/ServiceNav';
 import React from 'react'
 
@@ -258,6 +259,7 @@ const page = () => {
         </div>
       </div>
     </section>
+    <Footer/>
     </>
   )
 }

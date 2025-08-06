@@ -114,7 +114,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
         <div key={category.key} className="relative">
           <button
             ref={el => { categoryButtonRefs.current[category.key] = el }}
-            className="w-full flex items-center justify-between text-left font-semibold py-2 px-3 rounded transition bg-white hover:bg-gray-100"
+            className="w-full flex items-center justify-between text-left font-semibold py-2 px-3 rounded transition bg-white hover:text-[#0099E8]"
             onClick={() => toggleCategory(category.key)}
           >
             <span className="flex items-center">
@@ -123,7 +123,7 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
               ) : (
                 <Wrench size={20} className="mr-2" />
               )}
-              <p className="text-black">{category.label}</p>
+              <p className="text-black hover:text-[#0099E8]">{category.label}</p>
             </span>
             {openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
@@ -208,9 +208,9 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
         <div className="relative"
              onMouseEnter={() => handleHover('services', true)}
              onMouseLeave={() => handleHover('services', false)}>
-          <button className="flex items-center text-sm font-medium">
-            <img src="/app.svg" alt="services" className="h-6" />
-            <p className="ml-1 text-black">Services</p>
+          <button className="flex items-center text-sm font-medium hover:text-[#0099E8]">
+            <img src="/app.svg" alt="services" className="h-6 hover:text-[#0099E8]" />
+            <p className="ml-1 text-black hover:text-[#0099E8]">Services</p>
             {openSection === 'services' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
           {visibleSection === 'services' && (
@@ -223,9 +223,9 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
         <div className="relative"
              onMouseEnter={() => handleHover('places', true)}
              onMouseLeave={() => handleHover('places', false)}>
-          <button className="flex items-center text-sm font-medium">
+          <button className="flex items-center text-sm font-medium hover:text-[#0099E8]">
             <img src="/svg/tool.svg" alt="places" className="h-6" />
-            <p className="ml-1 text-black">Places</p>
+            <p className="ml-1 text-black hover:text-[#0099E8]">Places</p>
             {openSection === 'places' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
           </button>
           {visibleSection === 'places' && (
