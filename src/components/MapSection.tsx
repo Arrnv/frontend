@@ -174,7 +174,7 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
           height: `${CIRCLE_RADIUS_PX * 2}px`,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
-          border: '3px solid red',
+          border: '3px solid blue',
           pointerEvents: 'none',
           zIndex: 10,
         }}
@@ -217,7 +217,7 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
                       d.place_category?.icon_url ||
                       'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
                     }
-                    className="w-10 h-10 rounded-full border-2 border-white shadow-md object-contain bg-white"
+                    className="w-12 h-12 rounded-xl p-1 border-5 border-[#52C4FF] shadow-md object-contain bg-white border-double "
                     alt={d.name}
                   />
                   <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
