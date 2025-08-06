@@ -109,51 +109,55 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
   };
 
 const renderCategories = (data: Category[], section: 'services' | 'places') => (
-  <div className={` ${isSidebar ? 'flex flex-col items-center space-y-4' : ''}`}>
-    {data.map(category => (
-      <div key={category.key} className="relative group">
-        <button
-          ref={el => { categoryButtonRefs.current[category.key] = el }}
-          className={`flex items-center justify-center transition rounded-md ${
-            isSidebar
-              ? 'w-10 h-10 bg-white hover:text-white'
-              : 'w-full text-left font-semibold py-1 hover:text-[#0099E8]'
-          }`}
-          onClick={() => toggleCategory(category.key)}
-          title={isSidebar ? category.label : undefined} // Tooltip for sidebar mode
-        >
+<div className={`${isSidebar ? 'flex flex-col items-center space-y-4' : 'space-y-1'}`}>
+  {data.map((category) => (
+    <div key={category.key} className="relative group">
+      <button
+        ref={el => { categoryButtonRefs.current[category.key] = el }}
+        onClick={() => toggleCategory(category.key)}
+        title={isSidebar ? category.label : undefined}
+        className={`transition rounded-md focus:outline-none ${
+          isSidebar
+            ? 'w-10 h-10 flex items-center justify-center bg-white hover:text-white'
+            : 'w-full flex items-center justify-between px-2 py-1 text-left font-semibold hover:text-[#0099E8]'
+        }`}
+      >
+        <div className={`flex items-center ${!isSidebar ? 'gap-2' : ''}`}>
           {category.icon_url ? (
             <img src={category.icon_url} alt="" className="w-6 h-6 object-contain" />
           ) : (
             <Wrench size={20} />
           )}
           {!isSidebar && (
-            <>
-              <span className="ml-2 text-black">{category.label}</span>
-              {openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-            </>
+            <span className="text-black">{category.label}</span>
           )}
-        </button>
+        </div>
 
-        {openCategoryKey === category.key && floatingAnchor && (
-          <FloatingSubmenu
-            anchorRect={floatingAnchor}
-            subcategories={category.subcategories}
-            selectedSubcategory={selectedSubcategories}
-            onSelect={(updatedIds) => {
-              setSelectedSubcategories(updatedIds);
-              if (isSidebar) {
-                onSelect(section, updatedIds);
-              } else {
-                const query = updatedIds.map(id => `subcategory=${id}`).join('&');
-                router.push(`/customer/Services?type=${section}&${query}`);
-              }
-            }}
-          />
+        {!isSidebar && (
+          <span>{openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
         )}
-      </div>
-    ))}
-  </div>
+      </button>
+
+      {openCategoryKey === category.key && floatingAnchor && (
+        <FloatingSubmenu
+          anchorRect={floatingAnchor}
+          subcategories={category.subcategories}
+          selectedSubcategory={selectedSubcategories}
+          onSelect={(updatedIds) => {
+            setSelectedSubcategories(updatedIds);
+            if (isSidebar) {
+              onSelect(section, updatedIds);
+            } else {
+              const query = updatedIds.map(id => `subcategory=${id}`).join('&');
+              router.push(`/customer/Services?type=${section}&${query}`);
+            }
+          }}
+        />
+      )}
+    </div>
+  ))}
+</div>
+
 );
 
 
