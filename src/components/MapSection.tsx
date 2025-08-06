@@ -32,7 +32,7 @@ type Props = {
   selectedDetail: Detail | null;
 };
 
-const CIRCLE_RADIUS_PX = 100; // Radius in pixels (diameter = 200px)
+const CIRCLE_RADIUS_PX = 275; // Radius in pixels (diameter = 200px)
 
 const MapSection = ({ origin, details, selectedDetail }: Props) => {
   const { isLoaded } = useJsApiLoader({

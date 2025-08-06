@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import React from 'react';
 import { gsap } from 'gsap';
 import ServiceNav from '@/components/ServiceNav';
-import SearchBarServices from '@/components/SearchBarServices';
 import Footer from '@/components/Footer';
 
 const faqs = [

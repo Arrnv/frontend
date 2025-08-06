@@ -253,7 +253,7 @@ useEffect(() => {
         
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
-          <div className="w-1/6 bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
+          <div className="w-auto bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
           <ServiceNav
             selectedCategory={null}
             onSelect={(type, ids) => {
@@ -330,7 +330,7 @@ useEffect(() => {
             
           </div>
 
-          <div className="w-3/6 border-l border-[#415CBB]/60">
+          <div className="w-4/6 border-l border-[#415CBB]/60">
            {userLocation ? (
               <MapSection origin={userLocation} details={details} selectedDetail={selectedDetail} />
             ) : (
