@@ -5,10 +5,10 @@ import axios from 'axios';
 import { useLoadScript } from '@react-google-maps/api';
 import dynamic from 'next/dynamic';
 import { gsap } from 'gsap';
-import Slider from 'react-slick';
+
 import { FaStar, FaRegStar } from 'react-icons/fa';
 import Navbar from '@/components/Navbar';
-import ClientLayout from '@/app/ClientLayout';
+
 import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
 import DetailDrawer from '@/components/DetailDrawer';

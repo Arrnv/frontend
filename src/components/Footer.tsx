@@ -23,7 +23,7 @@ const Footer = () => {
               className="h-6 w-6"
             />
             <span className="text-white">
-              TRUCKER<span className="text-[#0099E8]">GUIDE</span>
+              DailEn<span className="text-[#0099E8]">Search</span>
             </span>
           </div>
 
