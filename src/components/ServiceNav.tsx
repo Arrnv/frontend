@@ -147,16 +147,25 @@ const renderCategories = (data: Category[], section: 'services' | 'places') => (
           anchorRect={floatingAnchor}
           subcategories={category.subcategories}
           selectedSubcategory={selectedSubcategories}
-          onSelect={(updatedIds) => {
-            setSelectedSubcategories(updatedIds);
-            if (isSidebar) {
-              onSelect(section, updatedIds);
-            } else {
-              const query = updatedIds.map(id => `subcategory=${id}`).join('&');
-              router.push(`/customer/Services?type=${section}&${query}`);
-            }
-          }}
+          allowMultiSelect={isSidebar}  // ⬅️ Single-select top bar, multi-select in sidebar
+          onSelect={(updatedIds: string[] | ((prevState: string[]) => string[])) => {
+  // Use setState with function if necessary
+          setSelectedSubcategories(updatedIds);
+
+          const resolvedIds = typeof updatedIds === 'function'
+            ? updatedIds(selectedSubcategories) // manually resolve it
+            : updatedIds;
+
+          if (isSidebar) {
+            onSelect(section, resolvedIds);
+          } else {
+            const query = resolvedIds.map(id => `subcategory=${id}`).join('&');
+            router.push(`/customer/Services?type=${section}&${query}`);
+          }
+        }}
+
         />
+
       )}
     </div>
   ))}

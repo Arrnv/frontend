@@ -32,7 +32,7 @@ const TopNav = () => {
           <Link href="/customer/login" className="text-sm font-semibold text-[#0E1C2F] hover:text-[#246BFD]">
             Log In
           </Link>
-          <Link href="/customer/signup" className="text-sm font-semibold text-[#246BFD] hover:underline">
+          <Link href="/customer/Signup" className="text-sm font-semibold text-[#246BFD] hover:underline">
             Sign Up
           </Link>
         </div>

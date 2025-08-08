@@ -8,6 +8,7 @@ import SearchBarServices from '@/components/SearchBarServices';
 import Link from 'next/link';
 import QuickSearchShortcuts from '@/components/QuickSearchShortcuts';
 import Footer from '@/components/Footer';
+import SearchWithShortcuts from '@/components/SearchWithShortcuts';
 
 
 const faqs = [
@@ -76,9 +77,8 @@ const Page = () => {
 
         <div className="flex flex-row w-full justify-center">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-1/2 justify-center'>
-          <QuickSearchShortcuts />
-          <div className="w-full h-auto flex flex-col justify-center items-center shadow-xl rounded-sm border border-gray-200">
-              <SearchBarServices />
+          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200">
+              <SearchWithShortcuts/>
           </div>
           </div>
         </div>
