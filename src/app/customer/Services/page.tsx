@@ -80,6 +80,8 @@ const Page = () => {
   const [bookingStatus, setBookingStatus] = useState<string | null>(null);
   const [bookingOptions, setBookingOptions] = useState<{ id: string; type: string; price: number; note?: string }[]>([]);
   const [selectedOptionId, setSelectedOptionId] = useState<string>('');
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
+
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -285,12 +287,14 @@ useEffect(() => {
               {activeCategory ? `Entries for ${activeCategory.type}` : 'Welcome, customer!'}
             </h1>
             <div className="flex flex-col gap-4 ">
-              {details.map((detail) => (
-                <div
-                  key={detail.id}
-                  onClick={() => handleDetailClick(detail)}
-                  className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
-                >
+              {details
+                .filter((detail) => visibleIds.has(detail.id))
+                .map((detail) => (
+                  <div
+                    key={detail.id}
+                    onClick={() => handleDetailClick(detail)}
+                    className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
+                  >
                   {detail.businesses?.logo_url && (
                     <img
                       src={detail.businesses.logo_url}
@@ -332,7 +336,15 @@ useEffect(() => {
 
           <div className="w-4/6 border-l border-[#415CBB]/60">
            {userLocation ? (
-              <MapSection origin={userLocation} details={details} selectedDetail={selectedDetail} />
+            <MapSection
+              origin={userLocation}
+              details={details}
+              selectedDetail={selectedDetail}
+              onDetailSelect={handleDetailClick}
+              onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+            />
+
+
             ) : (
               <div className="flex items-center justify-center h-full text-[#8B9AB2]">Loading map...</div>
             )}

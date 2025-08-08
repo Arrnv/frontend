@@ -30,11 +30,14 @@ type Props = {
   origin: LatLng;
   details: Detail[];
   selectedDetail: Detail | null;
+  onDetailSelect: (detail: Detail) => void;
+  onVisibleIdsChange: (ids: Set<string>) => void; // ✅ new
 };
 
-const CIRCLE_RADIUS_PX = 275; // Radius in pixels (diameter = 200px)
+const CIRCLE_RADIUS_PX = 275;
+const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
-const MapSection = ({ origin, details, selectedDetail }: Props) => {
+const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisibleIdsChange }: Props) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places', 'geometry'],
@@ -48,7 +51,7 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
 
-  // Track user's location
+
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
@@ -63,7 +66,6 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  // Route directions
   useEffect(() => {
     if (!isLoaded || !selectedDetail || !selectedDetail.latitude || !selectedDetail.longitude) {
       setDirections(null);
@@ -94,37 +96,6 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
     );
   }, [isLoaded, selectedDetail, userPosition]);
 
-  // Voice prompts
-  useEffect(() => {
-    if (!steps.length) return;
-
-    const step = steps[currentStepIndex];
-    const userLatLng = new google.maps.LatLng(userPosition.lat, userPosition.lng);
-    const stepEndLatLng = step?.end_location;
-
-    const distance = google.maps.geometry.spherical.computeDistanceBetween(userLatLng, stepEndLatLng);
-
-    if (distance < 100 && !spokenSteps.current.has(currentStepIndex)) {
-      speak(stripHtml(step.instructions));
-      spokenSteps.current.add(currentStepIndex);
-      if (currentStepIndex < steps.length - 1) {
-        setCurrentStepIndex((prev) => prev + 1);
-      }
-    }
-  }, [userPosition, currentStepIndex, steps]);
-
-  const speak = (text: string) => {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'en-US';
-    speechSynthesis.speak(msg);
-  };
-
-  const stripHtml = (html: string): string => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
-  };
-
   const detectVisibleMarkers = useCallback(() => {
     if (!mapRef.current) return;
 
@@ -135,7 +106,6 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
       if (!projection) return;
 
       const idsInCircle = new Set<string>();
-
       const bounds = mapRef.current!.getDiv().getBoundingClientRect();
       const centerX = bounds.width / 2;
       const centerY = bounds.height / 2;
@@ -155,16 +125,30 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
         }
       });
 
-      setVisibleIds(idsInCircle);
+      setVisibleIds(idsInCircle); // ✅ update local marker visibility
+      onVisibleIdsChange(idsInCircle); // ✅ update parent for left pane
+
     };
+
     overlay.setMap(mapRef.current);
-  }, [details]);
+  }, [details, onVisibleIdsChange]);
+
+  const speak = (text: string) => {
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US';
+    speechSynthesis.speak(msg);
+  };
+
+  const stripHtml = (html: string): string => {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  };
 
   if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <div className="h-full w-full relative">
-      {/* Circle Overlay in center of screen */}
       <div
         style={{
           position: 'absolute',
@@ -182,11 +166,11 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
 
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={userPosition}
-        zoom={3}
+        center={DALLAS_CENTER}
+        zoom={11}
         onLoad={(map) => {
           mapRef.current = map;
-          setTimeout(() => detectVisibleMarkers(), 500); // Wait for projection
+          setTimeout(() => detectVisibleMarkers(), 500);
         }}
         onIdle={detectVisibleMarkers}
       >
@@ -196,37 +180,31 @@ const MapSection = ({ origin, details, selectedDetail }: Props) => {
           icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
         />
 
-        {details
-          .filter((d) => d.latitude && d.longitude)
-          .map((d) => {
-            const isInside = visibleIds.has(d.id);
-            return (
-              <OverlayView
-                key={d.id}
-                position={{ lat: d.latitude!, lng: d.longitude! }}
-                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-              >
-                <div
-                  className={`flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full transition-opacity duration-300 ${
-                    isInside ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                  }`}
-                >
-                  <img
-                    src={
-                      d.service_category?.icon_url ||
-                      d.place_category?.icon_url ||
-                      'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                    }
-                    className="w-12 h-12 rounded-xl p-1 border-5 border-[#52C4FF] shadow-md object-contain bg-white border-double "
-                    alt={d.name}
-                  />
-                  <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-                    {d.name}
-                  </div>
-                </div>
-              </OverlayView>
-            );
-          })}
+        {details.filter((d) => visibleIds.has(d.id)).map((d) => (
+          <OverlayView
+            key={d.id}
+            position={{ lat: d.latitude!, lng: d.longitude! }}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+          >
+            <div
+              onClick={() => onDetailSelect(d)}
+              className="flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full transition-opacity duration-300"
+            >
+              <img
+                src={
+                  d.service_category?.icon_url ||
+                  d.place_category?.icon_url ||
+                  'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                }
+                className="w-12 h-12 rounded-xl p-1 border-5 border-[#52C4FF] shadow-md object-contain bg-white border-double"
+                alt={d.name}
+              />
+              <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+                {d.name}
+              </div>
+            </div>
+          </OverlayView>
+        ))}
 
         {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
