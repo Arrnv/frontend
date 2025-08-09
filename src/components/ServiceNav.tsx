@@ -10,7 +10,7 @@ import FloatingSubmenu from '@/components/FloatingSubmenu';
 import {
   ChevronDown, ChevronUp, Wrench, MapPin,
 } from 'lucide-react';
-
+import LoginModal from './LoginModal';
 type SubCategory = { key: string; label: string };
 type Category = {
   key: string;
@@ -27,6 +27,7 @@ type ServiceNavProps = {
 
 const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) => {
   const [servicesData, setServicesData] = useState<Category[]>([]);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [placesData, setPlacesData] = useState<Category[]>([]);
   const [openSection, setOpenSection] = useState<'services' | 'places' | null>(null);
   const [visibleSection, setVisibleSection] = useState<'services' | 'places' | null>(null);
@@ -253,6 +254,7 @@ const renderCategories = (data: Category[], section: 'services' | 'places') => (
       </div>
     </div>
   ) : (
+    <>
     <nav className="w-screen bg-white border-b border-[#8B9AB2] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
       <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
         <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
@@ -345,10 +347,16 @@ const renderCategories = (data: Category[], section: 'services' | 'places') => (
         <Link href="/business/signup" className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white font-medium px-4 py-2 rounded-xl hover:opacity-90 transition shadow-sm">
           List Your Business
         </Link>
-        <Link href="/customer/login" className="text-sm font-semibold text-[#0E1C2F] hover:text-[#246BFD]">Log In</Link>
-        <Link href="/customer/Signup" className="text-sm font-semibold text-[#246BFD] hover:underline">Sign Up</Link>
+        <button
+                  onClick={() => setIsLoginOpen(true)}
+                  className="text-sm font-semibold text-[#246BFD]  rounded"
+                >
+          Login
+        </button>        
       </div>
     </nav>
+          <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+</>
   );
 };
 
