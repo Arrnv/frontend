@@ -29,11 +29,11 @@
     }
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "next-env.d.ts",
     ".next/types/**/*.ts"
-, "src/app/customer/bus/[id]/page.tsx"  ],
+  ],
   "exclude": [
     "node_modules"
   ]

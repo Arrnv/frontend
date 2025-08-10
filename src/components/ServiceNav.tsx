@@ -10,7 +10,7 @@ import { useSearchParams } from 'next/navigation';
 import FloatingSubmenu from '@/components/FloatingSubmenu';
 
 import {
-  ChevronDown, ChevronUp, Wrench, MapPin,
+  ChevronDown, ChevronUp, Wrench,
 } from 'lucide-react';
 import LoginModal from './LoginModal';
 type SubCategory = { key: string; label: string };
@@ -234,7 +234,6 @@ const renderCategories = (data: Category[], section: 'services' | 'places') => (
     setHoverTimeout(timeout);
   };
 
-  // 🔁 Dual-mode rendering
   return isSidebar ? (
     <div className="bg-[#F7F6F9] border-r space-y-4 p-2 h-full sticky top-0 overflow-y-auto w-full z-40">
       <div className="space-y-6 p-3">
