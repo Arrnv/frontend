@@ -120,78 +120,122 @@ useEffect(() => {
     setOpenCategoryKey(null);
   };
 
+const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+const clearHoverTimeout = () => {
+  if (hoverTimeoutRef.current) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = null;
+  }
+};
+
+const setCloseTimeout = () => {
+  hoverTimeoutRef.current = setTimeout(() => {
+    setOpenCategoryKey(null);
+    setFloatingAnchor(null);
+  }, 200);
+};
+
 const renderCategories = (data: Category[], section: 'services' | 'places') => (
-<div className={`${isSidebar ? 'flex flex-col items-center space-y-4' : 'space-y-1'}`}>
-  {data.map((category) => (
-    <div key={category.key} className="relative group">
-      <button
-        ref={el => { categoryButtonRefs.current[category.key] = el }}
-        onClick={() => toggleCategory(category.key)}
-        title={isSidebar ? category.label : undefined}
-        className={`transition rounded-md focus:outline-none ${
-          isSidebar
-            ? 'w-10 h-10 flex items-center justify-center bg-white hover:text-white'
-            : 'w-full flex items-center justify-between px-2 py-1 text-left font-semibold hover:text-[#0099E8]'
-        }`}
-      >
-        <div className={`flex items-center ${!isSidebar ? 'gap-2' : ''}`}>
-          {category.icon_url ? (
-            <img src={category.icon_url} alt=""  className={`transition  w-6 h-6 object-contain ${
-                openCategoryKey === category.key
-                  ? 'text-[#0099E8]'
-                  : 'text-black group-hover:text-[#0099E8]'
-              }`}/>
-          ) : (
-            <Wrench size={20} />
-          )}
-          {!isSidebar && (
-            <span
-              className={`transition ${
-                openCategoryKey === category.key
-                  ? 'text-[#0099E8]'
-                  : 'text-black group-hover:text-[#0099E8]'
-              }`}
-            >
-              {category.label}
-            </span>
+  <div className={`${isSidebar ? 'flex flex-col items-center space-y-4' : 'space-y-1'}`}>
+    {data.map((category) => {
+      const handleMouseEnter = () => {
+        clearHoverTimeout();
+        setOpenCategoryKey(category.key);
+        const button = categoryButtonRefs.current[category.key];
+        if (button) setFloatingAnchor(button.getBoundingClientRect());
+      };
+
+      const handleMouseLeave = () => {
+        setCloseTimeout();
+      };
+
+      // Add these handlers also to FloatingSubmenu
+      const handleSubmenuMouseEnter = () => {
+        clearHoverTimeout();
+      };
+
+      const handleSubmenuMouseLeave = () => {
+        setCloseTimeout();
+      };
+
+      return (
+        <div
+          key={category.key}
+          className="relative group"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <button
+            ref={el => { categoryButtonRefs.current[category.key] = el }}
+            title={isSidebar ? category.label : undefined}
+            className={`transition rounded-md focus:outline-none ${
+              isSidebar
+                ? 'w-10 h-10 flex items-center justify-center bg-white hover:text-white'
+                : 'w-full flex items-center justify-between px-2 py-1 text-left font-semibold hover:text-[#0099E8]'
+            } ${
+              openCategoryKey === category.key ? 'text-[#0099E8]' : ''
+            }`}
+          >
+            <div className={`flex items-center ${!isSidebar ? 'gap-2' : ''}`}>
+              {category.icon_url ? (
+                <img
+                  src={category.icon_url}
+                  alt=""
+                  className={`transition w-6 h-6 object-contain ${
+                    openCategoryKey === category.key
+                      ? 'text-[#0099E8]'
+                      : 'text-black group-hover:text-[#0099E8]'
+                  }`}
+                />
+              ) : (
+                <Wrench size={20} />
+              )}
+              {!isSidebar && (
+                <span
+                  className={`transition ${
+                    openCategoryKey === category.key
+                      ? 'text-[#0099E8]'
+                      : 'text-black group-hover:text-[#0099E8]'
+                  }`}
+                >
+                  {category.label}
+                </span>
+              )}
+            </div>
+
+            {!isSidebar && (
+              <span>{openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
+            )}
+          </button>
+
+          {openCategoryKey === category.key && floatingAnchor && (
+            <FloatingSubmenu
+              anchorRect={floatingAnchor}
+              subcategories={category.subcategories}
+              selectedSubcategory={selectedSubcategories}
+              allowMultiSelect={isSidebar}
+              onSelect={(updatedIds) => {
+                setSelectedSubcategories(updatedIds);
+
+                if (isSidebar) {
+                  onSelect(section, updatedIds);
+                } else {
+                  const query = updatedIds.map(id => `subcategory=${id}`).join('&');
+                  router.push(`/customer/Services?type=${section}&${query}`);
+                }
+              }}
+
+              onMouseEnter={handleSubmenuMouseEnter}
+              onMouseLeave={handleSubmenuMouseLeave}
+            />
           )}
         </div>
-
-        {!isSidebar && (
-          <span>{openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
-        )}
-      </button>
-
-      {openCategoryKey === category.key && floatingAnchor && (
-        <FloatingSubmenu
-          anchorRect={floatingAnchor}
-          subcategories={category.subcategories}
-          selectedSubcategory={selectedSubcategories}
-          allowMultiSelect={isSidebar}  // ⬅️ Single-select top bar, multi-select in sidebar
-          onSelect={(updatedIds: string[] | ((prevState: string[]) => string[])) => {
-  // Use setState with function if necessary
-          setSelectedSubcategories(updatedIds);
-
-          const resolvedIds = typeof updatedIds === 'function'
-            ? updatedIds(selectedSubcategories) // manually resolve it
-            : updatedIds;
-
-          if (isSidebar) {
-            onSelect(section, resolvedIds);
-          } else {
-            const query = resolvedIds.map(id => `subcategory=${id}`).join('&');
-            router.push(`/customer/Services?type=${section}&${query}`);
-          }
-        }}
-
-        />
-
-      )}
-    </div>
-  ))}
-</div>
-
+      );
+    })}
+  </div>
 );
+
 
 
   useGSAP(() => {

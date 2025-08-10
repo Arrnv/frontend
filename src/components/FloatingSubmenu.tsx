@@ -10,8 +10,10 @@ type FloatingSubmenuProps = {
   anchorRect: DOMRect | null;
   subcategories: SubCategory[];
   selectedSubcategory: string[];
-  allowMultiSelect: boolean; // new prop
+  allowMultiSelect: boolean;
   onSelect: (subcategoryIds: string[]) => void;
+  onMouseEnter?: React.MouseEventHandler<HTMLDivElement>;
+  onMouseLeave?: React.MouseEventHandler<HTMLDivElement>;
 };
 
 const FloatingSubmenu: React.FC<FloatingSubmenuProps> = ({
@@ -20,6 +22,8 @@ const FloatingSubmenu: React.FC<FloatingSubmenuProps> = ({
   selectedSubcategory,
   allowMultiSelect,
   onSelect,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [mounted, setMounted] = useState(false);
 
@@ -55,29 +59,34 @@ const FloatingSubmenu: React.FC<FloatingSubmenuProps> = ({
   };
 
 return createPortal(
-  <div style={style}>
-    {subcategories.length === 0 ? (
-      <div className="text-sm text-black">No options</div>
-    ) : (
-      subcategories.map(sub => {
-        const isSelected = selectedSubcategory.includes(sub.key);
-        return (
-          <button
-            key={sub.key}
-            className={`flex items-center gap-2 w-full text-left px-2 py-1 text-sm rounded hover:bg-blue-100 ${
-              isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
-            }`}
-            onClick={() => handleClick(sub.key)}
-          >
-            {allowMultiSelect && <input type="checkbox" checked={isSelected} readOnly />}
-            <span className="text-black">{sub.label}</span>
-          </button>
-        );
-      })
-    )}
-  </div>,
-  document.body
-);
-
+    <div
+      style={style}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {subcategories.length === 0 ? (
+        <div className="text-sm text-black hover:text-[#0099E8]">No options</div>
+      ) : (
+        subcategories.map(sub => {
+          const isSelected = selectedSubcategory.includes(sub.key);
+          return (
+            <button
+              key={sub.key}
+              className={`flex items-center gap-2 w-full text-left px-2 py-1 text-sm rounded hover:text-[#0099E8] ${
+                isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
+              }`}
+              onClick={() => handleClick(sub.key)}
+            >
+              {allowMultiSelect && <input type="checkbox" checked={isSelected} readOnly />}
+              <span className="text-black hover:text-[#0099E8]">{sub.label}</span>
+            </button>
+          );
+        })
+      )}
+    </div>,
+    document.body
+  );
 };
+
+
 export default FloatingSubmenu;

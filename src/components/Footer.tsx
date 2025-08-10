@@ -55,7 +55,7 @@ const Footer = () => {
             <h4 className="font-semibold mb-2">For Drivers</h4>
             <ul className="space-y-1">
               <li><Link href="/customer/Services" className="hover:text-[#0099E8]">Places</Link></li>
-              <li><Link href="/customer/Services" className="hover:text-[#0099E8]">Services</Link></li>
+              <li><Link href="/customer/Services?type=services&subcategory=48cb06e6-df5d-4cf4-b0b8-6bd48b70fb9f" className="hover:text-[#0099E8]">Services</Link></li>
               <li><Link href="/customer/Navigation" className="hover:text-[#0099E8]">Navigation</Link></li>
             </ul>
           </div>
