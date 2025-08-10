@@ -9,12 +9,16 @@ type Props = {
   onSuccess: (user: { email: string; fullName: string }) => void;
 };
 
-const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' }) => {
+const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const role = defaultRole || 'visitor';
+
+  const googleAuthUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google?role=${role}`;
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,13 +107,14 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole = 'visitor' })
         <div className="my-4 flex items-center justify-center">
           <span className="text-gray-500">or</span>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`;
-          }}
-          className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition flex items-center justify-center gap-2"
-        >
+
+<button
+  type="button"
+  onClick={() => {
+    window.location.href = googleAuthUrl;
+  }}
+  className="w-full bg-red-500 text-white py-2 rounded hover:bg-red-600 transition flex items-center justify-center gap-2"
+>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-5 w-5"

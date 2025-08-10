@@ -63,6 +63,30 @@ export default function EditServicePage() {
       alert('Update failed.');
     }
   };
+    const [user, setUser] = useState<{ email: string; fullName: string ,role?: string; } | null>(null);
+useEffect(() => {
+  const checkUser = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
+      if (res.status === 200) {
+        const user = res.data.user;
+        setUser(user);
+
+        if (user.role === 'business') {
+          router.push('/business/dashboard');
+        } else if (user.role === 'visitor') {
+          router.push('/'); // redirect visitor to home page
+        } else {
+          // Optionally handle other roles, e.g. admin
+          router.push('/'); // fallback
+        }
+      }
+    } catch {
+      // On error you might want to do nothing or redirect to login
+    }
+  };
+  checkUser();
+}, [router]);
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white shadow rounded mt-6 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">

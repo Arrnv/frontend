@@ -18,7 +18,14 @@ body {
 body::-webkit-scrollbar {
   display: none; /* Chrome/Safari */
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
+/* Hide scrollbar for Firefox */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
 :root {
   --background-dark: #0E1C2F;
   --primary-blue: #246BFD;

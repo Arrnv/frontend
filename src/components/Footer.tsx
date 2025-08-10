@@ -56,7 +56,6 @@ const Footer = () => {
             <ul className="space-y-1">
               <li><Link href="/customer/Services" className="hover:text-[#0099E8]">Places</Link></li>
               <li><Link href="/customer/Services" className="hover:text-[#0099E8]">Services</Link></li>
-              <li><Link href="/traffic-cameras" className="hover:text-[#0099E8]">Traffic Cameras</Link></li>
               <li><Link href="/customer/Navigation" className="hover:text-[#0099E8]">Navigation</Link></li>
             </ul>
           </div>

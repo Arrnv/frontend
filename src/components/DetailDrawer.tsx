@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { IoClose } from 'react-icons/io5'; // or any other icon set
 import { FaStar, FaRegStar, FaPhoneAlt, FaGlobe, FaDirections } from 'react-icons/fa';
 import { IoMdTime } from 'react-icons/io';
+import Link from 'next/link';
 
 const StarDisplay = ({ rating }: { rating: number }) => (
   <div className="flex gap-1 text-[#0099E8] text-sm">
@@ -12,9 +13,6 @@ const StarDisplay = ({ rating }: { rating: number }) => (
     )}
   </div>
 );
-
-
-
 
 type Props = {
   selectedDetail: any;
@@ -33,6 +31,7 @@ type Props = {
   isBooking: boolean;
   handleReviewSubmit: () => void;
 };
+
 
 const DetailDrawer = ({
   selectedDetail,
@@ -55,12 +54,35 @@ const DetailDrawer = ({
   const [showAmenities, setShowAmenities] = useState(true); // add this with your other state
   const [reviewTab, setReviewTab] = useState('All');
   const [sortOption, setSortOption] = useState('Newest First');
-const [showReviews, setShowReviews] = useState(true);
-const [showAddForm, setShowAddForm] = useState(false);
+    const [showReviews, setShowReviews] = useState(true);
+    const [showAddForm, setShowAddForm] = useState(false);
+    const parseTimings = (timingString: string) => {
+    return timingString.split(",").map((item) => {
+        const [day, hours] = item.split(":");
+        return {
+        day: day.trim(),
+        hours: hours?.replace(/\[|\]/g, "").trim(),
+        closed: hours?.toLowerCase().includes("closed"),
+        };
+    });
+    };
+
+    const dayNames = [
+    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    ];
+
+    const todayName = dayNames[new Date().getDay()];
+    const todayTiming = selectedDetail?.timings
+    ? parseTimings(selectedDetail.timings).find(
+        (d) => d.day.toLowerCase() === todayName.toLowerCase()
+        )
+    : null;
+
+
   if (!selectedDetail) return null;
 
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-[#FAFAFA] z-50 p-5 overflow-y-auto rounded-r-2xl shadow-2xl text-[#202231] font-[Roboto] transition-all duration-300">
+    <div className="absolute top-0 left-0 w-full h-full bg-[#FAFAFA]  p-5 overflow-y-auto rounded-r-2xl shadow-2xl text-[#202231] font-[Roboto] transition-all duration-300">
     <button
     className="absolute top-3 right-4 text-2xl text-black hover:text-gray-700 transition"
     onClick={onClose}
@@ -95,26 +117,46 @@ const [showAddForm, setShowAddForm] = useState(false);
         </a>
         )}
     </div>
-
-    {/* Operating Hours */}
+ <Link className='text-black' href={`/customer/bus/${selectedDetail.id}`}>
+    View Detail
+    </Link>
     <div className="mb-5 bg-white p-4 rounded-xl shadow-sm">
-        <button className="flex items-center justify-between w-full text-sm font-medium" onClick={() => setShowHours(!showHours)}>
-        <span className="flex items-center gap-2 text-green-600">
-            <IoMdTime /> OPEN {selectedDetail.current_hours}
-        </span>
-        <span>{showHours ? '▲' : '▼'}</span>
+        <button
+            className="flex items-center justify-between w-full text-sm font-medium"
+            onClick={() => setShowHours(!showHours)}
+        >
+            <span
+            className={`flex items-center gap-2 ${
+                todayTiming?.closed ? "text-red-500" : "text-green-600"
+            }`}
+            >
+            <IoMdTime />
+            {todayTiming
+                ? `${todayTiming.day}: ${
+                    todayTiming.closed ? "Closed" : todayTiming.hours
+                }`
+                : "Hours not available"}
+            </span>
+            <span>{showHours ? "▲" : "▼"}</span>
         </button>
-        {showHours && (
-        <div className="mt-2 text-sm text-gray-700 space-y-1">
-            {selectedDetail.weekly_hours?.map((day: any, i: number) => (
-            <div key={i} className="flex justify-between">
+
+        {showHours && selectedDetail?.timings && (
+            <div className="mt-2 text-sm text-gray-700 space-y-1">
+            {parseTimings(selectedDetail.timings).map((day, i) => (
+                <div key={i} className="flex justify-between">
                 <span>{day.day}</span>
-                <span className={day.closed ? 'text-red-500' : 'font-semibold'}>{day.closed ? 'Closed' : day.hours}</span>
-            </div>
+                <span
+                    className={day.closed ? "text-red-500" : "font-semibold"}
+                >
+                    {day.closed ? "Closed" : day.hours}
+                </span>
+                </div>
             ))}
-        </div>
+            </div>
         )}
     </div>
+
+
 
     {/* Amenities */}
     {selectedDetail.detail_amenities?.length > 0 && (
@@ -187,7 +229,8 @@ const [showAddForm, setShowAddForm] = useState(false);
         <h3 className="text-xl font-semibold text-[#202231] tracking-tight">Reviews ({reviews.length})</h3>
         <span className="text-sm text-gray-500">{showReviews ? '▲' : '▼'}</span>
     </div>
-
+    
+   
     {showReviews && (
         <>
         {/* Filter Tabs */}

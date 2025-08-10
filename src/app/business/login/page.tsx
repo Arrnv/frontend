@@ -1,59 +1,55 @@
 'use client';
-import { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
+import AuthForm from '@/components/AuthForm';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
-export default function LoginPage() {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+const BusinessSignup = () => {
+  const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+useEffect(() => {
+  const checkUser = async () => {
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, form, {
-        withCredentials: true,
-      });
-      if (res.data?.user?.role === 'business') {
-        router.push('/business/dashboard');
-      } else {
-        router.push('/');
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
+      if (res.status === 200) {
+        const user = res.data.user;
+        setUser(user);
+
+        if (user.role === 'business') {
+          router.push('/business/dashboard');
+        } else if (user.role === 'visitor') {
+          router.push('/'); // redirect visitor to home page
+        } else {
+          // Optionally handle other roles, e.g. admin
+          router.push('/'); // fallback
+        }
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch {
     }
   };
+  checkUser();
+}, [router]);
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 space-y-4 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
-      <h2 className="text-2xl font-bold text-center">Business Login</h2>
-      <input
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-        required
-        className="w-full p-2 border border-gray-300 rounded"
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-        required
-        className="w-full p-2 border border-gray-300 rounded"
-      />
-      <button type="submit" className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
-        Login
-      </button>
-      <button
-        type="button"
-        onClick={() => router.push('/business/signup')}
-        className="w-full border border-green-600 text-green-600 py-2 rounded hover:bg-green-50"
-      >
-        Don&apos;t have an account? Sign Up
-      </button>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-    </form>
+    <div className="min-h-screen flex items-center justify-center p-6  from-[#0E1C2F] ">
+      {!user ? (
+        <AuthForm
+          mode="login"
+          defaultRole="business"
+          onSuccess={(user) => {
+            setUser(user);
+            router.push('/business/onboarding');
+          }}
+        />
+      ) : (
+        <div>
+          <h1 className="text-xl">Already logged in</h1>
+        </div>
+      )}
+    </div>
   );
-}
+};
+
+export default BusinessSignup;

@@ -6,25 +6,30 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const BusinessSignup = () => {
-  const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; fullName: string ,role?: string; } | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
-        if (res.status === 200) {
-          setUser(res.data.user);
+useEffect(() => {
+  const checkUser = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
+      if (res.status === 200) {
+        const user = res.data.user;
+        setUser(user);
+
+        if (user.role === 'business') {
           router.push('/business/dashboard');
         }
-      } catch {}
-    };
-    checkUser();
-  }, [router]);
+      }
+    } catch {
+    }
+  };
+  checkUser();
+}, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
-      {!user ? (
+    <div className="min-h-screen flex items-center justify-center p-6  from-[#0E1C2F] ">
+      {user?.role !== 'business' ? (
         <AuthForm
           mode="signup"
           defaultRole="business"
@@ -35,7 +40,7 @@ const BusinessSignup = () => {
         />
       ) : (
         <div>
-          <h1 className="text-xl">Already logged in</h1>
+          <h1 className="text-xl te">Already logged in</h1>
         </div>
       )}
     </div>

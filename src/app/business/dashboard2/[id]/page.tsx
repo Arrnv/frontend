@@ -25,7 +25,30 @@ export default function ServiceDashboardPage({ params }: { params: Promise<{ id:
   const router = useRouter();
 
   const { id: serviceId } = use(params);
+  const [user, setUser] = useState<{ email: string; fullName: string ,role?: string; } | null>(null);
+useEffect(() => {
+  const checkUser = async () => {
+    try {
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
+      if (res.status === 200) {
+        const user = res.data.user;
+        setUser(user);
 
+        if (user.role === 'business') {
+          router.push('/business/dashboard');
+        } else if (user.role === 'visitor') {
+          router.push('/'); // redirect visitor to home page
+        } else {
+          // Optionally handle other roles, e.g. admin
+          router.push('/'); // fallback
+        }
+      }
+    } catch {
+      // On error you might want to do nothing or redirect to login
+    }
+  };
+  checkUser();
+}, [router]);
   useEffect(() => setMounted(true), []);
 
   const isToday = (timestamp: string | number | Date) => {
