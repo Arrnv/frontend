@@ -26,14 +26,16 @@
 //   }>;
 // }
 
+// // Fetch business details (server side)
 // async function getBusinessDetail(id: string): Promise<BusinessDetail> {
 //   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/${id}`, { cache: 'no-store' });
 //   if (!res.ok) throw new Error('Failed to fetch business detail');
 //   return res.json();
 // }
 
-// export async function generateMetadata({ params: { id } }: { params: { id: string } }): Promise<Metadata> {
-//   const data = await getBusinessDetail(id);
+// // Generate Metadata for SEO & Social previews
+// export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+//   const data = await getBusinessDetail(params.id);
 
 //   return {
 //     title: `${data.name} - ${data.location}`,
@@ -46,14 +48,18 @@
 //   };
 // }
 
+// // Star rating display component
 // function StarDisplay({ rating }: { rating: number }) {
 //   return (
 //     <div className="flex gap-1 text-[#0099E8] text-sm">
-//       {[1, 2, 3, 4, 5].map((i) => (i <= rating ? <FaStar key={i} /> : <FaRegStar key={i} />))}
+//       {[1, 2, 3, 4, 5].map((i) =>
+//         i <= rating ? <FaStar key={i} /> : <FaRegStar key={i} />
+//       )}
 //     </div>
 //   );
 // }
 
+// // Parse timings string into structured data
 // function parseTimings(timingString: string) {
 //   return timingString.split(',').map((item) => {
 //     const [day, hours] = item.split(':');
@@ -65,8 +71,8 @@
 //   });
 // }
 
-// export default async function BusinessPage(props: { params: { id: string } }) {
-//   const { params } = props;
+// // The actual page component - server component
+// export default async function BusinessPage({ params }: { params: { id: string } }) {
 //   const detail = await getBusinessDetail(params.id);
 
 //   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
