@@ -143,12 +143,13 @@ export default async function BusinessPage({ params }: { params: { id: string } 
       
     </div>
     <div className="bg-white p-4 rounded-xl shadow-sm mt-10">
+
         <h3 className="text-xl font-semibold mb-4">Reviews ({detail.reviews?.length || 0})</h3>
         {detail.reviews?.length > 0 ? (
           detail.reviews.map((r: any, idx: number) => (
             <div key={r.id || idx} className="bg-gray-50 rounded-lg px-4 py-3 shadow-sm mb-3">
               <div className="flex justify-between items-center mb-1">
-                <p className="font-medium">{r.full_name}</p>
+                <p className="font-medium">{r.user?.full_name || "Anonymous"}</p>
                 <span className="text-sm text-gray-400">
                   {new Date(r.date || Date.now()).toLocaleDateString()}
                 </span>

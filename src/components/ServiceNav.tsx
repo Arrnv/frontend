@@ -8,6 +8,7 @@ import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useSearchParams } from 'next/navigation';
 import FloatingSubmenu from '@/components/FloatingSubmenu';
+
 import {
   ChevronDown, ChevronUp, Wrench, MapPin,
 } from 'lucide-react';
@@ -88,37 +89,7 @@ useEffect(() => {
     fetchData();
   }, []);
 
-  const toggleCategory = (key: string) => {
-    setOpenCategoryKey(prev => {
-      if (prev === key) {
-        setFloatingAnchor(null);
-        return null;
-      }
-      const button = categoryButtonRefs.current[key];
-      if (button) setFloatingAnchor(button.getBoundingClientRect());
-      return key;
-    });
-  };
 
-  const handleSubcategoryClick = (section: 'services' | 'places', subcategoryId: string) => {
-    setSelectedSubcategories(prev => {
-      const updated = prev.includes(subcategoryId)
-        ? prev.filter(id => id !== subcategoryId)
-        : [...prev, subcategoryId];
-
-      if (isSidebar) {
-        onSelect(section, updated);
-      } else {
-        const query = updated.map(id => `subcategory=${id}`).join('&');
-        router.push(`/customer/Services?type=${section}&${query}`);
-      }
-
-      return updated;
-    });
-
-    setFloatingAnchor(null);
-    setOpenCategoryKey(null);
-  };
 
 const hoverTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -318,7 +289,7 @@ const renderCategories = (data: Category[], section: 'services' | 'places') => (
     </div>
   ) : (
     <>
-    <nav className="w-screen bg-white border-b border-[#8B9AB2] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
+    <nav className="fixed top-0 left-0 z-50 w-screen bg-white border-b border-[#D9E4EF] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
       <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
         <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
         <span className="font-bold text-xl text-[#0E1C2F]">
