@@ -216,7 +216,7 @@ const Page = () => {
             </div>            
           </div>
         </section>
-        <section className="bg-[#F7F7F9] mb-16 w-screen px-50 py-25">
+        <section className="bg-[#F7F7F9] w-screen px-50 py-25">
             <h2 className="text-3xl font-bold mb-6 text-[#0099E8]">
               Got Questions? We Got Answers
             </h2>

@@ -42,7 +42,7 @@ const SettingsPage = () => {
   if (!profile) return <p className="p-6">You must be logged in to view settings.</p>;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-8">
+    <div className="max-w-3xl mx-auto p-6 space-y-8 text-black">
       <h1 className="text-2xl font-bold">Settings</h1>
 
       <ProfileSection profile={profile} />
