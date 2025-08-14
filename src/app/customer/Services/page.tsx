@@ -65,7 +65,7 @@ const Page = () => {
   const [subcategoryInfo, setSubcategoryInfo] = useState<{ id: string; label: string; type: string }[]>([]);
   
   // Mobile toggle state
-  const [showMap, setShowMap] = useState(false);
+  const [showMap, setShowMap] = useState(true);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
