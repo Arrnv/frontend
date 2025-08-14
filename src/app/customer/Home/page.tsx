@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import React from 'react';
 import { gsap } from 'gsap';
 import ServiceNav from '@/components/ServiceNav';
@@ -43,9 +43,11 @@ const Page = () => {
 
   return (
     <>
+    <Suspense fallback={<div>Loading navigation...</div>}>
       <ServiceNav selectedCategory={null}  onSelect={function (section: 'services' | 'places', subcategoryIds: string[]):void {
         throw new Error('Function not implemented.');
       } } />
+      </Suspense>
       <div className="overflow-hidden text-white bg-white">
         <div className="w-screen flex flex-col items-center ">
           
@@ -76,7 +78,9 @@ const Page = () => {
         <div className="flex flex-row w-full justify-center">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-1/2 justify-center'>
           <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200">
+            <Suspense fallback={<div>Loading search...</div>}>
               <SearchWithShortcuts/>
+            </Suspense>
           </div>
           </div>
         </div>

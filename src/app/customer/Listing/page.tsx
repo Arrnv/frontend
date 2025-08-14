@@ -1,14 +1,16 @@
 'use client'
 import Footer from '@/components/Footer';
 import ServiceNav from '@/components/ServiceNav';
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
     <>
+    <Suspense fallback={<div>Loading navigation...</div>}>
         <ServiceNav selectedCategory={null}  onSelect={function (section: 'services' | 'places', subcategoryIds: string[]):void {
             throw new Error('Function not implemented.');
         } } />
+        </Suspense>
         <section className="relative px-30 rounded-3xl overflow-hidden mb-16 text-[#202231] ">
           <div className="flex flex-col gap-5 md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             

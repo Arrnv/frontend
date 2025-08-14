@@ -280,6 +280,7 @@ const Page = () => {
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-auto bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
+          <Suspense fallback={<div>Loading navigation...</div>}>
             <ServiceNav
               selectedCategory={null}
               onSelect={(type, ids) => {
@@ -297,6 +298,7 @@ const Page = () => {
                 handleDetailClick(null);
               }}
             />
+          </Suspense>
           </div>
 
           <Suspense fallback={null}>
