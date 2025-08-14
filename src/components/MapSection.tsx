@@ -39,7 +39,7 @@ const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
 const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisibleIdsChange }: Props) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyBshs3gL-QjlozjuEJDLnsR3Qc4PNE9RVg',
     libraries: ['places', 'geometry'],
   });
 

@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import axios from 'axios';
-import { useLoadScript } from '@react-google-maps/api';
 import dynamic from 'next/dynamic';
 
-import { FaStar, FaRegStar } from 'react-icons/fa';
 import Navbar from '@/components/Navbar';
 import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
@@ -13,17 +11,7 @@ import DetailDrawer from '@/components/DetailDrawer';
 
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
 
-const libraries: any = ['places'];
 
-const StarSelector = ({ rating, onChange }: { rating: number; onChange: (val: number) => void }) => (
-  <div className="flex gap-1">
-    {[1, 2, 3, 4, 5].map((i) => (
-      <button key={i} type="button" onClick={() => onChange(i)} className="text-yellow-500 text-xl hover:scale-110">
-        {rating >= i ? <FaStar /> : <FaRegStar />}
-      </button>
-    ))}
-  </div>
-);
 
 type Booking = { id: string; note: string; price: number; booking_time: string };
 type Detail = {
@@ -80,10 +68,7 @@ const Page = () => {
     { id: string; label: string; type: string }[]
   >([]);
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!,
-    libraries,
-  });
+
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -280,7 +265,7 @@ const Page = () => {
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
           <div className="w-auto bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
-          <Suspense fallback={<div>Loading navigation...</div>}>
+<Suspense>
             <ServiceNav
               selectedCategory={null}
               onSelect={(type, ids) => {
@@ -298,7 +283,7 @@ const Page = () => {
                 handleDetailClick(null);
               }}
             />
-          </Suspense>
+</Suspense>
           </div>
 
           <Suspense fallback={null}>
@@ -380,17 +365,20 @@ const Page = () => {
 
           {/* Map Section */}
           <div className="w-4/6 border-l border-[#415CBB]/60">
-            {userLocation ? (
-              <MapSection
-                origin={userLocation}
-                details={details}
-                selectedDetail={selectedDetail}
-                onDetailSelect={handleDetailClick}
-                onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-[#8B9AB2]">Loading map...</div>
-            )}
+           { userLocation ? (
+                    <MapSection
+                      origin={userLocation}
+                      details={details}
+                      selectedDetail={selectedDetail}
+                      onDetailSelect={handleDetailClick}
+                      onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-[#8B9AB2]">
+                      Loading map...
+                    </div>
+                  )}
+
           </div>
         </div>
       </div>
