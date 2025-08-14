@@ -175,9 +175,9 @@ const DetailDrawer = ({
         )}
         </div>
     )}
-    <Link className='text-black mb-5 bg-white p-4 rounded-xl shadow-sm' href={`/customer/bus/${selectedDetail.id}`}>
+    {/* <Link className='text-black mb-5 bg-white p-4 rounded-xl shadow-sm' href={`/customer/bus/${selectedDetail.id}`}>
         View Detail
-    </Link>
+    </Link> */}
     {/* Booking */}
     {userRole && (
         <div className="mb-8 bg-white p-5 rounded-xl shadow-sm">
