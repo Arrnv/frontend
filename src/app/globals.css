@@ -46,7 +46,7 @@ body::-webkit-scrollbar {
 body {
   font-family: var(--font-family);
   background-color: var(--white);
-  color: var(--white);
+  color: var(--background-dark);
   margin: 0;
   padding: 0;
 }
