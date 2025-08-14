@@ -221,7 +221,7 @@ useEffect(() => {
   };
 
   return isSidebar ? (
-    <div className="bg-[#F7F6F9] border-r space-y-4 p-2 h-full sticky top-0 overflow-y-auto w-full z-40 ">
+    <div className="bg-[#F7F6F9] border-r space-y-4 p-2 h-full sticky top-0 overflow-y-auto w-full z-40">
       <div className="space-y-6 p-3">
         <div>
           <button
@@ -391,7 +391,7 @@ useEffect(() => {
 {/* Mobile Menu */}
 {/* Mobile Menu */}
 {mobileMenuOpen && (
-  <div className="md:hidden mt-[60px] bg-white border-t border-[#D9E4EF] shadow-lg h-[calc(100vh-60px)] fixed z-50 flex flex-col">
+  <div className="md:hidden mt-[60px] bg-white border-t border-[#D9E4EF] shadow-lg h-[calc(100vh-60px)] flex flex-col">
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
 
       {/* Services Section */}

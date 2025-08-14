@@ -11,8 +11,6 @@ import DetailDrawer from '@/components/DetailDrawer';
 
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
 
-
-
 type Booking = { id: string; note: string; price: number; booking_time: string };
 type Detail = {
   id: string;
@@ -64,11 +62,10 @@ const Page = () => {
   const [bookingOptions, setBookingOptions] = useState<{ id: string; type: string; price: number; note?: string }[]>([]);
   const [selectedOptionId, setSelectedOptionId] = useState<string>('');
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
-  const [subcategoryInfo, setSubcategoryInfo] = useState<
-    { id: string; label: string; type: string }[]
-  >([]);
-
-
+  const [subcategoryInfo, setSubcategoryInfo] = useState<{ id: string; label: string; type: string }[]>([]);
+  
+  // Mobile toggle state
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -95,41 +92,33 @@ const Page = () => {
         setDetails([]);
         return;
       }
-
       const validIds = selectedSubcategories.filter(id => id.trim() !== '');
       if (validIds.length === 0) {
         setDetails([]);
         return;
       }
-
       const { type } = activeCategory;
       const normalizedType = type === 'services' ? 'service' : type === 'places' ? 'place' : type;
-
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/details/${normalizedType}?ids=${validIds.join(',')}`
         );
-
         let results = res.data;
-
         if (selectedCity.trim()) {
           const cityLower = selectedCity.toLowerCase();
           results = results.filter((d: Detail) => d.location?.toLowerCase().includes(cityLower));
         }
-
         setDetails(results);
       } catch (err) {
         console.error('❌ Failed to fetch details:', err);
         setDetails([]);
       }
     };
-
     fetchDetails();
   }, [activeCategory?.type, activeCategory?.id, selectedSubcategories.join(','), selectedCity]);
 
   useEffect(() => {
     if (!selectedDetail) return;
-
     const fetchOptions = async () => {
       try {
         const res = await axios.get(
@@ -141,13 +130,11 @@ const Page = () => {
         console.error('Failed to fetch booking options', err);
       }
     };
-
     fetchOptions();
   }, [selectedDetail]);
 
   useEffect(() => {
     if (!selectedDetail || !userLocation) return;
-
     const directionsService = new google.maps.DirectionsService();
     directionsService.route(
       {
@@ -165,14 +152,12 @@ const Page = () => {
     setSelectedDetail(detail);
     setReviews([]);
     if (!detail) return;
-
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`,
         { detailId: detail.id, eventType: 'view' },
         { withCredentials: true }
       );
-
       const reviewRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${detail.id}`, {
         withCredentials: true,
       });
@@ -186,20 +171,17 @@ const Page = () => {
     if (!selectedOptionId || !selectedDetail) return;
     setIsBooking(true);
     setBookingStatus(null);
-
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/track`,
         { detailId: selectedDetail.id, eventType: 'click' },
         { withCredentials: true }
       );
-
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/create-checkout-session`,
         { option_id: selectedOptionId, note },
         { withCredentials: true }
       );
-
       if (res.data.url) {
         window.location.href = res.data.url;
       } else {
@@ -215,7 +197,6 @@ const Page = () => {
 
   const handleReviewSubmit = async () => {
     if (!selectedDetail || !newReview.comment || newReview.rating === 0) return;
-
     try {
       const res = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${selectedDetail.id}`,
@@ -226,7 +207,6 @@ const Page = () => {
         },
         { withCredentials: true }
       );
-
       setReviews((prev) => [...prev, res.data]);
       setNewReview({ comment: '', rating: 0 });
     } catch (err) {
@@ -239,14 +219,11 @@ const Page = () => {
       setSubcategoryInfo([]);
       return;
     }
-
     const fetchSubcategoryLabels = async () => {
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/subcategories`,
-          {
-            params: { ids: selectedSubcategories.join(',') },
-          }
+          { params: { ids: selectedSubcategories.join(',') } }
         );
         setSubcategoryInfo(res.data.data || []);
       } catch (err) {
@@ -254,36 +231,68 @@ const Page = () => {
         setSubcategoryInfo([]);
       }
     };
-
     fetchSubcategoryLabels();
   }, [selectedSubcategories]);
 
   return (
-    <main className='h-screen w-screen flex flex-col'>
+    <main className="h-screen w-screen flex flex-col">
       <Navbar />
+      {/* Mobile toggle */}
+<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
+  <div className="relative flex bg-white rounded-full shadow-lg overflow-hidden border border-gray-200">
+    {/* Active background slider */}
+    <div
+      className={`absolute top-0 left-0 h-full w-1/2 bg-[#0E1C2F] transition-transform duration-300 ease-in-out rounded-full`}
+      style={{
+        transform: showMap ? 'translateX(100%)' : 'translateX(0%)'
+      }}
+    ></div>
+
+    {/* List Button */}
+    <button
+      onClick={() => setShowMap(false)}
+      className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
+        !showMap ? 'text-white' : 'text-gray-700'
+      }`}
+    >
+      List
+    </button>
+
+    {/* Map Button */}
+    <button
+      onClick={() => setShowMap(true)}
+      className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
+        showMap ? 'text-white' : 'text-gray-700'
+      }`}
+    >
+      Map
+    </button>
+  </div>
+</div>
+
       <div className="flex flex-1 overflow-hidden bg-[#0E1C2F] w-screen">
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar */}
-          <div className="w-auto bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60">
-<Suspense>
-            <ServiceNav
-              selectedCategory={null}
-              onSelect={(type, ids) => {
-                if (!ids || (Array.isArray(ids) && ids.length === 0)) {
-                  setActiveCategory(null);
-                  setSelectedSubcategories([]);
-                  setDetails([]);
+        <div className="flex  overflow-hidden flex-row w-screen">
+          {/* Left Sidebar - ServiceNav (hidden on mobile if map view) */}
+          <div className={`${showMap ? 'hidden' : 'block'} md:block  bg-gradient-to-b  from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60`}>
+            <Suspense>
+              <ServiceNav
+                selectedCategory={null}
+                onSelect={(type, ids) => {
+                  if (!ids || (Array.isArray(ids) && ids.length === 0)) {
+                    setActiveCategory(null);
+                    setSelectedSubcategories([]);
+                    setDetails([]);
+                    handleDetailClick(null);
+                    return;
+                  }
+                  const firstId = Array.isArray(ids) ? ids[0] : ids;
+                  setActiveCategory({ type, id: firstId });
+                  setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
+                  setSelectedCity('');
                   handleDetailClick(null);
-                  return;
-                }
-                const firstId = Array.isArray(ids) ? ids[0] : ids;
-                setActiveCategory({ type, id: firstId });
-                setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
-                setSelectedCity('');
-                handleDetailClick(null);
-              }}
-            />
-</Suspense>
+                }}
+              />
+            </Suspense>
           </div>
 
           <Suspense fallback={null}>
@@ -297,8 +306,8 @@ const Page = () => {
             />
           </Suspense>
 
-          {/* Center Content */}
-          <div className="w-2/6 p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]">
+          {/* List Panel (hidden on mobile if map view) */}
+          <div className={`${showMap ? 'hidden' : 'block'} md:block  md:w-2/5 sm:w-full p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}>
             {!selectedDetail ? (
               <>
                 <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
@@ -363,22 +372,21 @@ const Page = () => {
             )}
           </div>
 
-          {/* Map Section */}
-          <div className="w-4/6 border-l border-[#415CBB]/60">
-           { userLocation ? (
-                    <MapSection
-                      origin={userLocation}
-                      details={details}
-                      selectedDetail={selectedDetail}
-                      onDetailSelect={handleDetailClick}
-                      onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-[#8B9AB2]">
-                      Loading map...
-                    </div>
-                  )}
-
+          {/* Map Section (hidden on mobile if list view) */}
+          <div className={`${!showMap ? 'hidden' : 'block'} md:block w-full md:w-5/6 border-l border-[#415CBB]/60`}>
+            {userLocation ? (
+              <MapSection
+                origin={userLocation}
+                details={details}
+                selectedDetail={selectedDetail}
+                onDetailSelect={handleDetailClick}
+                onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-[#8B9AB2]">
+                Loading map...
+              </div>
+            )}
           </div>
         </div>
       </div>
