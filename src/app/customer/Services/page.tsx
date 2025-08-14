@@ -307,7 +307,7 @@ const Page = () => {
           </Suspense>
 
           {/* List Panel (hidden on mobile if map view) */}
-          <div className={`${showMap ? 'hidden' : 'block'} md:block  md:w-2/5 sm:w-full p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}>
+          <div className={`${showMap ? 'hidden' : 'block'} w-full md:block  md:w-2/5  p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}>
             {!selectedDetail ? (
               <>
                 <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
