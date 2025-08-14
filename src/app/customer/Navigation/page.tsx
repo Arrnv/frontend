@@ -61,8 +61,8 @@ const Page = () => {
         throw new Error('Function not implemented.');
       } } />
     </Suspense>
-        <section className="relative px-25  overflow-hidden mb-16 ">
-          <div className="flex flex-col-reverse md:flex-row items-center justify-between px-12 md:px-20 py-12 md:py-20 gap-10">
+        <section className="relative md:px-25 mt-5 overflow-hidden mb-16 sm:px-5 sm:mt-5 ">
+          <div className="flex flex-col-reverse md:flex-row items-center justify-between px-12 md:px-20 py-12 md:py-20 gap-10 sm:flex-col">
             <div className="w-full md:w-1/2 text-center md:text-left">
               <h2 className="text-2xl md:text-4xl lg:text-6xl leading-tight font-thin text-[#202231] mb-6">
                 <span className='text-[#0099E8]'>GPS</span> NAVIGATION
@@ -92,14 +92,14 @@ const Page = () => {
             </div>
           </div>
         </section>
-        <section className='w-screen px-50 text-black '>
-            <div className='py-10 '>
+        <section className='w-screen px-5 md:px-52 text-black '>
+            <div className='py-10'>
                 <p className='text-[#202232]'>Truck Navigation Tool</p>
                 <h1 className='text-2xl'>Advantage in Every Mile</h1>
                 <p className='text-[#909198]'>Make every mile work for you — stay informed, stay safe, and keep rolling with confidence</p>
             </div>
             <div className='grid gap-5'>
-                <div className='flex flex-col gap-5 col-1'>
+                <div className='flex flex-col gap-5 md:col-1'>
                     <div className='flex flex-row gap-2'>
                         <div>
                             <img src="/svg/Overlay.png" alt="" sizes='5rem'/>
@@ -144,7 +144,7 @@ const Page = () => {
                     </div>
                     
                 </div>
-                <div className='flex flex-col gap-5 col-2'>
+                <div className='flex flex-col gap-5 md:col-2 '>
                     <div className='flex flex-row gap-2'>
                         <div>
                             <img src="/svg/Overlay4.png" alt="" sizes='5rem'/>
@@ -190,12 +190,12 @@ const Page = () => {
                 
             </div>
         </section>
-        <section className="w-screen h-auto bg-[url('/Group1.png')] bg-contain bg-center mt-20">
-            <div className='w-screen flex flex-col items-center h-[12rem] justify-center gap-5 '>
-                <h1 className='text-black text-4xl'>CREATE A TRUCK-SAFE ROUTE WITH EFFICIENCY</h1>
-                <p className='text-black text-sm'>Equip yourself with a navigation tool for accurate routes and expert guidance</p>
+        <section className="w-screen h-auto md:bg-[url('/Group1.png')] bg-contain bg-center mt-20">
+            <div className='w-screen flex flex-col text-center md:items-center h-[12rem] justify-center gap-5 '>
+                <h1 className='text-black text-2xl  md:text-4xl sm:text-center '>CREATE A TRUCK-SAFE ROUTE WITH EFFICIENCY</h1>
+                <p className='text-black px-2 text-sm sm:text-center'>Equip yourself with a navigation tool for accurate routes and expert guidance</p>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
@@ -213,7 +213,7 @@ const Page = () => {
                         <p className="text-[#909198] text-sm ">
                         Navigate to key places & services or create your own route                       
                         </p>
-                        <div className='flex flex-col gap-5 mt-5'>
+                        <div className='flex flex-col gap-5 mt-5 sm:items-center md:items-start'>
                             <div className='text-black flex gap-2 items-center'>
                                 <img src="/Component2.png" alt="" className='h-[1rem] w-[1.5rem]'/> <p>Truck parking, fuel stations, weigh stations, truck stops, and more</p>
                             </div>
@@ -232,7 +232,7 @@ const Page = () => {
                     
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full text-center md:text-left ">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
@@ -241,7 +241,7 @@ const Page = () => {
                         <p className="text-[#909198] text-sm ">
                             Stay informed on the road with updates from truckers                        
                         </p>
-                        <div className='flex flex-col gap-5 mt-5'>
+                        <div className='flex flex-col gap-5 mt-5 sm:items-center md:items-start'>
                             <div className='text-black flex gap-2 items-center'>
                                 <img src="/Component2.png" alt="" className='h-[1rem] w-[1.5rem]'/> <p>Real-time updates on parking availability</p>
                             </div>
@@ -268,7 +268,7 @@ const Page = () => {
                     </div>
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
@@ -279,7 +279,7 @@ const Page = () => {
                         />
                     </div>
                     </div>
-                    <div className="w-full text-center md:text-left ">
+                    <div className="w-full text-center md:text-left items-center md:items-start">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
                         Advanced Safety Features
                         </h1>
@@ -304,7 +304,7 @@ const Page = () => {
                     </div> 
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full text-center md:text-left ">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
@@ -341,7 +341,7 @@ const Page = () => {
                 </div>
             </div>
         </section>
-        <section className="bg-[#F7F7F9] mb-16 w-screen px-50 py-25">
+        <section className="bg-[#F7F7F9] mb-16 w-screen px-5 md:px-50 py-25">
             <h2 className="text-3xl font-bold mb-6 text-[#0099E8]">
               Got Questions? We Got Answers
             </h2>

@@ -12,8 +12,10 @@ import { FaApple, FaGooglePlay } from 'react-icons/fa6';
 
 const Footer = () => {
   return (
-    <footer className="w-screen h-64 bg-[url('/Footer.png')] bg-cover bg-center py-10 px-6 ">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between gap-8">
+    <footer className="w-full bg-[url('/Footer.png')] bg-cover bg-center py-10 px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between gap-10">
+        
+        {/* Logo & Social */}
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="flex items-center gap-2 text-xl font-bold">
             <img
@@ -33,7 +35,7 @@ const Footer = () => {
             <FaEnvelope className="hover:text-[#0099E8] cursor-pointer" />
           </div>
 
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs text-gray-400 text-center lg:text-left mt-2 leading-relaxed">
             © 2025 Trucker Guide LLC <br />
             <Link href="/terms" className="underline mr-2">Terms of Use</Link>
             <Link href="/privacy" className="underline">Privacy Policy</Link>
@@ -41,7 +43,7 @@ const Footer = () => {
         </div>
 
         {/* Links */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm text-white text-center sm:text-left">
           <div>
             <h4 className="font-semibold mb-2">Company</h4>
             <ul className="space-y-1">
@@ -70,7 +72,7 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-2">Download</h4>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2">
+              <li className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <FaApple />
                 <a
                   href="https://apps.apple.com"
@@ -81,7 +83,7 @@ const Footer = () => {
                   Download on the App Store
                 </a>
               </li>
-              <li className="flex items-center gap-2">
+              <li className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <FaGooglePlay />
                 <a
                   href="https://play.google.com/store"
@@ -95,6 +97,7 @@ const Footer = () => {
             </ul>
           </div>
         </div>
+
       </div>
     </footer>
   );

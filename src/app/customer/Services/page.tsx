@@ -8,6 +8,8 @@ import Navbar from '@/components/Navbar';
 import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
 import DetailDrawer from '@/components/DetailDrawer';
+import { motion } from "framer-motion";
+
 
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
 
@@ -240,19 +242,24 @@ const Page = () => {
       {/* Mobile toggle */}
 <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
   <div className="relative flex bg-white rounded-full shadow-lg overflow-hidden border border-gray-200">
-    {/* Active background slider */}
-    <div
-      className={`absolute top-0 left-0 h-full w-1/2 bg-[#0E1C2F] transition-transform duration-300 ease-in-out rounded-full`}
-      style={{
-        transform: showMap ? 'translateX(100%)' : 'translateX(0%)'
+    
+    {/* Animated sliding background */}
+    <motion.div
+      layout
+      className="absolute top-0 h-full w-1/2 bg-[#0099E8] rounded-full"
+      animate={{ x: showMap ? "100%" : "0%" }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 25
       }}
-    ></div>
+    />
 
     {/* List Button */}
     <button
       onClick={() => setShowMap(false)}
       className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
-        !showMap ? 'text-white' : 'text-gray-700'
+        !showMap ? "text-white" : "text-gray-700"
       }`}
     >
       List
@@ -262,7 +269,7 @@ const Page = () => {
     <button
       onClick={() => setShowMap(true)}
       className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
-        showMap ? 'text-white' : 'text-gray-700'
+        showMap ? "text-white" : "text-gray-700"
       }`}
     >
       Map
