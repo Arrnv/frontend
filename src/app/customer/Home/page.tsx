@@ -51,7 +51,7 @@ const Page = () => {
       <div className="overflow-hidden text-white bg-white">
         <div className="w-screen flex flex-col items-center ">
           
-        <section className="relative px-25 rounded-3xl overflow-hidden mb-16">
+        <section className="relative px-5  md:px-25 rounded-3xl overflow-hidden md:mb-16">
           <div className="flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             
             <div className="w-full md:w-1/2 text-center md:text-left">
@@ -76,7 +76,7 @@ const Page = () => {
         </section>
 
         <div className="flex flex-row w-full justify-center">
-          <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-1/2 justify-center'>
+          <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
           <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200">
             <Suspense fallback={<div>Loading search...</div>}>
               <SearchWithShortcuts/>
@@ -85,7 +85,7 @@ const Page = () => {
           </div>
         </div>
         
-        <section className="relative px-25 backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
+        <section className="relative px-5  md:px-25 backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
 
             <div className="w-full lg:w-1/2 text-center lg:text-left">
@@ -130,8 +130,9 @@ const Page = () => {
           </div>
         </section>
 
-        <section className="relative px-25  overflow-hidden mb-16">
-          <div className="flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
+        <section className="relative px-5 md:px-25 overflow-hidden mb-16">
+          <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
+            {/* Image first on mobile */}
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
                 <img
@@ -141,6 +142,8 @@ const Page = () => {
                 />
               </div>
             </div>
+
+            {/* Text */}
             <div className="w-full md:w-1/2 text-center md:text-left">
               <p className="text-[#0099E8] font-semibold text-sm uppercase tracking-wide mb-2">
                 Solutions for Drivers
@@ -152,16 +155,16 @@ const Page = () => {
                 Our truck-friendly navigation system offers precise directions, avoiding low bridges, weight limits, and no-truck areas, customized for your truck and trailer dimensions.
               </p>
               <Link href="/customer/Navigation">
-              <button className="bg-[#0099E8] text-white font-semibold py-3 px-6 rounded-md transition">
-                Learn More
-              </button>
+                <button className="bg-[#0099E8] text-white font-semibold py-3 px-6 rounded-md transition">
+                  Learn More
+                </button>
               </Link>
             </div>
-
           </div>
         </section>
-        <section className="relative px-25 overflow-hidden mb-16">
-          <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
+
+        <section className="relative px-5 md:px-25 overflow-hidden mb-16">
+          <div className="flex flex-col-reverse md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 text-center md:text-left">
               <p className="text-[#0099E8] font-semibold text-sm uppercase tracking-wide mb-2">
                 Solutions for Vendors
@@ -190,7 +193,7 @@ const Page = () => {
 
           </div>
         </section>
-        <section className="relative px-25 backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
+        <section className="relative px-5 md:px-25 backdrop-blur-lg rounded-3xl overflow-hidden mb-16">
           <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 flex justify-center relative max-w-lg rounded-lg">
               <img
@@ -220,7 +223,7 @@ const Page = () => {
             </div>            
           </div>
         </section>
-        <section className="bg-[#F7F7F9] w-screen px-50 py-25">
+        <section className="bg-[#F7F7F9] w-screen px-5 md:px-50 py-25">
             <h2 className="text-3xl font-bold mb-6 text-[#0099E8]">
               Got Questions? We Got Answers
             </h2>

@@ -11,19 +11,18 @@ const page = () => {
             throw new Error('Function not implemented.');
         } } />
         </Suspense>
-        <section className="relative px-30 rounded-3xl overflow-hidden mb-16 text-[#202231] ">
-          <div className="flex flex-col gap-5 md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
+        <section className="relative px-5 mt-10 md:px-30 rounded-3xl overflow-hidden mb-5 md:mb-16 text-[#202231] ">
+          <div className="flex flex-col gap-5 md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 md:gap-10">
             
             <div className="w-full md:w-1/2 text-center md:text-left flex flex-col gap-5">
              <p className='text-sm text-[#56575B]'>EMPOWER YOUR BUSINESS WITH TRUCKER GUIDE</p>
-             <h1 className='text-5xl'>DRIVE THE FUTURE
+             <h1 className='text-3xl md:text-5xl'>DRIVE THE FUTURE
                 OF BUSINESS
                 SUCCESS
              </h1>
-             <p className='text-lg'>Become a part of an innovative and feature-rich service
+             <p className='text-sm md:text-lg'>Become a part of an innovative and feature-rich service
                 that turns every truck driver into a valuable customer</p>
              <div>
-
              </div>
             </div>
             <div className="w-full md:w-1/2 flex justify-center">
@@ -71,11 +70,11 @@ const page = () => {
                 </div>
             </section>
         <section className="w-screen h-auto  bg-contain bg-center mt-20">
-            <div className='w-screen flex flex-col items-center h-[12rem] justify-center gap-5 '>
-                <h1 className='text-black text-4xl'>CREATE A TRUCK-SAFE ROUTE WITH EFFICIENCY</h1>
-                <p className='text-black text-sm'>Equip yourself with a navigation tool for accurate routes and expert guidance</p>
+            <div className='w-screen flex flex-col items-center px-5 h-auto justify-center gap-5 '>
+                <h1 className='text-black text-4xl text-center'>CREATE A TRUCK-SAFE ROUTE WITH EFFICIENCY</h1>
+                <p className='text-black text-sm text-center'>Equip yourself with a navigation tool for accurate routes and expert guidance</p>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
@@ -94,7 +93,7 @@ const page = () => {
                         Navigate to key places & services or create your own route                       
                         </p>
                         <div className='flex flex-row gap-5 mt-5'>
-                            <div className='flex-col-1 flex flex-col gap-3'>
+                            <div className='md:flex-col-1 flex flex-col gap-3'>
                                 <div className='text-black flex gap-2 items-center'>
                                     <img src="/Component2.png" alt="" className='h-[1rem] w-[1.5rem]'/> <p>Contact info</p>
                                 </div>
@@ -105,7 +104,7 @@ const page = () => {
                                     <img src="/Component2.png" alt="" className='h-[1rem] w-[1.5rem]'/> <p>Working hours</p>
                                 </div>
                             </div>
-                            <div className='flex-col-2 flex flex-col gap-3'>
+                            <div className='md:flex-col-2 flex flex-col gap-3'>
                                 <div className='text-black flex gap-2 items-center'>
                                     <img src="/Component2.png" alt="" className='h-[1rem] w-[1.5rem]'/> <p>Business details</p>
                                 </div>
@@ -122,8 +121,8 @@ const page = () => {
                     
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
+                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-2">
                     <div className="w-full text-center md:text-left ">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
                         Real-Time Location Updates
@@ -155,7 +154,7 @@ const page = () => {
                     </div>
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
@@ -187,9 +186,9 @@ const page = () => {
                     </div> 
                 </div>
             </div>
-            <div className="relative px-45 rounded-3xl overflow-hidden mb-16">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-5">
-                    <div className="w-1/3 text-center md:text-left ">
+            <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
+                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-5">
+                    <div className="md:w-1/3 text-center md:text-left ">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
                         Review Analytics
                         </h1>
@@ -225,42 +224,42 @@ const page = () => {
                 </div>
             </div>
         </section>
-    <section className="w-full bg-white py-16">
-      <div className="max-w-5xl mx-auto text-center px-4">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#202231] mb-4">
-          WHY JOIN OUR NETWORK?
-        </h2>
-        <p className="text-gray-600 mb-12">
-          We connect your business to <strong>250K+</strong> highly engaged drivers through our app and website
-        </p>
+        <section className="w-full bg-white py-16">
+        <div className="max-w-5xl mx-auto text-center px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#202231] mb-4">
+            WHY JOIN OUR NETWORK?
+            </h2>
+            <p className="text-gray-600 mb-12">
+            We connect your business to <strong>250K+</strong> highly engaged drivers through our app and website
+            </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
-            <img src="/listingiocns/image7.png" alt="" className='w-[2rem] h-[2rem]'/>
-            <p className="text-[#202231] font-medium">Attract Customers</p>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
+                <img src="/listingiocns/image7.png" alt="" className='w-[2rem] h-[2rem]'/>
+                <p className="text-[#202231] font-medium">Attract Customers</p>
+            </div>
 
-          <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
-           <img src="/listingiocns/image 8.png" alt="" className='w-[2rem] h-[2rem]'/>
-            <p className="text-[#202231] font-medium">Boost Your Sales</p>
-          </div>
+            <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
+            <img src="/listingiocns/image 8.png" alt="" className='w-[2rem] h-[2rem]'/>
+                <p className="text-[#202231] font-medium">Boost Your Sales</p>
+            </div>
 
-          <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
-            <img src="/listingiocns/image 9.png" alt="" className='w-[2rem] h-[2rem]'/>
-            <p className="text-[#202231] font-medium">Increase Visibility</p>
-          </div>
+            <div className="bg-white shadow-lg rounded-lg py-6 px-4 flex items-center justify-center space-x-3">
+                <img src="/listingiocns/image 9.png" alt="" className='w-[2rem] h-[2rem]'/>
+                <p className="text-[#202231] font-medium">Increase Visibility</p>
+            </div>
+            </div>
+
+            <div className="flex justify-center space-x-4">
+            <button className="bg-[#52C4FF] text-white font-semibold py-2 px-6 rounded-md transition ">
+                Sign Up
+            </button>
+            <button className="text-[#52C4FF] border border-[#52C4FF]  font-semibold py-2 px-6 rounded-md">
+                Schedule Demo
+            </button>
+            </div>
         </div>
-
-        <div className="flex justify-center space-x-4">
-          <button className="bg-[#52C4FF] text-white font-semibold py-2 px-6 rounded-md transition ">
-            Sign Up
-          </button>
-          <button className="text-[#52C4FF] border border-[#52C4FF]  font-semibold py-2 px-6 rounded-md">
-            Schedule Demo
-          </button>
-        </div>
-      </div>
-    </section>
+        </section>
     <Footer/>
     </>
   )
