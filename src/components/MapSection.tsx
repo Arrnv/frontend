@@ -34,7 +34,6 @@ type Props = {
   onVisibleIdsChange: (ids: Set<string>) => void;
 };
 
-const CIRCLE_RADIUS_PX = 250;
 const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
 const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisibleIdsChange }: Props) => {
@@ -48,9 +47,24 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
   const [userPosition, setUserPosition] = useState<LatLng>(origin);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
   const [circleDiameterKm, setCircleDiameterKm] = useState<number>(0);
+  const [circleRadiusPx, setCircleRadiusPx] = useState<number>(250); // 🔹 now dynamic
 
   const spokenSteps = useRef<Set<number>>(new Set());
   const mapRef = useRef<google.maps.Map | null>(null);
+
+  // 🔹 Adjust circle size for mobile
+  useEffect(() => {
+    const updateRadius = () => {
+      if (window.innerWidth < 768) {
+        setCircleRadiusPx(180); // smaller circle for mobile
+      } else {
+        setCircleRadiusPx(250); // default desktop
+      }
+    };
+    updateRadius();
+    window.addEventListener('resize', updateRadius);
+    return () => window.removeEventListener('resize', updateRadius);
+  }, []);
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
@@ -109,13 +123,12 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
       const centerX = bounds.width / 2;
       const centerY = bounds.height / 2;
 
-      // --- Calculate circle diameter in real-world distance ---
-      const centerLatLng = mapRef.current!.getCenter()!;
+      // --- Calculate circle diameter in km ---
       const pointEast = projection.fromContainerPixelToLatLng(
-        new google.maps.Point(centerX + CIRCLE_RADIUS_PX, centerY)
+        new google.maps.Point(centerX + circleRadiusPx, centerY)
       );
       const pointWest = projection.fromContainerPixelToLatLng(
-        new google.maps.Point(centerX - CIRCLE_RADIUS_PX, centerY)
+        new google.maps.Point(centerX - circleRadiusPx, centerY)
       );
 
       if (pointEast && pointWest && google.maps.geometry?.spherical) {
@@ -133,7 +146,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
         const dy = pixel.y - centerY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance <= CIRCLE_RADIUS_PX) {
+        if (distance <= circleRadiusPx) {
           idsInCircle.add(d.id);
         }
       });
@@ -143,7 +156,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
     };
 
     overlay.setMap(mapRef.current);
-  }, [details, onVisibleIdsChange]);
+  }, [details, onVisibleIdsChange, circleRadiusPx]);
 
   if (!isLoaded) return <div>Loading map...</div>;
 
@@ -173,8 +186,8 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
           position: 'absolute',
           top: '50%',
           left: '50%',
-          width: `${CIRCLE_RADIUS_PX * 2}px`,
-          height: `${CIRCLE_RADIUS_PX * 2}px`,
+          width: `${circleRadiusPx * 2}px`,
+          height: `${circleRadiusPx * 2}px`,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
           border: '8px dashed #0099E8',
