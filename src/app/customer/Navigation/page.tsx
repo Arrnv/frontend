@@ -233,7 +233,7 @@ const Page = () => {
                 </div>
             </div>
             <div className="relative px-5 md:px-45 rounded-3xl overflow-hidden mb-16">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-2">
                     <div className="w-full text-center md:text-left ">
                         <h1 className="text-2xl  font-bold leading-tight mb-2 text-[#0099E8]">
                         Real-Time Location Updates
@@ -341,7 +341,7 @@ const Page = () => {
                 </div>
             </div>
         </section>
-        <section className="bg-[#F7F7F9] mb-16 w-screen px-5 md:px-50 py-25">
+        <section className="bg-[#F7F7F9] w-screen px-5 md:px-50 py-25">
             <h2 className="text-3xl font-bold mb-6 text-[#0099E8]">
               Got Questions? We Got Answers
             </h2>

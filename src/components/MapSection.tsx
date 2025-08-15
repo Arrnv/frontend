@@ -31,10 +31,10 @@ type Props = {
   details: Detail[];
   selectedDetail: Detail | null;
   onDetailSelect: (detail: Detail) => void;
-  onVisibleIdsChange: (ids: Set<string>) => void; // ✅ new
+  onVisibleIdsChange: (ids: Set<string>) => void;
 };
 
-const CIRCLE_RADIUS_PX = 275;
+const CIRCLE_RADIUS_PX = 250;
 const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
 const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisibleIdsChange }: Props) => {
@@ -46,11 +46,11 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [steps, setSteps] = useState<google.maps.DirectionsStep[]>([]);
   const [userPosition, setUserPosition] = useState<LatLng>(origin);
-  const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
+  const [circleDiameterKm, setCircleDiameterKm] = useState<number>(0);
+
   const spokenSteps = useRef<Set<number>>(new Set());
   const mapRef = useRef<google.maps.Map | null>(null);
-  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
-
 
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
@@ -87,7 +87,6 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
         if (status === 'OK' && result) {
           setDirections(result);
           setSteps(result.routes[0].legs[0].steps);
-          setCurrentStepIndex(0);
           spokenSteps.current.clear();
         } else {
           console.error('Failed to fetch directions:', status);
@@ -110,6 +109,20 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
       const centerX = bounds.width / 2;
       const centerY = bounds.height / 2;
 
+      // --- Calculate circle diameter in real-world distance ---
+      const centerLatLng = mapRef.current!.getCenter()!;
+      const pointEast = projection.fromContainerPixelToLatLng(
+        new google.maps.Point(centerX + CIRCLE_RADIUS_PX, centerY)
+      );
+      const pointWest = projection.fromContainerPixelToLatLng(
+        new google.maps.Point(centerX - CIRCLE_RADIUS_PX, centerY)
+      );
+
+      if (pointEast && pointWest && google.maps.geometry?.spherical) {
+        const diameterMeters = google.maps.geometry.spherical.computeDistanceBetween(pointEast, pointWest);
+        setCircleDiameterKm(diameterMeters / 1000);
+      }
+
       details.forEach((d) => {
         if (!d.latitude || !d.longitude) return;
         const latLng = new google.maps.LatLng(d.latitude, d.longitude);
@@ -125,30 +138,36 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
         }
       });
 
-      setVisibleIds(idsInCircle); // ✅ update local marker visibility
-      onVisibleIdsChange(idsInCircle); // ✅ update parent for left pane
-
+      setVisibleIds(idsInCircle);
+      onVisibleIdsChange(idsInCircle);
     };
 
     overlay.setMap(mapRef.current);
   }, [details, onVisibleIdsChange]);
 
-  const speak = (text: string) => {
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'en-US';
-    speechSynthesis.speak(msg);
-  };
-
-  const stripHtml = (html: string): string => {
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
-  };
-
   if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <div className="h-full w-full relative">
+      {/* Circle size label */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '15px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#0099E8',
+          color: 'white',
+          padding: '4px 10px',
+          borderRadius: '8px',
+          fontSize: '14px',
+          zIndex: 20,
+        }}
+      >
+        Diameter: {circleDiameterKm.toFixed(2)} km
+      </div>
+
+      {/* Dashed circle */}
       <div
         style={{
           position: 'absolute',
@@ -158,7 +177,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
           height: `${CIRCLE_RADIUS_PX * 2}px`,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
-          border: '3px solid blue',
+          border: '8px dashed #0099E8',
           pointerEvents: 'none',
           zIndex: 10,
         }}
