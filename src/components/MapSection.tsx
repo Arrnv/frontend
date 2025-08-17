@@ -3,7 +3,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   GoogleMap,
-  DirectionsRenderer,
   Marker,
   OverlayView,
   useJsApiLoader,
@@ -13,6 +12,7 @@ const containerStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
   position: 'relative',
+  zIndex: 0 ,
 };
 
 type LatLng = { lat: number; lng: number };
@@ -36,29 +36,26 @@ type Props = {
 
 const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
-const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisibleIdsChange }: Props) => {
+const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Props) => {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyBshs3gL-QjlozjuEJDLnsR3Qc4PNE9RVg',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places', 'geometry'],
   });
 
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-  const [steps, setSteps] = useState<google.maps.DirectionsStep[]>([]);
   const [userPosition, setUserPosition] = useState<LatLng>(origin);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
   const [circleDiameterKm, setCircleDiameterKm] = useState<number>(0);
-  const [circleRadiusPx, setCircleRadiusPx] = useState<number>(250); // 🔹 now dynamic
+  const [circleRadiusPx, setCircleRadiusPx] = useState<number>(250);
 
-  const spokenSteps = useRef<Set<number>>(new Set());
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  // 🔹 Adjust circle size for mobile
+  // Adjust circle size for mobile
   useEffect(() => {
     const updateRadius = () => {
       if (window.innerWidth < 768) {
-        setCircleRadiusPx(180); // smaller circle for mobile
+        setCircleRadiusPx(180);
       } else {
-        setCircleRadiusPx(250); // default desktop
+        setCircleRadiusPx(250);
       }
     };
     updateRadius();
@@ -66,49 +63,19 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
     return () => window.removeEventListener('resize', updateRadius);
   }, []);
 
+  // Track user position
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
       (pos) => {
         setUserPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
-      (err) => {
-        console.warn('Failed to track position:', err);
-      },
+      () => {},
       { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
-
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  useEffect(() => {
-    if (!isLoaded || !selectedDetail || !selectedDetail.latitude || !selectedDetail.longitude) {
-      setDirections(null);
-      setSteps([]);
-      return;
-    }
-
-    const directionsService = new google.maps.DirectionsService();
-    directionsService.route(
-      {
-        origin: userPosition,
-        destination: {
-          lat: selectedDetail.latitude,
-          lng: selectedDetail.longitude,
-        },
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === 'OK' && result) {
-          setDirections(result);
-          setSteps(result.routes[0].legs[0].steps);
-          spokenSteps.current.clear();
-        } else {
-          console.error('Failed to fetch directions:', status);
-        }
-      }
-    );
-  }, [isLoaded, selectedDetail, userPosition]);
-
+  // Detect visible markers
   const detectVisibleMarkers = useCallback(() => {
     if (!mapRef.current) return;
 
@@ -123,7 +90,6 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
       const centerX = bounds.width / 2;
       const centerY = bounds.height / 2;
 
-      // --- Calculate circle diameter in km ---
       const pointEast = projection.fromContainerPixelToLatLng(
         new google.maps.Point(centerX + circleRadiusPx, centerY)
       );
@@ -163,20 +129,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
   return (
     <div className="h-full w-full relative">
       {/* Circle size label */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '15px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: '#0099E8',
-          color: 'white',
-          padding: '4px 10px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          zIndex: 20,
-        }}
-      >
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-[#0099E8] text-white px-3 py-1 rounded-md text-sm z-20">
         Diameter: {circleDiameterKm.toFixed(2)} km
       </div>
 
@@ -190,7 +143,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
           height: `${circleRadiusPx * 2}px`,
           transform: 'translate(-50%, -50%)',
           borderRadius: '50%',
-          border: '8px dashed #0099E8',
+          border: '6px dashed #0099E8',
           pointerEvents: 'none',
           zIndex: 10,
         }}
@@ -220,7 +173,7 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
           >
             <div
               onClick={() => onDetailSelect(d)}
-              className="flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full transition-opacity duration-300"
+              className="flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full"
             >
               <img
                 src={
@@ -228,17 +181,15 @@ const MapSection = ({ origin, details, selectedDetail, onDetailSelect, onVisible
                   d.place_category?.icon_url ||
                   'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
                 }
-                className="w-12 h-12 rounded-xl p-1 border-5 border-[#52C4FF] shadow-md object-contain bg-white border-double"
+                className="w-12 h-12 rounded-xl p-1 border-4 border-[#52C4FF] bg-white shadow-md object-contain"
                 alt={d.name}
               />
-              <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
+              <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100">
                 {d.name}
               </div>
             </div>
           </OverlayView>
         ))}
-
-        {directions && <DirectionsRenderer directions={directions} />}
       </GoogleMap>
     </div>
   );

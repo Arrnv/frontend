@@ -8,7 +8,7 @@ import Navbar from '@/components/Navbar';
 import ServiceNav from '@/components/ServiceNav';
 import ParamsInitializer from '@/components/ParamsInitializer';
 import DetailDrawer from '@/components/DetailDrawer';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false });
@@ -236,129 +236,143 @@ const Page = () => {
     fetchSubcategoryLabels();
   }, [selectedSubcategories]);
 
-  return (
-    <main className="h-screen w-screen flex flex-col">
-      <Navbar />
-      {/* Mobile toggle */}
-<div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
-  <div className="relative flex bg-white rounded-full shadow-lg overflow-hidden border border-gray-200">
-    
-    {/* Animated sliding background */}
-    <motion.div
-      layout
-      className="absolute top-0 h-full w-1/2 bg-[#0099E8] rounded-full"
-      animate={{ x: showMap ? "100%" : "0%" }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 25
-      }}
-    />
+return (
+  <main className="h-screen w-screen flex flex-col">
+    <Navbar />
 
-    {/* List Button */}
-    <button
-      onClick={() => setShowMap(false)}
-      className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
-        !showMap ? "text-white" : "text-gray-700"
-      }`}
-    >
-      List
-    </button>
+    {/* Mobile toggle buttons */}
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
+      <div className="relative flex bg-white rounded-full shadow-lg overflow-hidden border border-gray-200">
+        {/* Animated sliding background */}
+        <motion.div
+          layout
+          className="absolute top-0 h-full w-1/2 bg-[#0099E8] rounded-full"
+          animate={{ x: showMap ? "100%" : "0%" }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+        />
+        {/* List Button */}
+        <button
+          onClick={() => setShowMap(false)}
+          className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
+            !showMap ? "text-white" : "text-gray-700"
+          }`}
+        >
+          List
+        </button>
+        {/* Map Button */}
+        <button
+          onClick={() => setShowMap(true)}
+          className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
+            showMap ? "text-white" : "text-gray-700"
+          }`}
+        >
+          Map
+        </button>
+      </div>
+    </div>
 
-    {/* Map Button */}
-    <button
-      onClick={() => setShowMap(true)}
-      className={`relative z-10 px-6 py-2 text-sm font-semibold transition-colors duration-300 ${
-        showMap ? "text-white" : "text-gray-700"
-      }`}
-    >
-      Map
-    </button>
-  </div>
-</div>
+    <div className="flex flex-1 overflow-hidden bg-[#0E1C2F] w-screen">
+      <div className="flex flex-1 overflow-hidden flex-row w-screen">
 
-      <div className="flex flex-1 overflow-hidden bg-[#0E1C2F] w-screen">
-        <div className="flex  overflow-hidden flex-row w-screen">
-          {/* Left Sidebar - ServiceNav (hidden on mobile if map view) */}
-          <div className={`${showMap ? 'hidden' : 'block'} md:block  bg-gradient-to-b  from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60`}>
-            <Suspense>
-              <ServiceNav
-                selectedCategory={null}
-                onSelect={(type, ids) => {
-                  if (!ids || (Array.isArray(ids) && ids.length === 0)) {
-                    setActiveCategory(null);
-                    setSelectedSubcategories([]);
-                    setDetails([]);
-                    handleDetailClick(null);
-                    return;
-                  }
-                  const firstId = Array.isArray(ids) ? ids[0] : ids;
-                  setActiveCategory({ type, id: firstId });
-                  setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
-                  setSelectedCity('');
+        {/* Left Sidebar - ServiceNav */}
+        <div
+          className={`${
+            showMap ? "hidden" : "block"
+          } md:block bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60`}
+        >
+          <Suspense>
+            <ServiceNav
+              selectedCategory={null}
+              onSelect={(type, ids) => {
+                if (!ids || (Array.isArray(ids) && ids.length === 0)) {
+                  setActiveCategory(null);
+                  setSelectedSubcategories([]);
+                  setDetails([]);
                   handleDetailClick(null);
-                }}
-              />
-            </Suspense>
-          </div>
-
-          <Suspense fallback={null}>
-            <ParamsInitializer
-              onInit={(type, subcategory, location) => {
-                setActiveCategory({ type, id: subcategory });
-                setSelectedSubcategories([subcategory]);
-                setSelectedCity(location || '');
+                  return;
+                }
+                const firstId = Array.isArray(ids) ? ids[0] : ids;
+                setActiveCategory({ type, id: firstId });
+                setSelectedSubcategories(Array.isArray(ids) ? ids : [ids]);
+                setSelectedCity("");
                 handleDetailClick(null);
               }}
             />
           </Suspense>
+        </div>
 
-          {/* List Panel (hidden on mobile if map view) */}
-          <div className={`${showMap ? 'hidden' : 'block'} w-full md:block  md:w-2/5  p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}>
-            {!selectedDetail ? (
-              <>
-                <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
-                  {activeCategory ? (
-                    <>
-                      Entries for {activeCategory.type} &gt;{' '}
-                      {subcategoryInfo.length > 0
-                        ? subcategoryInfo.map((sc) => sc.label).join(', ')
-                        : ' '}
-                    </>
-                  ) : (
-                    'Welcome, customer!'
-                  )}
-                </h1>
-                {activeCategory && selectedSubcategories.length > 0 ? (
-                  <div className="flex flex-col gap-4 ">
-                    {details
-                      .filter((detail) => visibleIds.has(detail.id))
-                      .map((detail) => (
-                        <div
-                          key={detail.id}
-                          onClick={() => handleDetailClick(detail)}
-                          className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
-                        >
-                          {detail.businesses?.logo_url && (
-                            <img
-                              src={detail.businesses.logo_url}
-                              alt="logo"
-                              className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
-                            />
-                          )}
-                          <div className="flex flex-row place-content-between">
-                            <h2 className="font-semibold text-[#202231]">{detail.name}</h2>
-                            <p className="text-sm text-[#8B9AB2]">{detail.rating ?? 'N/A'} ⭐️</p>
-                          </div>
-                          <p className="text-sm text-[#56575B]">location: {detail.location ?? 'N/A'}</p>
-                        </div>
-                      ))}
-                  </div>
+        {/* Initialize Params */}
+        <Suspense fallback={null}>
+          <ParamsInitializer
+            onInit={(type, subcategory, location) => {
+              setActiveCategory({ type, id: subcategory });
+              setSelectedSubcategories([subcategory]);
+              setSelectedCity(location || "");
+              handleDetailClick(null);
+            }}
+          />
+        </Suspense>
+
+        {/* List Panel */}
+        <div
+          className={`${
+            showMap ? "hidden" : "block"
+          } w-full md:block md:w-2/5 p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}
+        >
+          {!selectedDetail ? (
+            <>
+              <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
+                {activeCategory ? (
+                  <>
+                    Entries for {activeCategory.type} &gt;{" "}
+                    {subcategoryInfo.length > 0
+                      ? subcategoryInfo.map((sc) => sc.label).join(", ")
+                      : " "}
+                  </>
                 ) : (
-                  <p className="text-gray-500 mt-4">Please select a category to see the entries.</p>
+                  "Welcome, customer!"
                 )}
-              </>
-            ) : (
+              </h1>
+              {activeCategory && selectedSubcategories.length > 0 ? (
+                <div className="flex flex-col gap-4 ">
+                  {details
+                    .filter((detail) => visibleIds.has(detail.id))
+                    .map((detail) => (
+                      <div
+                        key={detail.id}
+                        onClick={() => handleDetailClick(detail)}
+                        className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
+                      >
+                        {detail.businesses?.logo_url && (
+                          <img
+                            src={detail.businesses.logo_url}
+                            alt="logo"
+                            className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
+                          />
+                        )}
+                        <div className="flex flex-row place-content-between">
+                          <h2 className="font-semibold text-[#202231]">
+                            {detail.name}
+                          </h2>
+                          <p className="text-sm text-[#8B9AB2]">
+                            {detail.rating ?? "N/A"} ⭐️
+                          </p>
+                        </div>
+                        <p className="text-sm text-[#56575B]">
+                          location: {detail.location ?? "N/A"}
+                        </p>
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 mt-4">
+                  Please select a category to see the entries.
+                </p>
+              )}
+            </>
+          ) : (
+            // ✅ Only desktop shows inline drawer
+            <div className="hidden md:block">
               <DetailDrawer
                 selectedDetail={selectedDetail}
                 onClose={() => setSelectedDetail(null)}
@@ -376,29 +390,66 @@ const Page = () => {
                 isBooking={isBooking}
                 handleReviewSubmit={handleReviewSubmit}
               />
-            )}
-          </div>
-
-          {/* Map Section (hidden on mobile if list view) */}
-          <div className={`${!showMap ? 'hidden' : 'block'} md:block w-full md:w-5/6 border-l border-[#415CBB]/60`}>
-            {userLocation ? (
-              <MapSection
-                origin={userLocation}
-                details={details}
-                selectedDetail={selectedDetail}
-                onDetailSelect={handleDetailClick}
-                onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-[#8B9AB2]">
-                Loading map...
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
+
+        {/* Map Section */}
+        <div
+          className={`${
+            !showMap ? "hidden" : "block"
+          } md:block w-full md:w-5/6 border-l border-[#415CBB]/60 relative`}
+        >
+          {userLocation ? (
+            <MapSection
+              origin={userLocation}
+              details={details}
+              selectedDetail={selectedDetail}
+              onDetailSelect={handleDetailClick}
+              onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-[#8B9AB2]">
+              Loading map...
+            </div>
+          )}
+        </div>
+
+        {/* ✅ Mobile overlay drawer with AnimatePresence */}
+        <AnimatePresence>
+          {selectedDetail && (
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed bottom-0 left-0 w-full h-[90%] md:hidden z-[9999] bg-white shadow-2xl rounded-t-2xl overflow-y-auto"
+            >
+              <DetailDrawer
+                selectedDetail={selectedDetail}
+                onClose={() => setSelectedDetail(null)}
+                reviews={reviews}
+                userRole={userRole}
+                newReview={newReview}
+                setNewReview={setNewReview}
+                bookingOptions={bookingOptions}
+                selectedOptionId={selectedOptionId}
+                setSelectedOptionId={setSelectedOptionId}
+                note={note}
+                setNote={setNote}
+                handleBooking={handleBooking}
+                bookingStatus={bookingStatus}
+                isBooking={isBooking}
+                handleReviewSubmit={handleReviewSubmit}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </main>
-  );
+    </div>
+  </main>
+);
+
 };
 
 export default Page;

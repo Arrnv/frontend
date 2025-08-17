@@ -26,13 +26,11 @@ const SearchWithShortcuts = () => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const router = useRouter();
 
-  // Fetch shortcuts
   useEffect(() => {
     const fetchSpecificSubcategories = async () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
         const services = res.data?.data || [];
-
         const TARGET_LABELS = ['Truck Stop', 'Cross docking'];
 
         const filtered = services.flatMap((service: any) =>
@@ -54,7 +52,6 @@ const SearchWithShortcuts = () => {
     fetchSpecificSubcategories();
   }, []);
 
-  // Fetch services
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -71,7 +68,6 @@ const SearchWithShortcuts = () => {
     fetchData();
   }, []);
 
-  // Filter services based on input
   useEffect(() => {
     const lowerService = serviceQuery.toLowerCase();
     const lowerCity = cityQuery.toLowerCase();
@@ -87,7 +83,9 @@ const SearchWithShortcuts = () => {
 
   const handleSelectService = (service: Service) => {
     router.push(
-      `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(service.city ?? '')}`
+      `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(
+        service.city ?? ''
+      )}`
     );
     setCityQuery('');
     setServiceQuery('');
@@ -101,10 +99,23 @@ const SearchWithShortcuts = () => {
     setCityQuery('');
   };
 
+  // 🔥 Fix: handle search button
+  const handleSearch = () => {
+    if (filteredServices.length > 0) {
+      handleSelectService(filteredServices[0]);
+    } else {
+      router.push(
+        `/customer/Services?type=services&subcategory=${encodeURIComponent(
+          serviceQuery
+        )}&location=${encodeURIComponent(cityQuery)}`
+      );
+    }
+  };
+
   return (
     <div className="w-full">
       {/* Shortcuts Row */}
-      <div className="flex  h-15 min-w-max bg-white  overflow-x-auto ">
+      <div className="flex h-15 min-w-max bg-white overflow-x-auto">
         {shortcuts.map((item) => (
           <button
             key={item.id}
@@ -151,9 +162,16 @@ const SearchWithShortcuts = () => {
           </div>
 
           {/* Search button */}
-          <button className="flex items-center justify-center w-16 bg-[#0099E8] hover:bg-[#007cc5] transition text-white">
+          <button
+            onClick={handleSearch}
+            className="flex items-center justify-center w-16 bg-[#0099E8] hover:bg-[#007cc5] transition text-white"
+          >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 3a7.5 7.5 0 006.15 13.65z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 3a7.5 7.5 0 006.15 13.65z"
+              />
             </svg>
           </button>
         </div>
@@ -162,8 +180,8 @@ const SearchWithShortcuts = () => {
         {cityQuery && (
           <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-gray-700 text-sm border">
             {citySuggestions
-              .filter(city => city.toLowerCase().includes(cityQuery.toLowerCase()))
-              .map(city => (
+              .filter((city) => city.toLowerCase().includes(cityQuery.toLowerCase()))
+              .map((city) => (
                 <li
                   key={city}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -175,21 +193,20 @@ const SearchWithShortcuts = () => {
           </ul>
         )}
 
-        {/* Service suggestions */}
+        {/* Service dropdown */}
         {serviceQuery && filteredServices.length > 0 && (
-          <ul className="absolute top-full text-black left-0 mt-2 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-sm ">
+          <ul className="absolute top-full text-black left-0 mt-2 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-sm">
             {filteredServices.map((service, index) => (
-                <li
-                    key={`${service.id}-${index}`} // ✅ unique even if `id` is duplicated
-                    className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleSelectService(service)}
-                >
-                    {service.icon_url && <img src={service.icon_url} className="w-4 h-4 mr-2" />}
-                    <span>{service.label}</span>
-                    {service.city && <span className="ml-auto text-xs italic text-gray-500">{service.city}</span>}
-                </li>
-                ))}
-
+              <li
+                key={`${service.id}-${index}`}
+                className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleSelectService(service)}
+              >
+                {service.icon_url && <img src={service.icon_url} className="w-4 h-4 mr-2" />}
+                <span>{service.label}</span>
+                {service.city && <span className="ml-auto text-xs italic text-gray-500">{service.city}</span>}
+              </li>
+            ))}
           </ul>
         )}
       </div>
