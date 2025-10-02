@@ -47,9 +47,8 @@ const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) =
   const pathname = usePathname();
 
 
-  // Mobile menu state
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-const searchParams = useSearchParams();
+  const searchParams = useSearchParams();
 
 useEffect(() => {
   const type = searchParams.get("type") as 'services' | 'places' | null;
@@ -59,7 +58,6 @@ useEffect(() => {
     setOpenSection(type);
     setSelectedSubcategories(subcategory);
 
-    // Optional: expand the category in the sidebar if subcategory belongs to it
     const data = type === 'services' ? servicesData : placesData;
     const parentCategory = data.find(cat =>
       cat.subcategories.some(sc => subcategory.includes(sc.key))
@@ -177,7 +175,7 @@ useEffect(() => {
                 selectedSubcategory={selectedSubcategories}
                 allowMultiSelect={isSidebar}
                 onSelect={(updatedIds) => {
-                    setSelectedSubcategories(updatedIds); // ✅ Also update state here
+                    setSelectedSubcategories(updatedIds); 
                     if (isSidebar) {
                       onSelect(section, updatedIds);
                     } else {
@@ -196,7 +194,6 @@ useEffect(() => {
     </div>
   );
 
-  // For GSAP animation
   useGSAP(() => {
     const ref = openSection === 'services' ? servicesRef.current : placesRef.current;
     if (ref) {
@@ -514,8 +511,6 @@ useEffect(() => {
     </div>
   </div>
 )}
-
-
     <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 </>
   );

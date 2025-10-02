@@ -86,23 +86,7 @@ const BusinessOnlyOnboarding = () => {
   };
   const [user, setUser] = useState<{ email: string; fullName: string ,role?: string; } | null>(null);
 
-useEffect(() => {
-  const checkUser = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
-      if (res.status === 200) {
-        const user = res.data.user;
-        setUser(user);
 
-        if (user.role === 'business') {
-          router.push('/business/dashboard');
-        }
-      }
-    } catch {
-    }
-  };
-  checkUser();
-}, [router]);
   return (
     <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
       <div className="w-full max-w-2xl p-8 rounded-2xl bg-white/10 backdrop-blur-md shadow-xl border border-white/20">
