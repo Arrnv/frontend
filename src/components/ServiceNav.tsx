@@ -275,9 +275,9 @@ useEffect(() => {
       <nav className="fixed top-0 left-0 z-50 w-screen bg-white border-b border-[#D9E4EF] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
         {/* Logo */}
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
-          <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
+          <img src="/Pathsure_final_files-02.png" alt="Logo" className="h-10" />
           <span className="font-bold text-xl text-[#0E1C2F]">
-            DailEn<span className="text-[#246BFD]">Search</span>
+            Path<span className="text-[#246BFD]">Sure</span>
           </span>
         </div>
 

@@ -109,12 +109,14 @@ const DetailDrawer = ({
         </a>
         {selectedDetail.latitude && selectedDetail.longitude && (
         <a
-            href={`https://www.google.com/maps/dir/?destination=${selectedDetail.latitude},${selectedDetail.longitude}`}
-            target="_blank"
-            className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center"
+        href={`https://www.google.com/maps?q=${selectedDetail.latitude},${selectedDetail.longitude}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center"
         >
-            <FaDirections /> Direction
+        <FaDirections /> Location
         </a>
+
         )}
     </div>
     

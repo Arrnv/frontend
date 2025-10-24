@@ -31,7 +31,7 @@ const SearchWithShortcuts = () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
         const services = res.data?.data || [];
-        const TARGET_LABELS = ['Truck Stop', 'Cross docking'];
+        const TARGET_LABELS = ['Department of Transportation', 'Storage facility', "Truck stop"];
 
         const filtered = services.flatMap((service: any) =>
           (service.subcategories || [])
@@ -115,7 +115,7 @@ const SearchWithShortcuts = () => {
   return (
     <div className="w-full">
       {/* Shortcuts Row */}
-      <div className="flex h-15 min-w-max bg-white overflow-x-auto">
+      <div className="flex h-15 min-w-max bg-white gap-2 overflow-x-auto">
         {shortcuts.map((item) => (
           <button
             key={item.id}
@@ -123,7 +123,7 @@ const SearchWithShortcuts = () => {
             className="flex items-center gap-2 px-5 py-3 bg-[#F5F6FA] hover:bg-[#E6ECF3] text-sm text-[#1D2433] whitespace-nowrap transition"
           >
             {item.icon_url && (
-              <img src={item.icon_url} alt={item.label} className="w-6 h-6 object-contain" />
+              <img src={item.icon_url} alt={item.label} className="w-6 h-6  object-contain" />
             )}
             <span>{item.label}</span>
           </button>
