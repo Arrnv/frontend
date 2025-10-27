@@ -19,12 +19,12 @@ const Footer = () => {
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="flex items-center gap-2 text-xl font-bold">
             <img
-              src="/logo-desi-22.png"
+              src="/Pathsure_final_files-02.png"
               alt="Trucker Guide Logo"
               className="h-6 w-6"
             />
             <span className="text-white">
-              DailEn<span className="text-[#0099E8]">Search</span>
+              Path<span className="text-[#0099E8]">Sure</span>
             </span>
           </div>
 
