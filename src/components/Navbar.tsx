@@ -18,7 +18,7 @@ const TopNav = () => {
           className="flex items-center space-x-2 cursor-pointer"
           onClick={() => router.push('/')}
         >
-          <img src="/Pathsure_final_files-02.png" alt="Logo" className="h-6" />
+          <img src="/logo-desi-22.png" alt="Logo" className="h-6" />
           <span className="font-bold text-xl text-[#0E1C2F]">
             Path<span className="text-[#246BFD]">Sure</span>
           </span>
