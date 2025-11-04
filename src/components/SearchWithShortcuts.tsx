@@ -31,7 +31,7 @@ const SearchWithShortcuts = () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`);
         const services = res.data?.data || [];
-        const TARGET_LABELS = ['Department of Transportation', 'Storage facility', "Truck stop"];
+        const TARGET_LABELS = ['Department of Transportation', 'Storage facility', "Truck stop", "Truck repair shop"];
 
         const filtered = services.flatMap((service: any) =>
           (service.subcategories || [])

@@ -11,7 +11,7 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 export const metadata: Metadata = {
   title: 'Find Services for Truck Drivers & Fleets | TruckNav',
   description: 'Join TruckNav to discover over 450,000 verified service points...',
-  metadataBase: new URL('https://your-domain.com'),
+  metadataBase: new URL('https://www.pathsure.com'),
   robots: { index: true, follow: true },
 };
 
