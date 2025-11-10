@@ -19,7 +19,7 @@ const Footer = () => {
         <div className="flex flex-col items-center lg:items-start gap-4">
           <div className="flex items-center gap-2 text-xl font-bold">
             <img
-              src="/logo-desi-22.png"
+              src="/logo_v2.jpeg"
               alt="Trucker Guide Logo"
               className="h-6 w-6"
             />

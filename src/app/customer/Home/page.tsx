@@ -75,9 +75,9 @@ const Page = () => {
           </div>
         </section>
 
-        <div className="flex flex-row w-full justify-center">
+        <div className="flex flex-row w-full justify-center ">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
-          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200">
+          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 overflow-hidden">
             <Suspense fallback={<div>Loading search...</div>}>
               <SearchWithShortcuts/>
             </Suspense>
