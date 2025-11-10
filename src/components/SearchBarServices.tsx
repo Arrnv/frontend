@@ -17,6 +17,8 @@ const SearchBarServices = () => {
   const [cityQuery, setCityQuery] = useState('');
   const [serviceQuery, setServiceQuery] = useState('');
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [showServiceSuggestions, setShowServiceSuggestions] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -49,31 +51,45 @@ const SearchBarServices = () => {
     setFilteredServices(matched);
   }, [serviceQuery, cityQuery, services]);
 
-  const handleSelectService = (service: Service) => {
+const handleSelectService = (service: Service) => {
+  setServiceQuery(service.label ?? "");
+  setCityQuery(service.city ?? "");
+
+  setFilteredServices([]);
+  setShowServiceSuggestions(false);
+
+  router.push(
+    `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(
+      service.city ?? ""
+    )}`
+  );
+};
+
+
+
+const handleSelectCity = (city: string) => {
+  setCityQuery(city);
+
+  // Hide city suggestions
+  setCitySuggestions([]);
+};
+
+const handleSearch = () => {
+  if (filteredServices.length > 0) {
+    // Select first matched result
+    handleSelectService(filteredServices[0]);
+  } else {
     router.push(
-      `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(
-        service.city ?? ''
-      )}`
+      `/customer/Services?type=services&subcategory=${encodeURIComponent(
+        serviceQuery
+      )}&location=${encodeURIComponent(cityQuery)}`
     );
-    setCityQuery('');
-    setServiceQuery('');
-    setFilteredServices([]);
-  };
+  }
 
-  const handleSelectCity = (city: string) => setCityQuery(city);
+  // Clear dropdowns after search
+  setFilteredServices([]);
+};
 
-  // 🔥 Fix: handle search button
-  const handleSearch = () => {
-    if (filteredServices.length > 0) {
-      handleSelectService(filteredServices[0]);
-    } else {
-      router.push(
-        `/customer/Services?type=services&subcategory=${encodeURIComponent(
-          serviceQuery
-        )}&location=${encodeURIComponent(cityQuery)}`
-      );
-    }
-  };
 
   return (
     <div className="relative w-full p-4">
@@ -102,8 +118,10 @@ const SearchBarServices = () => {
             placeholder="Services & Companies"
             className="w-full outline-none text-sm text-gray-700 bg-transparent placeholder-gray-400"
             value={serviceQuery}
-            onChange={(e) => setServiceQuery(e.target.value)}
-          />
+          onChange={(e) => {
+            setServiceQuery(e.target.value);
+            setShowServiceSuggestions(true);
+          }}          />
         </div>
 
         {/* Search button */}
