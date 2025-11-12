@@ -75,7 +75,7 @@ const Page = () => {
           </div>
         </section>
 
-        <div className="flex flex-row w-full justify-center ">
+        {/* <div className="flex flex-row w-full justify-center ">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
           <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 overflow-hidden">
             <Suspense fallback={<div>Loading search...</div>}>
@@ -83,7 +83,7 @@ const Page = () => {
             </Suspense>
           </div>
           </div>
-        </div>
+        </div> */}
         
         <section className="relative px-5  md:px-25 backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-10">
@@ -122,7 +122,7 @@ const Page = () => {
             </div>
             <div className="w-full lg:w-1/2 flex justify-center">
               <img
-                src="/cameras-img.webp"
+                src="/Responsive_Website_Mockup.png"
                 alt="Live Camera and Route Preview"
                 className="w-full max-w-[600px] h-auto object-contain"
               />
@@ -136,7 +136,7 @@ const Page = () => {
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
                 <img
-                  src="/landing-img3.webp"
+                  src="/Image5_final.png"
                   alt="Truck Navigation"
                   className="w-full h-full object-contain md:object-cover"
                 />
@@ -197,7 +197,7 @@ const Page = () => {
           <div className="flex flex-col md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 gap-10">
             <div className="w-full md:w-1/2 flex justify-center relative max-w-lg rounded-lg">
               <img
-                src="/landing-img1.webp"
+                src="/2328ed8c1e9.png"
                 alt="Phone Preview"
                 className="w-full z-10 relative rounded-xl"
               />
