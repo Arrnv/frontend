@@ -79,7 +79,7 @@ const page = () => {
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
                         <img
-                        src="/Container2.png"
+                        src="/Jla3P43tx11.png"
                         alt="Truck Services Dashboard"
                         className="w-[20rem] h-auto object-contain object-center"
                         />
