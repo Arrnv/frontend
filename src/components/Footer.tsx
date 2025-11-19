@@ -36,7 +36,7 @@ const Footer = () => {
           </div>
 
           <p className="text-xs text-gray-400 text-center lg:text-left mt-2 leading-relaxed">
-            © 2025 Trucker Guide LLC <br />
+            © 2025 pathSure <br />
             <Link href="/terms" className="underline mr-2">Terms of Use</Link>
             <Link href="/privacy" className="underline">Privacy Policy</Link>
           </p>
