@@ -12,16 +12,16 @@ import SearchBarServices from '@/components/SearchBarServices';
 
 const faqs = [
   {
-    question: "What services does TruckNav offer?",
-    answer: "TruckNav provides truck drivers and fleet managers access to over 450,000 verified service points across the USA.",
+    question: "What services does PathSure offer?",
+    answer: "PathSure provides truck drivers and fleet managers access to over 450,000 verified service points across the USA.",
   },
   {
-    question: "Is TruckNav free to use?",
-    answer: "Yes, TruckNav offers free access to basic features, with optional premium plans for advanced functionality.",
+    question: "Is PathSure free to use?",
+    answer: "Yes, PathSure offers free access to basic features, with optional premium plans for advanced functionality.",
   },
   {
-    question: "Can I access TruckNav on mobile?",
-    answer: "Absolutely! TruckNav is mobile-friendly and optimized for all devices.",
+    question: "Can I access PathSure on mobile?",
+    answer: "Absolutely! PathSure is mobile-friendly and optimized for all devices.",
   },
 ];
 

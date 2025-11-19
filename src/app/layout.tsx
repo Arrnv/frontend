@@ -9,8 +9,8 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Find Services for Truck Drivers & Fleets | TruckNav',
-  description: 'Join TruckNav to discover over 450,000 verified service points...',
+  title: 'Find Services for Truck Drivers & Fleets | PathSure',
+  description: 'Join PathSure to discover over 450,000 verified service points...',
   metadataBase: new URL('https://www.pathsure.com'),
   robots: { index: true, follow: true },
 };

@@ -158,7 +158,7 @@ const handleSearch = () => {
 
       {/* Service suggestions */}
       {serviceQuery && filteredServices.length > 0 && (
-        <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-sm border">
+        <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-black text-sm border">
           {filteredServices.map((service) => (
             <li
               key={service.id}

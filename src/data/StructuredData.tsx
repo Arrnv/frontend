@@ -1,12 +1,12 @@
 const jsonLdOrganization = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "TruckNav",
+  "name": "PathSure",
   "url": "https://your-domain.com", 
   "logo": "https://your-domain.com/logo.png", 
   "sameAs": [
-    "https://www.linkedin.com/company/trucknav",
-    "https://twitter.com/trucknav"
+    "https://www.linkedin.com/company/PathSure",
+    "https://twitter.com/PathSure"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
