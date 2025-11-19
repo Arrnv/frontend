@@ -75,7 +75,7 @@ const Page = () => {
           </div>
         </section>
 
-        {/* <div className="flex flex-row w-full justify-center ">
+        <div className="flex flex-row w-full justify-center ">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
           <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 overflow-hidden">
             <Suspense fallback={<div>Loading search...</div>}>
@@ -83,7 +83,7 @@ const Page = () => {
             </Suspense>
           </div>
           </div>
-        </div> */}
+        </div>
         
         <section className="relative px-5  md:px-25 backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">
           <div className="flex flex-col-reverse lg:flex-row items-center justify-between gap-10">

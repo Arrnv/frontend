@@ -115,7 +115,7 @@ const SearchWithShortcuts = () => {
   return (
     <div className="w-full">
       {/* Shortcuts Row */}
-      <div className="flex h-15 min-w-max bg-white gap-2 overflow-x-auto">
+      {/* <div className="flex h-15 min-w-max bg-white gap-2 overflow-x-auto">
         {shortcuts.map((item) => (
           <button
             key={item.id}
@@ -128,7 +128,7 @@ const SearchWithShortcuts = () => {
             <span>{item.label}</span>
           </button>
         ))}
-      </div>
+      </div> */}
 
       {/* Search Bar */}
       <div className="relative w-full p-2 shadow-sm">
