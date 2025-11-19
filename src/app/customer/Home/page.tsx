@@ -67,7 +67,7 @@ const Page = () => {
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
                 <img
-                  src="/main-img.webp"
+                  src="/Untitled design-7.png"
                   alt="Truck Services Dashboard"
                   className="w-full h-full object-contain md:object-cover"
                 />
