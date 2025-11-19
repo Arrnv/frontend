@@ -7,6 +7,7 @@ import ServiceNav from '@/components/ServiceNav';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
 import SearchWithShortcuts from '@/components/SearchWithShortcuts';
+import SearchBarServices from '@/components/SearchBarServices';
 
 
 const faqs = [
@@ -77,10 +78,9 @@ const Page = () => {
 
         <div className="flex flex-row w-full justify-center ">
           <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
-          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 overflow-hidden">
-            <Suspense fallback={<div>Loading search...</div>}>
-              <SearchWithShortcuts/>
-            </Suspense>
+          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 ">
+              {/* <SearchWithShortcuts/> */}
+              <SearchBarServices/>
           </div>
           </div>
         </div>
