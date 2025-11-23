@@ -66,7 +66,7 @@ const AuthModal = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }
           ) : (
             <>
               <Dialog.Title className="text-xl text-black font-bold mb-4 text-center">
-                Welcome to Trucker Guide!
+                Welcome to PathSure!
               </Dialog.Title>
 
               {/* Tabs */}

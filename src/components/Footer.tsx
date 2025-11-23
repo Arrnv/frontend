@@ -20,7 +20,7 @@ const Footer = () => {
           <div className="flex items-center gap-2 text-xl font-bold">
             <img
               src="/logo_v2.jpeg"
-              alt="Trucker Guide Logo"
+              alt="PathSure Logo"
               className="h-6 w-6"
             />
             <span className="text-white">

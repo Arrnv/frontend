@@ -15,7 +15,7 @@ const page = () => {
           <div className="flex flex-col gap-5 md:flex-row items-center justify-between px-6 md:px-12 py-12 md:py-20 md:gap-10">
             
             <div className="w-full md:w-1/2 text-center md:text-left flex flex-col gap-5">
-             <p className='text-sm text-[#56575B]'>EMPOWER YOUR BUSINESS WITH TRUCKER GUIDE</p>
+             <p className='text-sm text-[#56575B]'>EMPOWER YOUR BUSINESS WITH PathSure</p>
              <h1 className='text-3xl md:text-5xl'>DRIVE THE FUTURE
                 OF BUSINESS
                 SUCCESS
@@ -42,7 +42,7 @@ const page = () => {
                     WE TRANSFORM THE TRUCKING INDUSTRY
                     </h2>
                     <p className="text-gray-600 mb-12">
-                    Since November 2022, Trucker Guide has been gaining popularity among truck drivers and businesses within the trucking industry.
+                    Since November 2022, PathSure has been gaining popularity among truck drivers and businesses within the trucking industry.
                     </p>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
