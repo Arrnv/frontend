@@ -73,13 +73,13 @@ const Page = () => {
                 Experience a seamless solution where safety and efficiency
                 align perfectly with drivers’ needs
               </p>
-              <div className="w-full max-w-[300px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
+              {/* <div className="w-full max-w-[300px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
                 <img
                   src="/Container.png"
                   alt="Truck Navigation"
                   className="w-full h-full object-contain md:object-cover"
                 />
-              </div>
+              </div> */}
             </div>
             <div className="w-full md:w-1/2 flex justify-center">
               <div className="w-full max-w-[600px] aspect-[3/2] md:aspect-auto relative rounded-xl overflow-hidden">
