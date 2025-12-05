@@ -200,9 +200,9 @@ const Page = () => {
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
                         <img
-                        src="/card-1.mp4.png"
+                        src="/Untitled-1.png"
                         alt="Truck Services Dashboard"
-                        className="w-[20rem] h-auto object-contain object-center"
+                        className="w-[10rem] h-auto object-contain object-center"
                         />
                     </div>
                     </div>
@@ -260,9 +260,9 @@ const Page = () => {
                     <div className="w-full flex justify-center">
                         <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
                             <img
-                            src="/card-1.mp4.png"
+                            src="/Untitled-1.png"
                             alt="Truck Services Dashboard"
-                            className="w-[20rem] h-auto object-contain object-center"
+                            className="w-[10rem] h-auto object-contain object-center"
                             />
                         </div>
                     </div>
@@ -273,9 +273,9 @@ const Page = () => {
                     <div className="w-full flex justify-center">
                     <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
                         <img
-                        src="/card-1.mp4.png"
+                        src="/Untitled-1.png"
                         alt="Truck Services Dashboard"
-                        className="w-[20rem] h-auto object-contain object-center"
+                        className="w-[10rem] h-auto object-contain object-center"
                         />
                     </div>
                     </div>
@@ -332,9 +332,9 @@ const Page = () => {
                     <div className="w-full flex justify-center">
                         <div className="w-full relative rounded-xl overflow-hidden flex  justify-center">
                             <img
-                            src="/card-1.mp4.png"
+                            src="/Untitled-1.png"
                             alt="Truck Services Dashboard"
-                            className="w-[20rem] h-auto object-contain object-center"
+                            className="w-[10rem] h-auto object-contain object-center"
                             />
                         </div>
                     </div>
