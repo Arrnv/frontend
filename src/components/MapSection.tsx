@@ -32,11 +32,15 @@ type Props = {
   selectedDetail: Detail | null;
   onDetailSelect: (detail: Detail) => void;
   onVisibleIdsChange: (ids: Set<string>) => void;
+  selectedCity?: string;
+  vibeCityCoords?: LatLng | null;  // ⭐ ADD THIS
 };
+
+
 
 const DALLAS_CENTER: LatLng = { lat: 32.7767, lng: -96.7970 };
 
-const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Props) => {
+const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange,vibeCityCoords }: Props) => {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places', 'geometry'],
@@ -63,6 +67,7 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Pro
     return () => window.removeEventListener('resize', updateRadius);
   }, []);
 
+  
   // Track user position
   useEffect(() => {
     const watchId = navigator.geolocation.watchPosition(
@@ -74,6 +79,7 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Pro
     );
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
+  
 
   // Detect visible markers
   const detectVisibleMarkers = useCallback(() => {
@@ -123,6 +129,14 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Pro
 
     overlay.setMap(mapRef.current);
   }, [details, onVisibleIdsChange, circleRadiusPx]);
+  // ⭐ Smooth Pan when searched city changes
+useEffect(() => {
+  if (mapRef.current && vibeCityCoords) {
+    mapRef.current.panTo(vibeCityCoords); // smooth movement
+    mapRef.current.setZoom(12);
+  }
+}, [vibeCityCoords]);
+
 
   if (!isLoaded) return <div>Loading map...</div>;
 
@@ -151,7 +165,7 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange }: Pro
 
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={DALLAS_CENTER}
+        center={vibeCityCoords || origin}
         zoom={11}
         onLoad={(map) => {
           mapRef.current = map;

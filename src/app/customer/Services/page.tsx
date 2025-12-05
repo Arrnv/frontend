@@ -68,6 +68,8 @@ const Page = () => {
   
   // Mobile toggle state
   const [showMap, setShowMap] = useState(true);
+  // Add this to your existing states ↑
+ const [vibeCityCoords, setVibeCityCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -235,6 +237,7 @@ const Page = () => {
     };
     fetchSubcategoryLabels();
   }, [selectedSubcategories]);
+  
 
 return (
   <main className="h-screen w-screen flex flex-col">
@@ -303,14 +306,29 @@ return (
 
         {/* Initialize Params */}
         <Suspense fallback={null}>
-          <ParamsInitializer
-            onInit={(type, subcategory, location) => {
-              setActiveCategory({ type, id: subcategory });
-              setSelectedSubcategories([subcategory]);
-              setSelectedCity(location || "");
-              handleDetailClick(null);
-            }}
-          />
+<ParamsInitializer
+  onInit={async (type, subcategory, location) => {
+    setActiveCategory({ type, id: subcategory });
+    setSelectedSubcategories([subcategory]);
+    setSelectedCity(location || "");
+    handleDetailClick(null);
+
+    // 🌍 Fetch coordinates for searched city
+    if (location) {
+      try {
+        const res = await axios.get(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${location}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        );
+        if (res.data.results.length > 0) {
+          const { lat, lng } = res.data.results[0].geometry.location;
+          setVibeCityCoords({ lat, lng });
+        }
+      } catch (err) {
+        console.error("❌ Failed to fetch city coordinates");
+      }
+    }
+  }}
+/>
         </Suspense>
 
         {/* List Panel */}
@@ -401,13 +419,16 @@ return (
           } md:block w-full md:w-5/6 border-l border-[#415CBB]/60 relative`}
         >
           {userLocation ? (
-            <MapSection
-              origin={userLocation}
-              details={details}
-              selectedDetail={selectedDetail}
-              onDetailSelect={handleDetailClick}
-              onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
-            />
+<MapSection
+  origin={userLocation}
+  details={details}
+  selectedDetail={selectedDetail}
+  onDetailSelect={handleDetailClick}
+  onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+  selectedCity={selectedCity}
+  vibeCityCoords={vibeCityCoords}   // ⭐ ADD THIS
+/>
+
           ) : (
             <div className="flex items-center justify-center h-full text-[#8B9AB2]">
               Loading map...
