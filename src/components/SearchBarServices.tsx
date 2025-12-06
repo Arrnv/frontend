@@ -263,37 +263,57 @@ export default function SearchBarServices() {
             const nearest = !available ? findNearestCitiesForService(svc.id, 3) : [];
 
             return (
-              <li key={svc.id} className="flex flex-col px-4 py-3 hover:bg-gray-100 transition-all">
-                <div className="flex items-center gap-3">
-                  {svc.icon_url && <img src={svc.icon_url} className="w-5 h-5 rounded-sm" />}
-                  <span className="font-medium">{svc.label}</span>
-                  {available ? (
-                    <span className="ml-auto text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                      Available in {cityQuery.split(",")[0].trim()}
-                    </span>
-                  ) : (
-                    <span className="ml-auto text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-                      Not in {cityQuery.split(",")[0].trim()}
-                    </span>
-                  )}
-                </div>
+<li
+  key={svc.id}
+  className="flex flex-col px-4 py-3 hover:bg-gray-100 transition-all cursor-pointer"
+  onClick={() =>
+    goToCityForService(
+      svc.id,
+      available ? cityQuery : nearest[0]?.city || cityQuery
+    )
+  }
+>
+  <div className="flex items-center gap-3">
+    {svc.icon_url && <img src={svc.icon_url} className="w-5 h-5 rounded-sm" />}
+    <span className="font-medium">{svc.label}</span>
 
-                {!available && nearest.length > 0 && (
-                  <div className="mt-1 text-xs text-gray-700 italic flex flex-wrap gap-2">
-                    <span>Available in:</span>
-                    {nearest.map((n, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => goToCityForService(svc.id, n.city)}
-                        className="text-blue-600 underline"
-                      >
-                        {n.city}
-                        {n.distance > 0 && <span> ({n.distance.toFixed(1)} km)</span>}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </li>
+    {/* RIGHT SIDE INDICATOR */}
+    <div className="ml-auto flex items-center gap-2">
+      {available ? (
+        <span className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+          Available in {cityQuery.split(",")[0].trim()}
+        </span>
+      ) : (
+        <span className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+          Not in {cityQuery.split(",")[0].trim()}
+        </span>
+      )}
+
+      {/* Navigation hint */}
+      <span className="text-gray-400 text-sm">→</span>
+    </div>
+  </div>
+
+  {/* Unavailable → nearest list */}
+  {!available && nearest.length > 0 && (
+    <div className="mt-1 text-xs text-gray-700 italic flex flex-wrap gap-2">
+      <span>Available in:</span>
+      {nearest.map((n, idx) => (
+        <button
+          key={idx}
+          onClick={(e) => {
+            e.stopPropagation();
+            goToCityForService(svc.id, n.city);
+          }}
+          className="text-blue-600 underline"
+        >
+          {n.city} ({n.distance.toFixed(1)} km)
+        </button>
+      ))}
+    </div>
+  )}
+</li>
+
             );
           })}
         </ul>

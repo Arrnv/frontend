@@ -26,6 +26,7 @@ const SearchWithShortcuts = () => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const router = useRouter();
 
+  // Fetch shortcuts (DOT, Truck Stop, etc)
   useEffect(() => {
     const fetchSpecificSubcategories = async () => {
       try {
@@ -52,14 +53,24 @@ const SearchWithShortcuts = () => {
     fetchSpecificSubcategories();
   }, []);
 
+  // Fetch ALL services & extract UNIQUE cities
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/search/services`);
-        setServices(res.data.services);
+        const fetchedServices: Service[] = res.data.services || [];
+
+        setServices(fetchedServices);
+
+        // 🔥 Extract unique cities safely (FULL FIX)
         const uniqueCities = Array.from(
-          new Set(res.data.services.map((s: Service) => s.city).filter(Boolean))
-        ) as string[];
+          new Set(
+            fetchedServices
+              .map((s) => s.city)
+              .filter((city): city is string => typeof city === 'string' && city.length > 0)
+          )
+        );
+
         setCitySuggestions(uniqueCities);
       } catch (err) {
         console.error('Failed to fetch services', err);
@@ -68,6 +79,7 @@ const SearchWithShortcuts = () => {
     fetchData();
   }, []);
 
+  // Filter service results based on queries
   useEffect(() => {
     const lowerService = serviceQuery.toLowerCase();
     const lowerCity = cityQuery.toLowerCase();
@@ -81,6 +93,7 @@ const SearchWithShortcuts = () => {
     setFilteredServices(matched);
   }, [serviceQuery, cityQuery, services]);
 
+  // Handle select service
   const handleSelectService = (service: Service) => {
     router.push(
       `/customer/Services?type=services&subcategory=${service.id}&location=${encodeURIComponent(
@@ -99,7 +112,7 @@ const SearchWithShortcuts = () => {
     setCityQuery('');
   };
 
-  // 🔥 Fix: handle search button
+  // Search button
   const handleSearch = () => {
     if (filteredServices.length > 0) {
       handleSelectService(filteredServices[0]);
@@ -114,23 +127,6 @@ const SearchWithShortcuts = () => {
 
   return (
     <div className="w-full">
-      {/* Shortcuts Row */}
-      {/* <div className="flex h-15 min-w-max bg-white gap-2 overflow-x-auto">
-        {shortcuts.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => handleShortcutClick(item)}
-            className="flex items-center gap-2 px-5 py-3 bg-[#F5F6FA] hover:bg-[#E6ECF3] text-sm text-[#1D2433] whitespace-nowrap transition"
-          >
-            {item.icon_url && (
-              <img src={item.icon_url} alt={item.label} className="w-6 h-6  object-contain" />
-            )}
-            <span>{item.label}</span>
-          </button>
-        ))}
-      </div> */}
-
-      {/* Search Bar */}
       <div className="relative w-full p-2 shadow-sm">
         <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white h-15 w-full">
           {/* Location input */}
@@ -181,7 +177,7 @@ const SearchWithShortcuts = () => {
           <ul className="absolute top-full left-0 mt-1 bg-white max-h-[200px] overflow-y-auto rounded shadow z-50 w-full text-gray-700 text-sm border">
             {citySuggestions
               .filter((city) => city.toLowerCase().includes(cityQuery.toLowerCase()))
-              .map((city) => (
+              .map((city: string) => (
                 <li
                   key={city}
                   className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

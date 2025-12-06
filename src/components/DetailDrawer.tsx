@@ -80,7 +80,7 @@ const DetailDrawer = ({
 
 
   if (!selectedDetail) return null;
-
+console.log("DETAIL:", selectedDetail);
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-[#FAFAFA]  p-5 overflow-y-auto rounded-r-2xl shadow-2xl text-[#202231] font-[Roboto] transition-all duration-300">
     <button
@@ -156,6 +156,24 @@ const DetailDrawer = ({
         )}
     </div>
 
+{/* Gallery Section */}
+{selectedDetail.gallery_urls && selectedDetail.gallery_urls.length > 0 && (
+  <div className="mb-6 bg-white p-4 rounded-xl shadow-sm">
+    <h3 className="text-base font-semibold text-[#202231] mb-3">Gallery</h3>
+
+    <div className="grid grid-cols-3 gap-3">
+      {selectedDetail.gallery_urls.map((img: string, idx: number) => (
+        <div key={idx} className="w-full h-24 overflow-hidden rounded-xl border shadow-sm">
+          <img
+            src={img}
+            alt={`Gallery ${idx + 1}`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
 
     {/* Amenities */}

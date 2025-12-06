@@ -16,6 +16,7 @@ const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false
 type Booking = { id: string; note: string; price: number; booking_time: string };
 type Detail = {
   id: string;
+  
   name: string;
   rating?: number;
   location?: string;
@@ -83,6 +84,8 @@ const Page = () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
         setUserRole(res.data.user.role);
+        
+
       } catch {
         setUserRole(null);
       }
