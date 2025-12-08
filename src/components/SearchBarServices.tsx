@@ -86,18 +86,27 @@ export default function SearchBarServices() {
     };
   }, []);
 
-  const fetchGoogleCities = useCallback(
+const debouncedFetcher = useMemo(
+  () =>
     debounce(async (query: string) => {
       if (!query || query.length < 2) return;
       try {
-        const res = await axios.get(`/api/google/cities?input=${encodeURIComponent(query)}`);
+        const res = await axios.get(
+          `/api/google/cities?input=${encodeURIComponent(query)}`
+        );
         setGoogleCities(res.data.predictions || []);
       } catch {
         setGoogleCities([]);
       }
     }, 350),
-    []
-  );
+  []
+);
+
+const fetchGoogleCities = useCallback(
+  (q: string) => debouncedFetcher(q),
+  [debouncedFetcher]
+);
+
 
   useEffect(() => {
     if (!cityQuery) {
@@ -274,7 +283,7 @@ export default function SearchBarServices() {
   }
 >
   <div className="flex items-center gap-3">
-    {svc.icon_url && <img src={svc.icon_url} className="w-5 h-5 rounded-sm" />}
+{svc.icon_url && <img src={svc.icon_url} alt={svc.label || ""} className="w-5 h-5 rounded-sm" />}
     <span className="font-medium">{svc.label}</span>
 
     {/* RIGHT SIDE INDICATOR */}
