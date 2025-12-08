@@ -193,6 +193,25 @@ useEffect(() => {
       })}
     </div>
   );
+  const [currentUser, setCurrentUser] = useState(null);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
+        { withCredentials: true }
+      );
+
+      setCurrentUser(res.data.user);
+    } catch (err) {
+      setCurrentUser(null);
+    }
+  };
+
+  fetchUser();
+}, []);
+
 
   useGSAP(() => {
     const ref = openSection === 'services' ? servicesRef.current : placesRef.current;
@@ -367,12 +386,15 @@ useEffect(() => {
         <Link href="/business/signup" className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white font-medium px-4 py-2 rounded-xl hover:opacity-90 transition shadow-sm">
           List Your Business
         </Link>
-        <button
+        {!currentUser && (
+          <button
             onClick={() => setIsLoginOpen(true)}
-            className="text-sm font-semibold text-[#246BFD]  rounded"
-        >
-          Login
-        </button>        
+            className="text-sm font-semibold text-[#246BFD] rounded"
+          >
+            Login
+          </button>
+        )}
+      
       </div>
       <div className="md:hidden">
     <button
