@@ -92,7 +92,13 @@ console.log("DETAIL:", selectedDetail);
     </button>
     {/* Header */}
     <div className="flex items-center gap-4 mb-6">
-        <img src={selectedDetail.businesses?.logo_url} alt="Logo" className="w-14 h-14 rounded-full border shadow" />
+{selectedDetail.business?.logo_url && (
+  <img
+    src={selectedDetail.business.logo_url}
+    alt="logo"
+    className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
+  />
+)}
         <div>
         <h2 className="text-2xl font-bold text-[#202231]">{selectedDetail.name}</h2>
         <p className="text-gray-500 text-sm">{selectedDetail.location}</p>

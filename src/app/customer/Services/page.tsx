@@ -84,8 +84,6 @@ const Page = () => {
       try {
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
         setUserRole(res.data.user.role);
-        
-
       } catch {
         setUserRole(null);
       }
