@@ -18,48 +18,65 @@ export default function BusinessDashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const bizRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/businesses/my`, { withCredentials: true });
-        const businessId = bizRes.data.id;
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      // 1️⃣ Get token from localStorage (fallback for Safari / strict browsers)
+      const token = localStorage.getItem('token');
 
-        const servicesRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/business-services?businessId=${businessId}`,
-          { withCredentials: true }
-        );
+      // 2️⃣ Axios config: cookie OR Bearer token
+      const axiosConfig = token
+        ? { headers: { Authorization: `Bearer ${token}` } }
+        : { withCredentials: true };
 
-        const insightsRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/insights?businessId=${businessId}`,
-          { withCredentials: true }
-        );
+      // 3️⃣ Fetch business
+      const bizRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/businesses/my`,
+        axiosConfig
+      );
+      const businessId = bizRes.data.id;
 
-        const revStats: Record<string, any> = {};
-        for (const service of servicesRes.data) {
+      // 4️⃣ Fetch services
+      const servicesRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/business-services?businessId=${businessId}`,
+        axiosConfig
+      );
+
+      // 5️⃣ Fetch insights
+      const insightsRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/insights?businessId=${businessId}`,
+        axiosConfig
+      );
+
+      // 6️⃣ Fetch revenue stats per service
+      const revStats: Record<string, any> = {};
+      for (const service of servicesRes.data) {
         const revenueRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/revenue/${service.id}`,
-          { withCredentials: true }
+          axiosConfig
         );
-          revStats[service.id] = revenueRes.data;
-        }
-
-        setBusiness(bizRes.data);
-        setServices(servicesRes.data);
-        setAnalytics(insightsRes.data);
-        setRevenueStats(revStats);
-      } catch (err: any) {
-        if (err.response?.status === 401) {
-          router.push('/business/login');
-        } else {
-          console.error('Error loading dashboard:', err);
-        }
-      } finally {
-        setLoading(false);
+        revStats[service.id] = revenueRes.data;
       }
-    };
 
-    fetchDashboardData();
-  }, []);
+      // 7️⃣ Update state
+      setBusiness(bizRes.data);
+      setServices(servicesRes.data);
+      setAnalytics(insightsRes.data);
+      setRevenueStats(revStats);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        router.push('/business/login'); // redirect if unauthorized
+      } else {
+        console.error('Error loading dashboard:', err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, []);
+
 
   if (loading) return <p className="text-center p-6 text-[#52C4FF] font-semibold">Loading...</p>;
 
