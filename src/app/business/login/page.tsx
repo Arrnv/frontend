@@ -3,8 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import AuthForm from '@/components/AuthForm';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import axios from "axios";
 
+axios.defaults.withCredentials = true;
+
+// 🔥 Add this interceptor (paste exactly)
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
+  return config;
+});
 const BusinessSignup = () => {
   const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
   const router = useRouter();
@@ -12,7 +22,15 @@ const BusinessSignup = () => {
 useEffect(() => {
   const checkUser = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
+        {
+          withCredentials: true,
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
       if (res.status === 200) {
         const user = res.data.user;
         setUser(user);
@@ -38,7 +56,8 @@ useEffect(() => {
         <AuthForm
           mode="login"
           defaultRole="business"
-          onSuccess={(user) => {
+          onSuccess={(user, token) => {
+            if (token) localStorage.setItem("token", token);
             setUser(user);
             router.push('/business/onboarding');
           }}

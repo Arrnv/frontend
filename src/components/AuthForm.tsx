@@ -63,7 +63,13 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole }) => {
       }
 
       // Pass full user data including role to onSuccess
-      onSuccess(data.user);
+// Pass user + token to parent
+    onSuccess(data.user, data.token);
+
+    // Save Bearer fallback for Safari
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
 
       // Redirect based on role and mode here (optional if not handled elsewhere)
       if (data.user.role === 'business') {

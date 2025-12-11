@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import LogoutButton from '@/components/LogoutButton';
 import GlassTooltip from '@/components/GlassTooltip';
-import StripeConnectButton from '@/components/StripeConnectButton';
+// import StripeConnectButton from '@/components/StripeConnectButton';
 
 export default function BusinessDashboard() {
   const [business, setBusiness] = useState<any>(null);
@@ -91,7 +91,7 @@ useEffect(() => {
           <p className="text-sm mb-3 text-gray-700 font-normal">
             Connect your Stripe account to accept bookings and get paid. A platform commission will be deducted automatically.
           </p>
-          <StripeConnectButton />
+          {/* <StripeConnectButton /> */}
         </div>
 
         {/* Business Info */}
