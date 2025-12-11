@@ -12,8 +12,9 @@ type User = {
 type Props = {
   mode: 'login' | 'signup';
   defaultRole?: 'visitor' | 'business';
-  onSuccess: (user: User) => void;
+  onSuccess: (user: User, token?: string) => void; // ✅ add optional token
 };
+
 
 const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole }) => {
   const router = useRouter();

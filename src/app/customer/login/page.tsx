@@ -14,17 +14,31 @@ const LoginPage = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, {
-        credentials: 'include', // ✅ include cookies
+      // 1️⃣ Try cookie-based fetch first
+      let res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, {
+        credentials: 'include',
       });
+
+      // 2️⃣ If cookie fails (Safari / strict browser), try Bearer token
+      if (!res.ok) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        }
+      }
+
       if (!res.ok) return;
+
       const data = await res.json();
       setUser(data.user);
     } catch (err) {
-      console.log('Not logged in');
+      console.log('Not logged in', err);
     }
   };
-
 
   if (user) {
     return (
@@ -38,7 +52,8 @@ const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center p-6">
       <AuthForm
         mode="login"
-        onSuccess={(user) => {
+        onSuccess={(user, token) => {
+          if (token) localStorage.setItem('token', token);
           setUser(user);
           router.push('/'); // redirect to homepage after login
         }}
