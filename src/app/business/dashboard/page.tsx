@@ -36,7 +36,10 @@ export default function BusinessDashboard() {
 
         const revStats: Record<string, any> = {};
         for (const service of servicesRes.data) {
-          const revenueRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/revenue/${service.id}`);
+        const revenueRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/revenue/${service.id}`,
+          { withCredentials: true }
+        );
           revStats[service.id] = revenueRes.data;
         }
 
