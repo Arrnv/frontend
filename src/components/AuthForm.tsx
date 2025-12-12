@@ -68,7 +68,7 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess, defaultRole }) => {
 
     // Save Bearer fallback for Safari
     if (data.token) {
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("authToken", data.token);
     }
 
       // Redirect based on role and mode here (optional if not handled elsewhere)

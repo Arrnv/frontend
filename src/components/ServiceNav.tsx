@@ -12,6 +12,7 @@ import {
   ChevronDown, ChevronUp, Wrench, Menu, X,
 } from 'lucide-react';
 import LoginModal from './LoginModal';
+import AuthModal from './LoginModal';
 
 type SubCategory = { key: string; label: string };
 type Category = {
@@ -28,6 +29,12 @@ type ServiceNavProps = {
 };
 
 const ServiceNav: React.FC<ServiceNavProps> = ({ selectedCategory, onSelect }) => {
+type User = {
+  email: string;
+  fullName: string;
+};
+
+
   const [servicesData, setServicesData] = useState<Category[]>([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [placesData, setPlacesData] = useState<Category[]>([]);
@@ -193,24 +200,36 @@ useEffect(() => {
       })}
     </div>
   );
-  const [currentUser, setCurrentUser] = useState(null);
 
+
+const [currentUser, setCurrentUser] = useState<User | null>(null);
 useEffect(() => {
   const fetchUser = async () => {
     try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setCurrentUser(null);
+        return;
+      }
+
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
-        { withCredentials: true }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
-      setCurrentUser(res.data.user);
+      console.log("Profile API response:", res.data); // <-- Add this
+      setCurrentUser(res.data.user || null); // <-- Fallback if undefined
     } catch (err) {
+      console.log("Profile fetch failed:", err);
       setCurrentUser(null);
     }
   };
 
   fetchUser();
 }, []);
+
 
 
   useGSAP(() => {
@@ -386,7 +405,7 @@ useEffect(() => {
         <Link href="/business/signup" className="bg-gradient-to-r from-[#1F3B79] to-[#2E60C3] text-white font-medium px-4 py-2 rounded-xl hover:opacity-90 transition shadow-sm">
           List Your Business
         </Link>
-        {!currentUser && (
+        {!currentUser?.email && (
           <button
             onClick={() => setIsLoginOpen(true)}
             className="text-sm font-semibold text-[#246BFD] rounded"
@@ -394,6 +413,9 @@ useEffect(() => {
             Login
           </button>
         )}
+
+
+
       
       </div>
       <div className="md:hidden">
@@ -533,7 +555,11 @@ useEffect(() => {
     </div>
   </div>
 )}
-    <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+     <AuthModal
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+          setUser={setCurrentUser} // pass setter to modal
+        />
 </>
   );
 };
