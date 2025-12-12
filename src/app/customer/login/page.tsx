@@ -5,12 +5,10 @@ import AuthForm from '@/components/AuthForm';
 import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email: string; fullName: string } | null>(null);
   const router = useRouter();
 
-  // -------------------------
-  // FETCH USER PROFILE
-  // -------------------------
+  // ✅ MOVE THE FUNCTION ABOVE useEffect
   const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -37,29 +35,17 @@ const LoginPage = () => {
       }
 
       const data = await res.json();
-
-      // Backend returns: full_name → convert to fullName
-      setUser({
-        ...data.user,
-        fullName: data.user.full_name,
-      });
-
+      setUser(data.user);
     } catch (err) {
-      console.log("Not logged in", err);
       setUser(null);
     }
   };
 
-  // -------------------------
-  // RUN ON PAGE LOAD
-  // -------------------------
+  // ✅ NOW useEffect calls it safely
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
-  // -------------------------
-  // IF ALREADY LOGGED IN
-  // -------------------------
   if (user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-6">
@@ -68,22 +54,13 @@ const LoginPage = () => {
     );
   }
 
-  // -------------------------
-  // SHOW LOGIN FORM
-  // -------------------------
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <AuthForm
         mode="login"
         onSuccess={(user, token) => {
           if (token) localStorage.setItem("authToken", token);
-
-          // normalize naming
-          setUser({
-            ...user,
-            fullName: user.fullName ?? user.fullName,
-          });
-
+          setUser(user);
           router.push('/');
         }}
       />

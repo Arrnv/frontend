@@ -78,18 +78,32 @@ const Page = () => {
       () => setUserLocation({ lat: 18.5204, lng: 73.8567 }) 
     );
   }, []);
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`, { withCredentials: true });
-        setUserRole(res.data.user.role);
-      } catch {
+      if (!token) {
         setUserRole(null);
+        return;
       }
-    };
-    fetchProfile();
-  }, []);
+
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/profile`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+
+      setUserRole(res.data.user.role);
+    } catch (err) {
+      setUserRole(null);
+    }
+  };
+
+  fetchProfile();
+}, []);
+
 
   useEffect(() => {
     const fetchDetails = async () => {
