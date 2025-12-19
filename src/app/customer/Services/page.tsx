@@ -25,7 +25,7 @@ type Detail = {
   contact?: string;
   website?: string;
   tags?: string[];
-
+  city?: string; // ✅ ADD THIS
   latitude?: number;
   longitude?: number;
 
@@ -80,6 +80,14 @@ const Page = () => {
   // Add this to your existing states ↑
  const [vibeCityCoords, setVibeCityCoords] = useState<{ lat: number; lng: number } | null>(null);
 
+function normalizeCity(input: string) {
+  return input
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, '')
+    .trim();
+}
+
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -132,9 +140,13 @@ useEffect(() => {
         );
         let results = res.data;
         if (selectedCity.trim()) {
-          const cityLower = selectedCity.toLowerCase();
-          results = results.filter((d: Detail) => d.location?.toLowerCase().includes(cityLower));
+          const cityLower = normalizeCity(selectedCity);
+
+          results = results.filter((d: { city: any; }) =>
+            normalizeCity(d.city || '').includes(cityLower)
+          );
         }
+
         setDetails(results);
       } catch (err) {
         console.error('❌ Failed to fetch details:', err);
@@ -376,9 +388,7 @@ return (
               </h1>
               {activeCategory && selectedSubcategories.length > 0 ? (
                 <div className="flex flex-col gap-4 ">
-                  {details
-                    .filter((detail) => visibleIds.has(detail.id))
-                    .map((detail) => (
+                  {details.map((detail) => (
                       <div
                         key={detail.id}
                         onClick={() => handleDetailClick(detail)}

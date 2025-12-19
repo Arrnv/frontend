@@ -9,7 +9,7 @@ import { debounce } from '@/lib/debounce';
    TYPES
 ============================ */
 type SearchResult = {
-  serviceId: string | null;
+  serviceId: string;
   serviceName: string;
   icon?: string;
   city: string;
@@ -32,44 +32,24 @@ export default function SearchBarServices() {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const requestIdRef = useRef(0);
-function rankResult(
-  r: SearchResult,
-  serviceQuery: string,
-  cityQuery: string
-) {
-  let score = 0;
 
-  const sq = serviceQuery.toLowerCase();
-  const name = r.serviceName.toLowerCase();
-  const city = r.city.toLowerCase();
-  const cq = cityQuery.toLowerCase();
+  /* ============================
+     HELPERS
+  ============================ */
+  const goToService = (serviceId: string, city: string) => {
+    router.push(
+      `/customer/Services?type=services` +
+        `&subcategory=${serviceId}` +
+        `&location=${encodeURIComponent(city)}`
+    );
+  };
 
-  // 🔹 Service relevance
-  if (name.startsWith(sq)) score += 50;
-  else if (name.includes(sq)) score += 30;
-  else score += 10;
+  const normalizeCityInput = (input: string) =>
+    input.split(',')[0].trim().toLowerCase();
 
-  // 🔹 Location relevance
-  if (r.available) score += 40;
-
-  if (city.startsWith(cq.split(',')[0])) score += 20;
-
-  // 🔹 Nearest distance
-  if (!r.available && r.nearest?.length > 0) {
-    score += Math.max(0, 20 - r.nearest[0].distanceKm);
-  }
-
-  return score;
-}
-
-
-function normalizeCityInput(input: string) {
-  return input
-    .split(',')[0]   // only city name
-    .trim()
-    .toLowerCase();
-}
-
+  /* ============================
+     FETCH SEARCH RESULTS
+  ============================ */
   const fetchResultsRef = useRef(
     debounce(async (q: string, city: string) => {
       const currentRequestId = ++requestIdRef.current;
@@ -85,9 +65,7 @@ function normalizeCityInput(input: string) {
           { params: { q, city, limit: 15 } }
         );
 
-        // ⛔ Ignore stale responses
         if (currentRequestId !== requestIdRef.current) return;
-
         setResults(res.data.results || []);
       } catch {
         if (currentRequestId !== requestIdRef.current) return;
@@ -95,7 +73,6 @@ function normalizeCityInput(input: string) {
       }
     }, 300)
   );
-
 
   const fetchCitiesRef = useRef(
     debounce(async (q: string) => {
@@ -125,53 +102,32 @@ function normalizeCityInput(input: string) {
 
   useEffect(() => {
     if (showCityDropdown) {
-fetchCitiesRef.current(normalizeCityInput(cityQuery));
+      fetchCitiesRef.current(normalizeCityInput(cityQuery));
     }
   }, [cityQuery, showCityDropdown]);
 
   /* ============================
-     GROUP SERVICES (NO DUPES)
+     DEDUPE + RANK
   ============================ */
-const visibleServices = useMemo(() => {
-  const map = new Map<string, SearchResult>();
+  const visibleServices = useMemo(() => {
+    const map = new Map<string, SearchResult>();
 
-  results.forEach(r => {
-    const key = `${r.serviceId}-${r.city}`;
-    if (!map.has(key)) {
-      map.set(key, r);
-    }
-  });
+    results.forEach((r) => {
+      const key = `${r.serviceId}-${r.city.toLowerCase()}`;
+      if (!map.has(key)) map.set(key, r);
+    });
 
-  return Array.from(map.values())
-    .map(r => ({
-      ...r,
-      _score: rankResult(r, serviceQuery, cityQuery),
-    }))
-    .sort((a, b) => b._score - a._score)
-    .slice(0, 12);
-}, [results, serviceQuery, cityQuery]);
-
-
-  /* ============================
-     NAVIGATION
-  ============================ */
-  const goToService = (serviceId: string, city: string) => {
-    router.push(
-      `/customer/Services?type=services&subcategory=${serviceId}&location=${encodeURIComponent(city)}`
-    );
-  };
-useEffect(() => {
-  requestIdRef.current++;
-}, [serviceQuery, cityQuery]);
+    return Array.from(map.values()).slice(0, 12);
+  }, [results]);
 
   /* ============================
      RENDER
   ============================ */
   return (
     <div className="relative w-full p-4">
-      {/* ================= SEARCH BAR ================= */}
+      {/* SEARCH BAR */}
       <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white w-full">
-        {/* Location */}
+        {/* LOCATION */}
         <div className="flex items-center px-4 w-1/2 border-r border-gray-200">
           <input
             type="text"
@@ -181,47 +137,44 @@ useEffect(() => {
             onChange={(e) => {
               setCityQuery(e.target.value);
               setShowCityDropdown(true);
-              setResults([]); // ✅ CLEAR OLD RESULTS
+              setResults([]);
             }}
-
-            onBlur={() => {
-              // slight delay so click registers
-              setTimeout(() => setShowCityDropdown(false), 150);
-            }}
+            onBlur={() => setTimeout(() => setShowCityDropdown(false), 150)}
           />
         </div>
 
-        {/* Service */}
+        {/* SERVICE */}
         <div className="flex items-center px-4 w-1/2 border-r border-gray-200">
           <input
             type="text"
             placeholder="Services & Companies"
             className="w-full outline-none text-sm text-gray-700 bg-transparent"
             value={serviceQuery}
-            onChange={(e) => {setServiceQuery(e.target.value);
-                setResults([]);} // ✅ CLEAR OLD RESULTS
-}
+            onChange={(e) => {
+              setServiceQuery(e.target.value);
+              setResults([]);
+            }}
           />
         </div>
 
+        {/* SEARCH BUTTON */}
         <button
-          onClick={() =>
-            router.push(
-              `/customer/Services?type=services&subcategory=${encodeURIComponent(
-                serviceQuery
-              )}&location=${encodeURIComponent(cityQuery)}`
-            )
-          }
+          onClick={() => {
+            if (visibleServices.length === 1) {
+              const svc = visibleServices[0];
+              goToService(svc.serviceId, svc.city);
+            }
+          }}
           className="flex items-center justify-center w-16 bg-[#0099E8] text-white"
         >
           🔍
         </button>
       </div>
 
-      {/* ================= CITY DROPDOWN ================= */}
+      {/* CITY DROPDOWN */}
       {showCityDropdown && citySuggestions.length > 0 && (
         <ul className="absolute top-full left-0 mt-2 w-full max-h-[220px] overflow-y-auto z-50 bg-white border border-gray-300 shadow-xl rounded-xl text-black text-sm">
-          {citySuggestions.map(city => (
+          {citySuggestions.map((city) => (
             <li
               key={city}
               className="px-4 py-3 cursor-pointer hover:bg-gray-100"
@@ -237,20 +190,20 @@ useEffect(() => {
         </ul>
       )}
 
-      {/* ================= SERVICES DROPDOWN ================= */}
+      {/* SERVICES DROPDOWN */}
       {serviceQuery && visibleServices.length > 0 && (
         <ul className="absolute top-full left-0 mt-2 w-full max-h-[320px] overflow-y-auto z-40 bg-white border border-gray-300 shadow-xl rounded-xl text-black text-sm">
-          {visibleServices.map(svc => (
+          {visibleServices.map((svc) => (
             <li
               key={`${svc.serviceId}-${svc.city}`}
               className="px-4 py-3 hover:bg-gray-50"
             >
-              {/* TOP ROW */}
+              {/* MAIN ROW */}
               <div
                 className="flex items-center cursor-pointer"
                 onClick={() => {
                   if (svc.available) {
-                    goToService(svc.serviceId!, svc.city);
+                    goToService(svc.serviceId, svc.city);
                   }
                 }}
               >
@@ -281,11 +234,13 @@ useEffect(() => {
               {!svc.available && svc.nearest?.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-2 text-xs">
                   <span className="text-gray-600">Available in:</span>
-
                   {svc.nearest.map((n, idx) => (
                     <button
                       key={idx}
-                      onClick={() => goToService(svc.serviceId!, n.city)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        goToService(svc.serviceId, n.city);
+                      }}
                       className="px-3 py-1 border rounded text-blue-600 hover:bg-blue-50"
                     >
                       {n.city} ({n.distanceKm.toFixed(1)} km)
