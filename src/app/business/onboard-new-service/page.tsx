@@ -19,8 +19,9 @@ const AddNewServicePage = () => {
   const [businessId, setBusinessId] = useState('');
   const [placeOptions, setPlaceOptions] = useState<string[]>([]);
   const [serviceOptions, setServiceOptions] = useState<string[]>([]);
-  const [placeCatOptions, setPlaceCatOptions] = useState<string[]>([]);
-  const [serviceCatOptions, setServiceCatOptions] = useState<string[]>([]);
+const [placeCategoryMap, setPlaceCategoryMap] = useState<Record<string, string[]>>({});
+const [serviceCategoryMap, setServiceCategoryMap] = useState<Record<string, string[]>>({});
+
   const [planFeatures, setPlanFeatures] = useState({ allow_booking: false, allow_gallery: false, allow_video: false });
   const [error, setError] = useState('');
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
@@ -50,10 +51,26 @@ const AddNewServicePage = () => {
         const services = servicesRes.data.data as { label: string; subcategories?: { label: string }[] }[];
         const places = placesRes.data.data as { label: string; subcategories?: { label: string }[] }[];
 
-        setServiceOptions([...new Set(services.map(s => s.label))]);
-        setServiceCatOptions([...new Set(services.flatMap(s => s.subcategories?.map(sc => sc.label) || []))]);
-        setPlaceOptions([...new Set(places.map(p => p.label))]);
-        setPlaceCatOptions([...new Set(places.flatMap(p => p.subcategories?.map(pc => pc.label) || []))]);
+        // ----- SERVICES -----
+        const serviceMap: Record<string, string[]> = {};
+        services.forEach(service => {
+          serviceMap[service.label] =
+            service.subcategories?.map(sc => sc.label) || [];
+        });
+
+        setServiceCategoryMap(serviceMap);
+        setServiceOptions(Object.keys(serviceMap));
+
+        // ----- PLACES -----
+        const placeMap: Record<string, string[]> = {};
+        places.forEach(place => {
+          placeMap[place.label] =
+            place.subcategories?.map(pc => pc.label) || [];
+        });
+
+        setPlaceCategoryMap(placeMap);
+        setPlaceOptions(Object.keys(placeMap));
+
         setAmenities(amenitiesRes.data);
 
       } catch (err) {
@@ -66,7 +83,13 @@ const AddNewServicePage = () => {
   }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+const { name, value } = e.target;
+
+setForm(prev => ({
+  ...prev,
+  [name]: value,
+  ...(name === 'label' ? { categoryLabel: '' } : {}),
+}));
   };
 
   const handleBookingChange = (id: string, field: string, value: string) => {
@@ -263,9 +286,16 @@ const AddNewServicePage = () => {
                 className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="">-- Select {form.labelType} Category --</option>
-                {(form.labelType === 'place' ? placeCatOptions : serviceCatOptions).map(label => (
+                {(
+                  form.label
+                    ? form.labelType === 'place'
+                      ? placeCategoryMap[form.label] || []
+                      : serviceCategoryMap[form.label] || []
+                    : []
+                ).map(label => (
                   <option key={label} value={label}>{label}</option>
                 ))}
+
                 <option value="__new__">+ Add new Category</option>
               </select>
 

@@ -16,8 +16,8 @@ const MapSection = dynamic(() => import('@/components/MapSection'), { ssr: false
 type Booking = { id: string; note: string; price: number; booking_time: string };
 type Detail = {
   id: string;
-  
   name: string;
+
   rating?: number;
   location?: string;
   status?: string;
@@ -25,12 +25,20 @@ type Detail = {
   contact?: string;
   website?: string;
   tags?: string[];
+
   latitude?: number;
   longitude?: number;
+
   price?: number;
   bookings?: Booking[];
   gallery_urls?: string[];
-  businesses?: { id: string; name: string; logo_url?: string };
+
+  businesses?: {
+    id: string;
+    name: string;
+    logo_url?: string;
+  };
+
   detail_amenities?: {
     amenities: {
       id: string;
@@ -434,15 +442,15 @@ return (
           } md:block w-full md:w-5/6 border-l border-[#415CBB]/60 relative`}
         >
           {userLocation ? (
-<MapSection
-  origin={userLocation}
-  details={details}
-  selectedDetail={selectedDetail}
-  onDetailSelect={handleDetailClick}
-  onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
-  selectedCity={selectedCity}
-  vibeCityCoords={vibeCityCoords}   // ⭐ ADD THIS
-/>
+        <MapSection
+          origin={userLocation}
+          details={details}
+          selectedDetail={selectedDetail}
+          onDetailSelect={handleDetailClick}
+          onVisibleIdsChange={(ids) => setVisibleIds(new Set(ids))}
+          selectedCity={selectedCity}
+          vibeCityCoords={vibeCityCoords}  
+        />
 
           ) : (
             <div className="flex items-center justify-center h-full text-[#8B9AB2]">
@@ -451,7 +459,6 @@ return (
           )}
         </div>
 
-        {/* ✅ Mobile overlay drawer with AnimatePresence */}
         <AnimatePresence>
           {selectedDetail && (
             <motion.div
