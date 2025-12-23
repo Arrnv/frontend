@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
+const token = localStorage.getItem('authToken');
 
 const BusinessOnlyOnboarding = () => {
   const router = useRouter();
@@ -70,12 +71,16 @@ const BusinessOnlyOnboarding = () => {
 
         window.location.href = res.data.url;
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/businesses/onboard`, payload, {
+        await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/businesses/onboard`,
+        payload,
+        {
           headers: {
             'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`,
           },
-          withCredentials: true,
-        });
+        }
+      );
 
         router.push('/business/dashboard');
       }

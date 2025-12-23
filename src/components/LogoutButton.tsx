@@ -8,17 +8,29 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {}, { withCredentials: true });
-      router.push('/business/login');
+      // 1️⃣ Remove JWT-based auth (THIS IS THE REAL LOGOUT)
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
+
+      // 2️⃣ Optional: clear cookie-based auth (Chrome support)
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+
     } catch (err) {
-      console.error('Logout failed:', err);
+      console.warn('Backend logout failed (safe to ignore)', err);
+    } finally {
+      // 3️⃣ Redirect
+      router.replace('/business/login');
     }
   };
 
   return (
     <button
       onClick={handleLogout}
-      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
     >
       Logout
     </button>
