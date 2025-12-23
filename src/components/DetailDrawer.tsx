@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoClose } from 'react-icons/io5'; // or any other icon set
 import { FaStar, FaRegStar, FaPhoneAlt, FaGlobe, FaDirections } from 'react-icons/fa';
 import { IoMdTime } from 'react-icons/io';
@@ -54,8 +54,21 @@ const DetailDrawer = ({
   const [showAmenities, setShowAmenities] = useState(true); // add this with your other state
   const [reviewTab, setReviewTab] = useState('All');
   const [sortOption, setSortOption] = useState('Newest First');
+  const [showGallery, setShowGallery] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null>(null);
+const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+useEffect(() => {
+  const esc = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') setFullscreenImage(null);
+  };
+  window.addEventListener('keydown', esc);
+  return () => window.removeEventListener('keydown', esc);
+}, []);
+
+
     const [showReviews, setShowReviews] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
+    
     const parseTimings = (timingString: string) => {
     return timingString.split(",").map((item) => {
         const [day, hours] = item.split(":");
@@ -82,7 +95,11 @@ const DetailDrawer = ({
   if (!selectedDetail) return null;
 console.log("DETAIL:", selectedDetail);
   return (
-    <div className="absolute top-0 left-0 w-full h-full bg-[#FAFAFA]  p-5 overflow-y-auto rounded-r-2xl shadow-2xl text-[#202231] font-[Roboto] transition-all duration-300">
+    <div className="absolute top-0 left-0 w-full h-full  overflow-y-auto  bg-[#FAFAFA]
+  p-6
+  overflow-y-auto
+  text-[#202231]
+  font-[Roboto]  transition-all duration-300">
     <button
     className="absolute top-3 right-4 text-2xl text-black hover:text-gray-700 transition"
     onClick={onClose}
@@ -91,116 +108,206 @@ console.log("DETAIL:", selectedDetail);
     <IoClose className='text-black' size={16}/>
     </button>
     {/* Header */}
-    <div className="flex items-center gap-4 mb-6">
-{selectedDetail.business?.logo_url && (
-  <img
-    src={selectedDetail.business.logo_url}
-    alt="logo"
-    className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
-  />
-)}
-        <div>
-        <h2 className="text-2xl font-bold text-[#202231]">{selectedDetail.name}</h2>
-        <p className="text-gray-500 text-sm">{selectedDetail.location}</p>
-        </div>
-    </div>
+<div className="flex items-start gap-4 mb-6">
+  {selectedDetail.business?.logo_url && (
+    <img
+      src={selectedDetail.business.logo_url}
+      className="w-14 h-14 rounded-xl object-cover ring-1 ring-black/10"
+    />
+  )}
 
-    {/* Contact Buttons */}
-    <div className="flex flex-row gap-2 mb-6 justify-between">
-        <a href={`tel:${selectedDetail.contact}`} className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center">
-        <FaPhoneAlt /> Phone
-        </a>
-        <a href={selectedDetail.website} target="_blank" className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center">
-        <FaGlobe /> Site
-        </a>
-        {selectedDetail.latitude && selectedDetail.longitude && (
-        <a
-        href={`https://www.google.com/maps?q=${selectedDetail.latitude},${selectedDetail.longitude}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-2 text-[#0099E8] bg-white px-4 py-2 rounded-full shadow-md hover:bg-blue-50 transition w-[10rem] justify-center"
-        >
-        <FaDirections /> Location
-        </a>
+  <div className="min-w-0">
+    <h2 className="text-[20px] font-semibold leading-snug">
+      {selectedDetail.name}
+    </h2>
 
-        )}
+    <p className="text-sm text-slate-500 mt-1">
+      {selectedDetail.location}
+    </p>
+
+    <div className="mt-2">
+      <StarDisplay rating={Math.round(selectedDetail.rating || 0)} />
     </div>
+  </div>
+</div>
+
+
+
+<div className="
+  grid grid-cols-3
+  gap-2
+  mb-6
+">
+  {[
+    { icon: <FaPhoneAlt />, label: 'Call', href: `tel:${selectedDetail.contact}` },
+    { icon: <FaGlobe />, label: 'Website', href: selectedDetail.website },
+    { icon: <FaDirections />, label: 'Directions', href: `https://www.google.com/maps?q=${selectedDetail.latitude},${selectedDetail.longitude}` },
+  ].map((item, i) => (
+    <a
+      key={i}
+      href={item.href}
+      target="_blank"
+      className="
+        flex items-center justify-center gap-2
+        py-2
+        text-sm font-medium
+        rounded-xl
+        bg-white
+        ring-1 ring-black/5
+        hover:ring-[#0099E8]/50
+        transition
+      "
+    >
+      <span className="text-[#0099E8]">{item.icon}</span>
+      {item.label}
+    </a>
+  ))}
+</div>
+
     
-    <div className="mb-5 bg-white p-4 rounded-xl shadow-sm">
-        <button
-            className="flex items-center justify-between w-full text-sm font-medium"
-            onClick={() => setShowHours(!showHours)}
-        >
-            <span
-            className={`flex items-center gap-2 ${
-                todayTiming?.closed ? "text-red-500" : "text-green-600"
-            }`}
-            >
-            <IoMdTime />
-            {todayTiming
-                ? `${todayTiming.day}: ${
-                    todayTiming.closed ? "Closed" : todayTiming.hours
-                }`
-                : "Hours not available"}
-            </span>
-            <span>{showHours ? "▲" : "▼"}</span>
-        </button>
+<div className="mb-6">
+  <button
+    onClick={() => setShowHours(!showHours)}
+    className="
+      w-full
+      flex items-center justify-between
+      text-sm
+      font-medium
+      py-2
+      border-b border-slate-200
+      
+    "
+  >
+    <span className="flex items-center gap-2">
+      <IoMdTime className="text-[#0099E8]" />
+      {todayTiming
+        ? `${todayTiming.day}: ${todayTiming.closed ? 'Closed' : todayTiming.hours}`
+        : 'Hours not available'}
+    </span>
+    <span className="text-slate-400">{showHours ? '−' : '+'}</span>
+  </button>
 
-        {showHours && selectedDetail?.timings && (
-            <div className="mt-2 text-sm text-gray-700 space-y-1">
-            {parseTimings(selectedDetail.timings).map((day, i) => (
-                <div key={i} className="flex justify-between">
-                <span>{day.day}</span>
-                <span
-                    className={day.closed ? "text-red-500" : "font-semibold"}
-                >
-                    {day.closed ? "Closed" : day.hours}
-                </span>
-                </div>
-            ))}
-            </div>
-        )}
-    </div>
-
-{/* Gallery Section */}
-{selectedDetail.gallery_urls && selectedDetail.gallery_urls.length > 0 && (
-  <div className="mb-6 bg-white p-4 rounded-xl shadow-sm">
-    <h3 className="text-base font-semibold text-[#202231] mb-3">Gallery</h3>
-
-    <div className="grid grid-cols-3 gap-3">
-      {selectedDetail.gallery_urls.map((img: string, idx: number) => (
-        <div key={idx} className="w-full h-24 overflow-hidden rounded-xl border shadow-sm">
-          <img
-            src={img}
-            alt={`Gallery ${idx + 1}`}
-            className="w-full h-full object-cover"
-          />
+  {showHours && (
+    <div className="mt-3 space-y-1 text-sm text-slate-600 animate-fadeIn">
+      {parseTimings(selectedDetail.timings).map((d, i) => (
+        <div key={i} className="flex justify-between">
+          <span>{d.day}</span>
+          <span className={d.closed ? 'text-red-500' : 'font-medium'}>
+            {d.closed ? 'Closed' : d.hours}
+          </span>
         </div>
       ))}
     </div>
+  )}
+</div>
+
+
+{/* Gallery Section */}
+{selectedDetail.gallery_urls?.length > 0 && (
+  <div className="mb-8">
+    <h3 className="text-sm font-semibold mb-3">
+      Photos
+    </h3>
+
+    {/* MAIN IMAGE */}
+    <div
+      className="
+        relative
+        w-full
+        h-[220px]
+        md:h-[260px]
+        rounded-2xl
+        overflow-hidden
+        ring-1 ring-black/10
+        bg-black
+        cursor-pointer
+      "
+      onClick={() =>
+        setFullscreenImage(
+          activeImage || selectedDetail.gallery_urls[0]
+        )
+      }
+    >
+      <img
+        src={activeImage || selectedDetail.gallery_urls[0]}
+        className="
+          w-full h-full
+          object-cover
+          transition-transform duration-300
+          hover:scale-[1.02]
+        "
+        alt="Gallery preview"
+      />
+
+      {/* Zoom hint */}
+      <div className="absolute bottom-2 right-2 text-xs bg-black/60 text-white px-2 py-1 rounded">
+        Click to enlarge
+      </div>
+    </div>
+
+    {/* THUMBNAILS */}
+    {selectedDetail.gallery_urls.length > 1 && (
+      <div className="flex gap-3 mt-3 overflow-x-auto pb-1">
+        {selectedDetail.gallery_urls.map((img: string, idx: number) => (
+          <button
+            key={idx}
+            onClick={() => setActiveImage(img)}
+            className={`
+              flex-shrink-0
+              w-20 h-20
+              rounded-xl
+              overflow-hidden
+              ring-1
+              ${
+                (activeImage || selectedDetail.gallery_urls[0]) === img
+                  ? 'ring-[#0099E8]'
+                  : 'ring-black/10'
+              }
+              hover:ring-[#0099E8]/50
+              transition
+            `}
+          >
+            <img
+              src={img}
+              className="w-full h-full object-cover"
+              alt={`Thumbnail ${idx + 1}`}
+            />
+          </button>
+        ))}
+      </div>
+    )}
   </div>
 )}
 
 
+
+
     {/* Amenities */}
-    {selectedDetail.detail_amenities?.length > 0 && (
-        <div className="mb-6 bg-white p-4 rounded-xl shadow-sm">
-        <button className="flex justify-between items-center w-full text-sm font-medium" onClick={() => setShowAmenities(!showAmenities)}>
-            <h3 className="text-base font-semibold text-[#202231]">Amenities</h3>
-            <span>{showAmenities ? '▲' : '▼'}</span>
-        </button>
-        {showAmenities && (
-            <div className="grid grid-cols-3 gap-3 mt-3">
-            {selectedDetail.detail_amenities.map(({ amenities }: any) => (
-                <div key={amenities.id} className="flex flex-col items-center p-3 border rounded-xl bg-gray-50">
-                <img src={amenities.icon_url} alt={amenities.name} className="w-10 h-10" />
-                <span className="text-sm text-center mt-1 text-[#202231]">{amenities.name}</span>
-                </div>
-            ))}
-            </div>
-        )}
-        </div>
-    )}
+<div className="mb-6">
+  <h3 className="text-sm font-semibold mb-3">Amenities</h3>
+
+<div className="grid grid-cols-2 gap-3">
+  {selectedDetail.detail_amenities.map(({ amenities }: any) => (
+    <div
+      key={amenities.id}
+      className="
+        flex items-center gap-3
+        px-3 py-2
+        bg-white
+        rounded-lg
+        ring-1 ring-black/5
+      "
+    >
+      <img src={amenities.icon_url} className="w-5 h-5" />
+      <span className="text-sm">
+        {amenities.name}
+      </span>
+    </div>
+  ))}
+</div>
+
+</div>
+
     {/* <Link className='text-black mb-5 bg-white p-4 rounded-xl shadow-sm' href={`/customer/bus/${selectedDetail.id}`}>
         View Detail
     </Link> */}
@@ -370,6 +477,37 @@ console.log("DETAIL:", selectedDetail);
         </>
     )}
     </div>
+{fullscreenImage && (
+  <div
+    className="
+      fixed inset-0
+      z-[99999]
+      bg-black/90
+      flex items-center justify-center
+      p-4
+    "
+    onClick={() => setFullscreenImage(null)}
+  >
+    <button
+      className="absolute top-4 right-4 text-white text-2xl"
+      onClick={() => setFullscreenImage(null)}
+      aria-label="Close image"
+    >
+      <IoClose />
+    </button>
+
+    <img
+      src={fullscreenImage}
+      className="
+        max-w-full
+        max-h-full
+        rounded-xl
+        shadow-2xl
+      "
+      alt="Full size preview"
+    />
+  </div>
+)}
 
     </div>
 

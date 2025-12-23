@@ -18,14 +18,25 @@ type SearchResult = {
 };
 
 /* ============================
+   ICONS (INLINE SVG – PRO)
+============================ */
+const SearchIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M21 21L16.65 16.65M18 11C18 14.866 14.866 18 11 18C7.134 18 4 14.866 4 11C4 7.134 7.134 4 11 4C14.866 4 18 7.134 18 11Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+/* ============================
    COMPONENT
 ============================ */
 export default function SearchBarServices() {
   const router = useRouter();
 
-  /* ============================
-     STATE
-  ============================ */
   const [results, setResults] = useState<SearchResult[]>([]);
   const [serviceQuery, setServiceQuery] = useState('');
   const [cityQuery, setCityQuery] = useState('');
@@ -33,54 +44,37 @@ export default function SearchBarServices() {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const requestIdRef = useRef(0);
 
-  /* ============================
-     HELPERS
-  ============================ */
   const goToService = (serviceId: string, city: string) => {
     router.push(
-      `/customer/Services?type=services` +
-        `&subcategory=${serviceId}` +
-        `&location=${encodeURIComponent(city)}`
+      `/customer/Services?type=services&subcategory=${serviceId}&location=${encodeURIComponent(city)}`
     );
   };
 
-  const normalizeCityInput = (input: string) =>
-    input.split(',')[0].trim().toLowerCase();
-
   /* ============================
-     FETCH SEARCH RESULTS
+     FETCH LOGIC
   ============================ */
   const fetchResultsRef = useRef(
     debounce(async (q: string, city: string) => {
-      const currentRequestId = ++requestIdRef.current;
-
-      if (q.length < 2 && city.length < 2) {
-        setResults([]);
-        return;
-      }
+      const id = ++requestIdRef.current;
+      if (q.length < 2 && city.length < 2) return setResults([]);
 
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/search/services`,
-          { params: { q, city, limit: 15 } }
+          { params: { q, city, limit: 12 } }
         );
-
-        if (currentRequestId !== requestIdRef.current) return;
-        setResults(res.data.results || []);
+        if (id === requestIdRef.current) {
+          setResults(res.data.results || []);
+        }
       } catch {
-        if (currentRequestId !== requestIdRef.current) return;
-        setResults([]);
+        if (id === requestIdRef.current) setResults([]);
       }
     }, 300)
   );
 
   const fetchCitiesRef = useRef(
     debounce(async (q: string) => {
-      if (q.length < 2) {
-        setCitySuggestions([]);
-        return;
-      }
-
+      if (q.length < 2) return setCitySuggestions([]);
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}/api/search/cities`,
@@ -93,165 +87,193 @@ export default function SearchBarServices() {
     }, 300)
   );
 
-  /* ============================
-     EFFECTS
-  ============================ */
   useEffect(() => {
     fetchResultsRef.current(serviceQuery, cityQuery);
   }, [serviceQuery, cityQuery]);
 
   useEffect(() => {
-    if (showCityDropdown) {
-      fetchCitiesRef.current(normalizeCityInput(cityQuery));
-    }
+    if (showCityDropdown) fetchCitiesRef.current(cityQuery);
   }, [cityQuery, showCityDropdown]);
 
-  /* ============================
-     DEDUPE + RANK
-  ============================ */
   const visibleServices = useMemo(() => {
     const map = new Map<string, SearchResult>();
-
-    results.forEach((r) => {
+    results.forEach(r => {
       const key = `${r.serviceId}-${r.city.toLowerCase()}`;
       if (!map.has(key)) map.set(key, r);
     });
-
-    return Array.from(map.values()).slice(0, 12);
+    return Array.from(map.values());
   }, [results]);
 
   /* ============================
      RENDER
   ============================ */
-  return (
-    <div className="relative w-full p-4">
-      {/* SEARCH BAR */}
-      <div className="flex overflow-hidden rounded-sm border border-gray-200 bg-white w-full">
-        {/* LOCATION */}
-        <div className="flex items-center px-4 w-1/2 border-r border-gray-200">
-          <input
-            type="text"
-            placeholder="Location"
-            className="w-full outline-none text-sm text-gray-700 bg-transparent h-[3rem]"
-            value={cityQuery}
-            onChange={(e) => {
-              setCityQuery(e.target.value);
-              setShowCityDropdown(true);
-              setResults([]);
-            }}
-            onBlur={() => setTimeout(() => setShowCityDropdown(false), 150)}
-          />
-        </div>
-
-        {/* SERVICE */}
-        <div className="flex items-center px-4 w-1/2 border-r border-gray-200">
-          <input
-            type="text"
-            placeholder="Services & Companies"
-            className="w-full outline-none text-sm text-gray-700 bg-transparent"
-            value={serviceQuery}
-            onChange={(e) => {
-              setServiceQuery(e.target.value);
-              setResults([]);
-            }}
-          />
-        </div>
-
-        {/* SEARCH BUTTON */}
-        <button
-          onClick={() => {
-            if (visibleServices.length === 1) {
-              const svc = visibleServices[0];
-              goToService(svc.serviceId, svc.city);
-            }
+return (
+  <div className="relative w-full max-w-3xl mx-auto px-4 sm:px-0">
+    {/* SEARCH BAR */}
+    <div
+      className="
+        flex flex-col sm:flex-row
+        bg-white
+        rounded-2xl
+        shadow-lg
+        ring-1 ring-black/5
+        overflow-hidden
+        transition
+        focus-within:ring-2
+        focus-within:ring-blue-600
+      "
+    >
+      {/* LOCATION */}
+      <div className="flex-1 px-4 py-3">
+        <input
+          placeholder="City"
+          value={cityQuery}
+          onChange={(e) => {
+            setCityQuery(e.target.value);
+            setShowCityDropdown(true);
           }}
-          className="flex items-center justify-center w-16 bg-[#0099E8] text-white"
-        >
-          🔍
-        </button>
+          onBlur={() => setTimeout(() => setShowCityDropdown(false), 150)}
+          className="
+            w-full
+            bg-transparent
+            outline-none
+            text-sm sm:text-base
+            font-medium
+            text-slate-800
+            placeholder:text-slate-400
+          "
+        />
       </div>
 
-      {/* CITY DROPDOWN */}
-      {showCityDropdown && citySuggestions.length > 0 && (
-        <ul className="absolute top-full left-0 mt-2 w-full max-h-[220px] overflow-y-auto z-50 bg-white border border-gray-300 shadow-xl rounded-xl text-black text-sm">
-          {citySuggestions.map((city) => (
-            <li
-              key={city}
-              className="px-4 py-3 cursor-pointer hover:bg-gray-100"
-              onMouseDown={() => {
-                setCityQuery(city);
-                setCitySuggestions([]);
-                setShowCityDropdown(false);
-              }}
-            >
-              {city}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* DIVIDER (DESKTOP ONLY) */}
+      <div className="hidden sm:block h-6 w-px bg-slate-200 self-center" />
 
-      {/* SERVICES DROPDOWN */}
-      {serviceQuery && visibleServices.length > 0 && (
-        <ul className="absolute top-full left-0 mt-2 w-full max-h-[320px] overflow-y-auto z-40 bg-white border border-gray-300 shadow-xl rounded-xl text-black text-sm">
-          {visibleServices.map((svc) => (
-            <li
-              key={`${svc.serviceId}-${svc.city}`}
-              className="px-4 py-3 hover:bg-gray-50"
-            >
-              {/* MAIN ROW */}
-              <div
-                className="flex items-center cursor-pointer"
-                onClick={() => {
-                  if (svc.available) {
-                    goToService(svc.serviceId, svc.city);
-                  }
-                }}
-              >
-                {svc.icon && (
-                  <img
-                    src={svc.icon}
-                    alt={svc.serviceName}
-                    className="w-5 h-5 mr-3"
-                  />
-                )}
+      {/* SERVICE */}
+      <div className="flex-1 px-4 py-3 border-t sm:border-t-0 border-slate-100">
+        <input
+          placeholder="What are you looking for?"
+          value={serviceQuery}
+          onChange={(e) => setServiceQuery(e.target.value)}
+          className="
+            w-full
+            bg-transparent
+            outline-none
+            text-sm sm:text-base
+            font-medium
+            text-slate-800
+            placeholder:text-slate-400
+          "
+        />
+      </div>
 
-                <span className="font-medium">{svc.serviceName}</span>
+      {/* SEARCH BUTTON */}
+      <button
+        className="
+          flex items-center justify-center
+          px-6 py-4 sm:py-0
+          sm:self-stretch
+          bg-blue-600
+          text-white
+          hover:bg-blue-700
+          transition
+        "
+        onClick={() => {
+          if (visibleServices.length === 1) {
+            const s = visibleServices[0];
+            goToService(s.serviceId, s.city);
+          }
+        }}
+      >
+        <SearchIcon />
+      </button>
+    </div>
 
-                <span className="ml-auto text-xs px-2 py-1 rounded">
-                  {svc.available ? (
-                    <span className="text-green-700 bg-green-100">
-                      Available in {svc.city.split(',')[0]}
-                    </span>
-                  ) : (
-                    <span className="text-red-600 bg-red-50">
-                      Not in {cityQuery.split(',')[0]}
-                    </span>
-                  )}
-                </span>
+    {/* CITY DROPDOWN */}
+    {showCityDropdown && citySuggestions.length > 0 && (
+      <ul className="
+        absolute z-50 mt-3 w-full
+        bg-white
+        rounded-xl
+        shadow-2xl
+        ring-1 ring-black/10
+        overflow-hidden
+      ">
+        {citySuggestions.map(city => (
+          <li
+            key={city}
+            onMouseDown={() => {
+              setCityQuery(city);
+              setShowCityDropdown(false);
+            }}
+            className="
+              px-5 py-4
+              text-sm sm:text-base
+              cursor-pointer
+              text-slate-700
+              hover:bg-blue-50
+              hover:text-blue-700
+              transition
+            "
+          >
+            {city}
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {/* SERVICES DROPDOWN */}
+    {serviceQuery && visibleServices.length > 0 && (
+      <ul className="
+        absolute z-40 mt-3 w-full
+        bg-white
+        rounded-xl
+        shadow-2xl
+        ring-1 ring-black/10
+        overflow-hidden
+      ">
+        {visibleServices.map(svc => (
+          <li
+            key={`${svc.serviceId}-${svc.city}`}
+            onClick={() => svc.available && goToService(svc.serviceId, svc.city)}
+            className="
+              px-5 py-4
+              hover:bg-slate-50
+              transition
+              cursor-pointer
+            "
+          >
+            <div className="flex items-center gap-4">
+              {svc.icon && (
+                <img
+                  src={svc.icon}
+                  className="w-8 h-8 rounded-md shrink-0"
+                />
+              )}
+
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-slate-800 truncate">
+                  {svc.serviceName}
+                </div>
+                <div className="text-xs sm:text-sm text-slate-500 truncate">
+                  {svc.city}
+                </div>
               </div>
 
-              {/* NEAREST CITIES */}
-              {!svc.available && svc.nearest?.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                  <span className="text-gray-600">Available in:</span>
-                  {svc.nearest.map((n, idx) => (
-                    <button
-                      key={idx}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        goToService(svc.serviceId, n.city);
-                      }}
-                      className="px-3 py-1 border rounded text-blue-600 hover:bg-blue-50"
-                    >
-                      {n.city} ({n.distanceKm.toFixed(1)} km)
-                    </button>
-                  ))}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+              <span
+                className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                  svc.available
+                    ? 'bg-blue-50 text-blue-700'
+                    : 'bg-slate-100 text-slate-500'
+                }`}
+              >
+                {svc.available ? 'Available' : 'Nearby'}
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
 }

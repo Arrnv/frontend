@@ -272,10 +272,14 @@ useEffect(() => {
     };
     fetchSubcategoryLabels();
   }, [selectedSubcategories]);
-  
+  const visibleDetails = React.useMemo(() => {
+  if (visibleIds.size === 0) return [];
+  return details.filter(d => visibleIds.has(d.id));
+}, [details, visibleIds]);
+
 
 return (
-  <main className="h-screen w-screen flex flex-col">
+  <main className="h-screen w-screen flex flex-col overflow-hidden">
     <Navbar />
 
     {/* Mobile toggle buttons */}
@@ -309,15 +313,17 @@ return (
       </div>
     </div>
 
-    <div className="flex flex-1 overflow-hidden bg-[#0E1C2F] w-screen">
+<div className="flex flex-1 overflow-hidden bg-[#F5F7FB] w-screen">
       <div className="flex flex-1 overflow-hidden flex-row w-screen">
 
-        {/* Left Sidebar - ServiceNav */}
-        <div
-          className={`${
-            showMap ? "hidden" : "block"
-          } md:block bg-gradient-to-b from-[#1F3B79] to-[#2E60C3] border-r border-[#2E60C3]/60`}
-        >
+<div
+  className={`
+    ${showMap ? "hidden" : "block"} md:block
+    bg-white
+    border-r border-slate-200
+  `}
+>
+
           <Suspense>
             <ServiceNav
               selectedCategory={null}
@@ -370,49 +376,137 @@ return (
         <div
           className={`${
             showMap ? "hidden" : "block"
-          } w-full md:block md:w-2/5 p-6 overflow-y-auto no-scrollbar relative bg-[#FFFFFF]`}
+          } w-full md:block md:w-2/5 p-6 overflow-y-auto no-scrollbar relative bg-white`}
         >
           {!selectedDetail ? (
             <>
-              <h1 className="text-2xl font-bold capitalize mb-4 text-[#202231]">
-                {activeCategory ? (
-                  <>
-                    Entries for {activeCategory.type} &gt;{" "}
-                    {subcategoryInfo.length > 0
-                      ? subcategoryInfo.map((sc) => sc.label).join(", ")
-                      : " "}
-                  </>
-                ) : (
-                  "Welcome, customer!"
-                )}
-              </h1>
+{/* Header */}
+<div className="mb-6 space-y-2">
+  {/* Context */}
+  <p className="text-xs uppercase tracking-wide text-slate-400">
+    {activeCategory?.type}
+  </p>
+
+  {/* Primary title */}
+  <h1 className="text-2xl font-semibold text-[#202231] leading-tight">
+    {subcategoryInfo[0]?.label ?? "Results"}
+  </h1>
+
+  {/* Secondary subcategories */}
+  {subcategoryInfo.length > 1 && (
+    <div className="flex flex-wrap gap-2 mt-2">
+      {subcategoryInfo.slice(1, 4).map(sc => (
+        <span
+          key={sc.id}
+          className="
+            px-3 py-1
+            text-xs
+            rounded-full
+            bg-slate-100
+            text-slate-600
+            border border-slate-200
+          "
+        >
+          {sc.label}
+        </span>
+      ))}
+
+      {subcategoryInfo.length > 4 && (
+        <span className="text-xs text-slate-500 px-2 py-1">
+          +{subcategoryInfo.length - 4} more
+        </span>
+      )}
+    </div>
+  )}
+</div>
+
               {activeCategory && selectedSubcategories.length > 0 ? (
                 <div className="flex flex-col gap-4 ">
-                  {details.map((detail) => (
-                      <div
-                        key={detail.id}
-                        onClick={() => handleDetailClick(detail)}
-                        className="cursor-pointer p-4 rounded-2xl bg-white/10 border border-[#909198] backdrop-blur-lg hover:scale-105 transition h-24"
-                      >
-                        {detail.businesses?.logo_url && (
-                          <img
-                            src={detail.businesses.logo_url}
-                            alt="logo"
-                            className="w-10 h-10 mb-2 rounded-full object-cover border border-white"
-                          />
-                        )}
-                        <div className="flex flex-row place-content-between">
-                          <h2 className="font-semibold text-[#202231]">
-                            {detail.name}
-                          </h2>
-                          <p className="text-sm text-[#8B9AB2]">
-                            {detail.rating ?? "N/A"} ⭐️
-                          </p>
-                        </div>
-                        <p className="text-sm text-[#56575B]">
-                          location: {detail.location ?? "N/A"}
-                        </p>
-                      </div>
+                  {visibleDetails.map((detail) => (
+<div
+  key={detail.id}
+  onClick={() => handleDetailClick(detail)}
+ className="
+  group
+  bg-white
+  rounded-2xl
+
+  min-h-[96px]
+  sm:min-h-[6rem]
+
+  w-full
+  min-w-0
+
+  p-4
+  shadow-sm
+  ring-1 ring-black/5
+  overflow-hidden
+
+  transition-all duration-300 ease-out
+
+  hover:shadow-md
+  hover:ring-2
+  hover:ring-[#0099E8]/60
+
+  active:scale-[0.99]
+"
+
+>
+  {/* Top row */}
+  <div className="flex items-start justify-between gap-3">
+    <div className="flex items-center gap-3">
+      {detail.businesses?.logo_url && (
+        <img
+          src={detail.businesses.logo_url}
+          alt="logo"
+          className="
+            w-10 h-10
+            rounded-xl
+            object-cover
+            border
+            border-slate-200
+            group-hover:border-[#0099E8]/60
+            transition
+          "
+        />
+      )}
+
+      <div>
+        <h2 className="
+          text-[15px]
+          font-semibold
+          text-[#202231]
+          leading-snug
+          tracking-tight
+        ">
+          {detail.name}
+        </h2>
+
+        <p className="
+          text-xs
+          text-[#6B7280]
+          mt-0.5
+        ">
+          {detail.location ?? "Location unavailable"}
+        </p>
+      </div>
+    </div>
+
+    {/* Rating */}
+    <div className="
+      text-xs
+      font-medium
+      text-[#0099E8]
+      bg-[#0099E8]/10
+      px-2.5 py-1
+      rounded-lg
+      whitespace-nowrap
+    ">
+      {detail.rating ?? "N/A"} ★
+    </div>
+  </div>
+</div>
+
                     ))}
                 </div>
               ) : (

@@ -76,13 +76,14 @@ const Page = () => {
           </div>
         </section>
 
-        <div className="flex flex-row w-full justify-center ">
-          <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
-          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm border border-gray-200 ">
-              {/* <SearchWithShortcuts/> */}
-              <SearchBarServices/>
+        <div className="flex flex-row w-full justify-center md:h-[5rem]">
+          {/* <div className='flex flex-col items-center rounded-3xl bg-[#FFFFFF] w-5/6 md:w-1/2 justify-center'>
+          <div className="w-full h-auto flex flex-col justify-center items-center rounded-sm  border-gray-200 ">
+              <SearchWithShortcuts/>
+             
           </div>
-          </div>
+          </div> */}
+           <SearchBarServices/>
         </div>
         
         <section className="relative px-5  md:px-25 backdrop-blur-lg rounded-3xl px-6 py-12 md:px-12 md:py-20 mb-20 overflow-hidden">

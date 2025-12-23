@@ -34,6 +34,7 @@ type User = {
   fullName: string;
 };
 
+  const baseItem = "flex items-center gap-3 px-3 py-2 rounded-xl transition";
 
   const [servicesData, setServicesData] = useState<Category[]>([]);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -151,29 +152,68 @@ useEffect(() => {
           >
             <button
               ref={el => { categoryButtonRefs.current[category.key] = el }}
-              title={isSidebar ? category.label : undefined}
-              className={`transition rounded-md focus:outline-none ${
-                isSidebar
-                  ? 'w-10 h-10 flex items-center justify-center bg-white hover:text-white'
-                  : 'w-full flex items-center justify-between px-2 py-1 text-left font-semibold hover:text-[#0099E8]'
-              } ${openCategoryKey === category.key ? 'text-[#0099E8]' : ''}`}
+className={`
+  relative
+  w-full
+  flex items-center justify-between
+  px-3 py-2
+  rounded-xl
+  transition-all duration-300
+
+  ${
+    openCategoryKey === category.key
+      ? 'bg-blue-50 text-blue-700'
+      : 'hover:bg-slate-100 text-slate-700'
+  }
+
+  before:absolute
+  before:inset-0
+  before:rounded-xl
+  before:pointer-events-none
+  before:opacity-0
+  before:transition-opacity
+
+  before:border-2
+  before:border-transparent
+
+  hover:before:opacity-100
+  hover:before:border-[#0099E8]/60
+  hover:before:bg-gradient-to-b
+  hover:before:from-transparent
+  hover:before:to-transparent
+`}
+
             >
-              <div className={`flex items-center ${!isSidebar ? 'gap-2' : ''}`}>
+              <div className="flex items-center gap-3 min-w-0">
                 {category.icon_url ? (
-                  <img src={category.icon_url} alt="" className="w-6 h-6 object-contain" />
+                  <img
+                    src={category.icon_url}
+                    alt=""
+                    className="w-6 h-6 rounded-md shrink-0"
+                  />
                 ) : (
-                  <Wrench size={20} />
+                  <Wrench size={18} className="text-slate-400" />
                 )}
+
                 {!isSidebar && (
-                  <span className={`${openCategoryKey === category.key ? 'text-[#0099E8]' : 'text-black group-hover:text-[#0099E8]'}`}>
+                  <span className="text-sm font-medium truncate">
                     {category.label}
                   </span>
                 )}
               </div>
-              {!isSidebar && !mobileMenuOpen && (
-                <span>{openCategoryKey === category.key ? <ChevronUp size={16} /> : <ChevronDown size={16} />}</span>
+
+              {!isSidebar && (
+                <ChevronDown
+                  size={16}
+                  className={`transition ${
+                    openCategoryKey === category.key
+                      ? 'rotate-180 text-blue-600'
+                      : 'text-slate-400'
+                  }`}
+                />
               )}
             </button>
+
 
             {!mobileMenuOpen && openCategoryKey === category.key && floatingAnchor && (
               <FloatingSubmenu
@@ -310,7 +350,7 @@ useEffect(() => {
   ) : (
     <>
       {/* Top Nav */}
-      <nav className="fixed top-0 left-0 z-50 w-screen bg-white border-b border-[#D9E4EF] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
+      <nav className="fixed top-0 left-0 z-50 w-screen bg-white/90 backdrop-blur-md shadow-sm ring-1 ring-black/5 border-b border-[#D9E4EF] px-6 py-3 flex items-center justify-between text-[#0E1C2F]">
         {/* Logo */}
         <div className="flex items-center space-x-2 cursor-pointer" onClick={() => router.push('/')}>
           <img src="/logo_v2.jpeg" alt="Logo" className="h-10" />
@@ -408,7 +448,14 @@ useEffect(() => {
         {!currentUser?.email && (
           <button
             onClick={() => setIsLoginOpen(true)}
-            className="text-sm font-semibold text-[#246BFD] rounded"
+              className="
+    px-4 py-2
+    rounded-xl
+    text-sm font-medium
+    text-blue-700
+    hover:bg-blue-50
+    transition
+  "
           >
             Login
           </button>
@@ -489,7 +536,16 @@ useEffect(() => {
         <p className="text-lg font-semibold mb-2">Places</p>
         <div className="space-y-2">
           {placesData.map(cat => (
-            <div key={cat.key} className="bg-gray-50 rounded-lg overflow-hidden">
+          <div
+            key={cat.key}
+            className="
+              bg-white
+              rounded-xl
+              shadow-sm
+              ring-1 ring-black/5
+              overflow-hidden
+            "
+          >
               <button
                 onClick={() =>
                   setOpenCategoryKey(prev => prev === cat.key ? null : cat.key)

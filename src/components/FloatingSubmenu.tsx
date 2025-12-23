@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-
 type SubCategory = { key: string; label: string };
 
 type FloatingSubmenuProps = {
@@ -27,58 +26,76 @@ const FloatingSubmenu: React.FC<FloatingSubmenuProps> = ({
 }) => {
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
+  useEffect(() => setMounted(true), []);
   if (!mounted || !anchorRect) return null;
 
   const style: React.CSSProperties = {
     position: 'absolute',
     top: anchorRect.top + window.scrollY,
     left: anchorRect.right + 12,
-    background: 'white',
-    boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
-    border: '1px solid #ddd',
-    borderRadius: '0.75rem',
-    padding: '1rem',
     zIndex: 9999,
-    minWidth: 220,
   };
 
   const handleClick = (key: string) => {
     if (allowMultiSelect) {
       const isSelected = selectedSubcategory.includes(key);
-      const updated = isSelected
-        ? selectedSubcategory.filter(k => k !== key)
-        : [...selectedSubcategory, key];
-      onSelect(updated);
+      onSelect(
+        isSelected
+          ? selectedSubcategory.filter(k => k !== key)
+          : [...selectedSubcategory, key]
+      );
     } else {
-      onSelect([key]); // always single-select
+      onSelect([key]);
     }
   };
 
-return createPortal(
+  return createPortal(
     <div
       style={style}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      className="
+        bg-white
+        rounded-xl
+        shadow-2xl
+        ring-1 ring-black/10
+        p-2
+        w-[240px]
+max-w-[240px]
+      "
     >
       {subcategories.length === 0 ? (
-        <div className="text-sm text-black hover:text-[#0099E8]">No options</div>
+        <div className="px-3 py-2 text-sm text-slate-500">
+          No options
+        </div>
       ) : (
         subcategories.map(sub => {
           const isSelected = selectedSubcategory.includes(sub.key);
+
           return (
             <button
               key={sub.key}
-              className={`flex items-center gap-2 w-full text-left px-2 py-1 text-sm rounded hover:text-[#0099E8] ${
-                isSelected ? 'text-blue-600 font-semibold' : 'text-gray-700'
-              }`}
               onClick={() => handleClick(sub.key)}
+              className={`
+                w-full text-left
+                px-4 py-2
+                rounded-lg
+                text-sm
+                transition
+                ${
+                  isSelected
+                    ? 'bg-blue-50 text-blue-700 font-medium'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }
+              `}
             >
-              {allowMultiSelect && <input type="checkbox" checked={isSelected} readOnly />}
-              <span className="text-black hover:text-[#0099E8]">{sub.label}</span>
+              <div className="flex items-center justify-between">
+                <span>{sub.label}</span>
+
+                {allowMultiSelect && isSelected && (
+                  <span className="text-xs text-blue-600">✓</span>
+                )}
+              </div>
             </button>
           );
         })
@@ -87,6 +104,5 @@ return createPortal(
     document.body
   );
 };
-
 
 export default FloatingSubmenu;
