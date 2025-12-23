@@ -7,6 +7,8 @@ import {
   OverlayView,
   useJsApiLoader,
 } from '@react-google-maps/api';
+import { MarkerClusterer } from "@googlemaps/markerclusterer";
+
 
 const containerStyle: React.CSSProperties = {
   width: '100%',
@@ -45,6 +47,7 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange,vibeCi
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries: ['places', 'geometry'],
   });
+const [mapZoom, setMapZoom] = useState(11);
 
   const [userPosition, setUserPosition] = useState<LatLng>(origin);
   const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
@@ -52,6 +55,12 @@ const MapSection = ({ origin, details, onDetailSelect, onVisibleIdsChange,vibeCi
   const [circleRadiusPx, setCircleRadiusPx] = useState<number>(250);
 
   const mapRef = useRef<google.maps.Map | null>(null);
+const clustererRef = useRef<MarkerClusterer | null>(null);
+const markerScale = (() => {
+  if (mapZoom >= 14) return 1;
+  if (mapZoom <= 9) return 0.7;
+  return 0.7 + ((mapZoom - 9) / 5) * 0.3; // smooth interpolation
+})();
 
   // Adjust circle size for mobile
   useEffect(() => {
@@ -147,32 +156,53 @@ useEffect(() => {
         Diameter: {circleDiameterKm.toFixed(2)} km
       </div>
 
-      {/* Dashed circle */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: `${circleRadiusPx * 2}px`,
-          height: `${circleRadiusPx * 2}px`,
-          transform: 'translate(-50%, -50%)',
-          borderRadius: '50%',
-          border: '6px dashed #0099E8',
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
+<div
+  style={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: `${circleRadiusPx * 2}px`,
+    height: `${circleRadiusPx * 2}px`,
+    transform: 'translate(-50%, -50%)',
+    borderRadius: '50%',
+    pointerEvents: 'none',
+    zIndex: 8,
 
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={vibeCityCoords || origin}
-        zoom={11}
-        onLoad={(map) => {
-          mapRef.current = map;
-          setTimeout(() => detectVisibleMarkers(), 500);
-        }}
-        onIdle={detectVisibleMarkers}
-      >
+    /* Premium combo */
+    background: `
+      radial-gradient(
+        circle,
+        rgba(37, 99, 235, 0.10) 0%,
+        rgba(37, 99, 235, 0.06) 55%,
+        rgba(37, 99, 235, 0.03) 70%,
+        transparent 74%
+      )
+    `,
+    boxShadow: `
+      0 0 0 1.5px rgba(37, 99, 235, 0.35),
+      0 0 40px rgba(37, 99, 235, 0.25)
+    `,
+  }}
+/>
+
+
+
+<GoogleMap
+  mapContainerStyle={containerStyle}
+  center={vibeCityCoords || origin}
+  zoom={11}
+  onZoomChanged={() => {
+    if (mapRef.current) {
+      setMapZoom(mapRef.current.getZoom() || 11);
+    }
+  }}
+  onLoad={(map) => {
+    mapRef.current = map;
+    setMapZoom(map.getZoom() || 11);
+  }}
+  onIdle={detectVisibleMarkers}
+>
+
         <Marker
           position={userPosition}
           label="You"
@@ -185,23 +215,80 @@ useEffect(() => {
             position={{ lat: d.latitude!, lng: d.longitude! }}
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
           >
-            <div
-              onClick={() => onDetailSelect(d)}
-              className="flex flex-col items-center group cursor-pointer transform -translate-x-1/2 -translate-y-full"
-            >
-              <img
-                src={
-                  d.service_category?.icon_url ||
-                  d.place_category?.icon_url ||
-                  'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                }
-                className="w-12 h-12 rounded-xl p-1 border-4 border-[#52C4FF] bg-white shadow-md object-contain"
-                alt={d.name}
-              />
-              <div className="mt-1 text-xs bg-black text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100">
-                {d.name}
-              </div>
-            </div>
+<div
+  onClick={() => onDetailSelect(d)}
+  style={{
+    transform: `translate(-50%, -100%) scale(${markerScale})`,
+    transformOrigin: 'bottom center',
+  }}
+  className="
+    relative
+    flex flex-col items-center
+    cursor-pointer
+    group
+    transition-transform duration-200
+  "
+>
+
+
+
+
+  {/* Blue ring */}
+  <div
+    className="
+      w-13 h-13
+      rounded-2xl
+      bg-[#0099E8]
+      flex items-center justify-center
+      shadow-[0_10px_30px_rgba(37,99,235,0.35)]
+    "
+  >
+    {/* White card */}
+    <div
+      className="
+        w-11 h-11
+        rounded-xl
+        bg-white
+        ring-1 ring-black/10
+        flex items-center justify-center
+      "
+    >
+      <img
+        src={
+          d.service_category?.icon_url ||
+          d.place_category?.icon_url
+        }
+        className="w-6 h-6 object-contain"
+      />
+    </div>
+  </div>
+
+  {/* Stem */}
+  <div className="w-[2px] h-3 bg-blue-600/40 rounded-full mt-[-2px]" />
+
+  {/* Label */}
+{mapZoom >= 12 && (
+  <div
+    className="
+      mt-1
+      px-2 py-0.5
+      text-xs
+      rounded-md
+      bg-black/75
+      text-white
+      opacity-0
+      group-hover:opacity-100
+      transition
+      whitespace-nowrap
+    "
+  >
+    {d.name}
+  </div>
+)}
+
+</div>
+
+
           </OverlayView>
         ))}
       </GoogleMap>
