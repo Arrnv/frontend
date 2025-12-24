@@ -1,52 +1,86 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FaShoppingBag, FaChartBar, FaHome, FaBriefcase, FaCog } from 'react-icons/fa';
+import {
+  FaHome,
+  FaChartBar,
+  FaUsers,
+  FaStar,
+  FaCog,
+} from 'react-icons/fa';
 
 const navLinks = [
-  { label: 'Dashboard', path: '/admin/dashboard', icon:FaHome  },
+  { label: 'Dashboard', path: '/admin/dashboard', icon: FaHome },
   { label: 'Analytics', path: '/admin/analytics', icon: FaChartBar },
-  { label: 'Users', path: '/admin/users', icon: FaShoppingBag },
-  { label: 'Reviews', path: '/admin/reviews', icon: FaBriefcase },
-  { label: 'Settings', path: '/settings', icon: FaCog },
+  { label: 'Users', path: '/admin/users', icon: FaUsers },
+  { label: 'Reviews', path: '/admin/reviews', icon: FaStar },
+  { label: 'Settings', path: '/admin/settings', icon: FaCog },
 ];
 
-const AdminNavbar = () => {
+export default function AdminNavbar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const [hasMounted, setHasMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setHasMounted(true);
+    setMounted(true);
   }, []);
 
-  if (!hasMounted) return null; // Prevent mismatch during SSR
+  if (!mounted) return null;
 
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="flex bg-gradient-to-r from-[#1e3a8a]/60 to-[#2563eb]/60 backdrop-blur-xl border border-white/20 shadow-xl rounded-full px-6 py-3 space-x-8">
-        {navLinks.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.path;
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+      <nav
+        className="
+          flex items-center gap-1
+          bg-white
+          border border-slate-200
+          shadow-sm
+          rounded-full
+          px-2 py-2
+        "
+      >
+        {navLinks.map(({ label, path, icon: Icon }) => {
+          const active = pathname === path;
 
           return (
             <Link
-              key={item.label}
-              href={item.path}
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                isActive ? 'bg-blue-500/70 text-white shadow-md' : 'text-blue-200 hover:text-white'
-              }`}
-              title={item.label}
+              key={path}
+              href={path}
+              aria-label={label}
+              className={`
+                group
+                flex items-center gap-2
+                px-4 py-2
+                rounded-full
+                text-sm font-medium
+                transition-all
+                ${
+                  active
+                    ? 'bg-[#52C4FF]/10 text-[#52C4FF]'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }
+              `}
             >
-              <Icon size={20} />
+              <Icon
+                size={14}
+                className={`
+                  transition
+                  ${
+                    active
+                      ? 'text-[#52C4FF]'
+                      : 'text-slate-400 group-hover:text-slate-600'
+                  }
+                `}
+              />
+              <span className="hidden sm:inline">
+                {label}
+              </span>
             </Link>
           );
         })}
-      </div>
+      </nav>
     </div>
   );
-};
-
-export default AdminNavbar;
+}

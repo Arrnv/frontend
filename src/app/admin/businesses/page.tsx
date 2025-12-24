@@ -3,206 +3,181 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend,
-  LineChart, Line
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  Legend,
 } from 'recharts';
+
 import AdminNavbar from '@/components/AdminNavbar';
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { subDays } from 'date-fns';
+const API = process.env.NEXT_PUBLIC_API_URL;
 
-interface Business {
-  id: string;
-  name: string;
-  location: string;
-  contact: string;
-  website: string;
-  owner_email: string;
-  created_at: string;
-  status: 'pending' | 'approved';
-}
+export default function AdminServicesPage() {
+  const [topRated, setTopRated] = useState<any[]>([]);
+  const [mostViewed, setMostViewed] = useState<any[]>([]);
+  const [monthly, setMonthly] = useState<any[]>([]);
+  const [byCategory, setByCategory] = useState<any[]>([]);
+  const [statusSummary, setStatusSummary] = useState<any[]>([]);
+  const [topRevenue, setTopRevenue] = useState<any[]>([]);
 
-interface Stat {
-  date: string;
-  count: number;
-}
+  const [loading, setLoading] = useState(true);
 
-interface CategoryStat {
-  category: string;
-  count: number;
-}
-
-export default function AdminBusinessPage() {
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [signupStats, setSignupStats] = useState<Stat[]>([]);
-  const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(subDays(new Date(), 30));
-  const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved'>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const [bizRes, createdRes, catRes] = await Promise.all([
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/businesses`, { withCredentials: true }),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/businesses/stats/created`, { withCredentials: true }),
-        axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/businesses/stats/categories`, { withCredentials: true }),
-      ]);
-      setBusinesses(bizRes.data);
-      setSignupStats(createdRes.data);
-      setCategoryStats(catRes.data);
-    };
-    fetchData();
-  }, []);
-
-  const updateStatus = async (id: string, status: 'approved' | 'rejected') => {
-    if (status === 'rejected' && !confirm('Are you sure to reject and delete this business?')) return;
-
+useEffect(() => {
+  const fetchServiceStats = async () => {
     try {
-      await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/admin/businesses/${id}/status`, { status }, { withCredentials: true });
+      const token = localStorage.getItem('authToken'); // ✅ FIX
 
-      setBusinesses(prev =>
-        status === 'approved'
-          ? prev.map(b => b.id === id ? { ...b, status: 'approved' } : b)
-          : prev.filter(b => b.id !== id)
-      );
+      if (!token) {
+        console.error('No auth token found in localStorage');
+        setLoading(false);
+        return;
+      }
+
+      const authConfig = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+
+      const [
+        topRatedRes,
+        mostViewedRes,
+        monthlyRes,
+        byCategoryRes,
+        statusSummaryRes,
+        topRevenueRes,
+      ] = await Promise.all([
+        axios.get(`${API}/admin/services/stats/top-rated`, authConfig),
+        axios.get(`${API}/admin/services/stats/most-viewed`, authConfig),
+        axios.get(`${API}/admin/services/stats/monthly`, authConfig),
+        axios.get(`${API}/admin/services/stats/by-category`, authConfig),
+        axios.get(`${API}/admin/services/stats/status-summary`, authConfig),
+        axios.get(`${API}/admin/services/stats/top-revenue`, authConfig),
+      ]);
+
+      setTopRated(topRatedRes.data);
+      setMostViewed(mostViewedRes.data);
+      setMonthly(monthlyRes.data);
+      setByCategory(byCategoryRes.data);
+      setStatusSummary(statusSummaryRes.data);
+      setTopRevenue(topRevenueRes.data);
     } catch (err) {
-      console.error('Failed to update status:', err);
-      alert('Failed to update status');
+      console.error('Error fetching service stats:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const filteredStats = signupStats.filter(s => {
-    const d = new Date(s.date);
-    return (!startDate || d >= startDate) && (!endDate || d <= endDate);
-  });
+  fetchServiceStats();
+}, []);
 
-  const filteredBusinesses = businesses.filter(b => {
-    const statusMatch = statusFilter === 'all' || b.status === statusFilter;
-    const searchMatch =
-      b.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      b.owner_email.toLowerCase().includes(searchTerm.toLowerCase());
-    return statusMatch && searchMatch;
-  });
+
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <AdminNavbar />
+        <p className="mt-6 text-white">Loading service analytics…</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-10 bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
+    <div className="p-6 max-w-7xl mx-auto space-y-10">
       <AdminNavbar />
-      <h1 className="text-2xl font-bold">Business Management</h1>
 
-      {/* Filter Section */}
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold">Filter by Status:</label>
-          <select
-            className="border rounded px-2 py-1"
-            onChange={e => setStatusFilter(e.target.value as 'approved' | 'pending' | 'all')}
-            value={statusFilter}
-          >
-            <option value="all">All</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-semibold">Search:</label>
-          <input
-            type="text"
-            placeholder="Business name or email"
-            className="border rounded px-2 py-1"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </div>
+      <h1 className="text-2xl font-bold text-white">Service Analytics</h1>
 
-      {/* Table */}
-      <table className="w-full table-auto border-collapse shadow">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Name</th>
-            <th className="p-2 border">Email</th>
-            <th className="p-2 border">Website</th>
-            <th className="p-2 border">Status</th>
-            <th className="p-2 border">Created</th>
-            <th className="p-2 border">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredBusinesses.map(b => (
-            <tr key={b.id} className="text-center">
-              <td className="p-2 border">{b.name}</td>
-              <td className="p-2 border">{b.owner_email}</td>
-              <td className="p-2 border">
-                <a href={b.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                  Visit
-                </a>
-              </td>
-              <td className="p-2 border">{b.status}</td>
-              <td className="p-2 border">{new Date(b.created_at).toLocaleDateString()}</td>
-              <td className="p-2 border space-x-2">
-                {b.status === 'pending' && (
-                  <>
-                    <button
-                      onClick={() => updateStatus(b.id, 'approved')}
-                      className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => updateStatus(b.id, 'rejected')}
-                      className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                    >
-                      Reject
-                    </button>
-                  </>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* MOST VIEWED */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Most Viewed Services</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={mostViewed}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="views" fill="#6366F1" />
+          </BarChart>
+        </ResponsiveContainer>
+      </section>
 
-      {/* Charts Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">Business Signups Over Time</h2>
-          <div className="flex gap-4 items-center mb-4">
-            <div>
-              <label className="text-sm font-medium mr-2">From:</label>
-              <DatePicker selected={startDate} onChange={setStartDate} />
-            </div>
-            <div>
-              <label className="text-sm font-medium mr-2">To:</label>
-              <DatePicker selected={endDate} onChange={setEndDate} />
-            </div>
-          </div>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={filteredStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="count" stroke="#10B981" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      {/* TOP RATED */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Top Rated Services</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={topRated}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="rating" fill="#10B981" />
+          </BarChart>
+        </ResponsiveContainer>
+      </section>
 
-        <div className="bg-white p-4 rounded shadow">
-          <h2 className="text-lg font-semibold mb-4">Top Service Categories</h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={categoryStats}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="#6366F1" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      {/* MONTHLY */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Monthly Service Activity</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={monthly}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="count" stroke="#3B82F6" />
+          </LineChart>
+        </ResponsiveContainer>
+      </section>
+
+      {/* BY CATEGORY */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Services by Category</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={byCategory}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="category" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#F59E0B" />
+          </BarChart>
+        </ResponsiveContainer>
+      </section>
+
+      {/* STATUS SUMMARY */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Service Status Summary</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={statusSummary}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="status" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="count" fill="#EF4444" />
+          </BarChart>
+        </ResponsiveContainer>
+      </section>
+
+      {/* TOP REVENUE */}
+      <section className="bg-white p-4 rounded shadow">
+        <h2 className="font-semibold mb-4">Top Revenue Services</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={topRevenue}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="total_revenue" fill="#22C55E" />
+          </BarChart>
+        </ResponsiveContainer>
       </section>
     </div>
   );

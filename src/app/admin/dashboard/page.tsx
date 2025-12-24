@@ -3,11 +3,21 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, Legend,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
 } from 'recharts';
 import { useRouter } from 'next/navigation';
+
 import AdminNavbar from '@/components/AdminNavbar';
 import GlassTooltip from '@/components/GlassTooltip';
+import { Skeleton } from '@/components/Skeleton';
+
+/* ---------------- TYPES ---------------- */
 
 type DashboardSummary = {
   totalUsers: number;
@@ -21,101 +31,192 @@ type AnalyticsData = {
   click: number;
 };
 
+/* ---------------- PAGE ---------------- */
+
 export default function AdminDashboardPage() {
+  const router = useRouter();
+
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [analytics, setAnalytics] = useState<AnalyticsData[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
+
+  /* ---------------- FETCH ---------------- */
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          router.push('/admin/login');
+          return;
+        }
+
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+
         const [summaryRes, analyticsRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`, { withCredentials: true }),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/analytics`, { withCredentials: true })
+          axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`,
+            config
+          ),
+          axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/admin/analytics`,
+            config
+          ),
         ]);
 
         setSummary(summaryRes.data);
         setAnalytics(analyticsRes.data);
-      } catch (err) {
-        console.error(err);
-        router.push('/admin/login');
+      } catch (err: any) {
+        if (err.response?.status === 401) {
+          localStorage.removeItem('authToken');
+          router.push('/admin/login');
+        } else {
+          console.error('Admin dashboard error:', err);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [router]);
 
-  if (loading) return <div className="text-center p-8 text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">Loading...</div>;
+  /* ---------------- LOADING ---------------- */
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <AdminNavbar />
+        <div className="max-w-screen-2xl mx-auto p-6 space-y-8">
+          <Skeleton className="h-8 w-64" />
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Skeleton className="h-80 rounded-xl" />
+            <Skeleton className="h-80 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------------- UI ---------------- */
 
   return (
-    <main className="bg-[#0E1C2F] min-h-screen text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <AdminNavbar />
-      <div className="max-w-7xl mx-auto px-8 py-10 space-y-10">
-        <h1 className="text-4xl font-bold text-white">Admin Dashboard</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <DashboardCard title="Total Users" value={summary?.totalUsers ?? 0} />
-          <DashboardCard title="Total Businesses" value={summary?.totalBusinesses ?? 0} />
-          <DashboardCard title="Total Services" value={summary?.totalServices ?? 0} />
+      <div className="max-w-screen-2xl mx-auto px-6 py-8 space-y-10">
+        {/* HEADER */}
+        <div>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Admin Dashboard
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Platform overview & activity insights
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <AnalyticsChart
+        {/* KPI CARDS */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <AdminStatCard
+            label="Total Users"
+            value={summary?.totalUsers ?? 0}
+          />
+          <AdminStatCard
+            label="Total Businesses"
+            value={summary?.totalBusinesses ?? 0}
+          />
+          <AdminStatCard
+            label="Total Services"
+            value={summary?.totalServices ?? 0}
+          />
+        </div>
+
+        {/* ANALYTICS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AnalyticsCard
             title="Views Over Time"
             data={analytics}
             dataKey="view"
-            stroke="#32E3C6"
           />
-          <AnalyticsChart
+          <AnalyticsCard
             title="Clicks Over Time"
             data={analytics}
             dataKey="click"
-            stroke="#C44EFF"
           />
         </div>
       </div>
-    </main>
-  );
-}
-
-type DashboardCardProps = {
-  title: string;
-  value: number;
-};
-
-function DashboardCard({ title, value }: DashboardCardProps) {
-  return (
-    <div className="bg-gradient-to-br from-[#1F3B79] to-[#2E60C3] backdrop-blur-xl rounded-2xl p-6 shadow-inner shadow-[#2E60C3]/40 transition-all duration-300 hover:shadow-blue-500/40 hover:-translate-y-2 hover:shadow-2xl hover:bg-gradient-to-tr hover:from-[#2E60C3] hover:to-[#1F3B79]">
-      <h2 className="text-lg font-semibold text-[#8B9AB2]">{title}</h2>
-      <p className="text-4xl font-bold text-white mt-2">{value}</p>
     </div>
   );
 }
 
-type AnalyticsChartProps = {
+/* ---------------- COMPONENTS ---------------- */
+
+function AdminStatCard({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  return (
+    <div className="
+      bg-white
+      border border-slate-200
+      rounded-xl
+      p-6
+      transition
+      hover:border-[#52C4FF]/40
+    ">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-2 text-3xl font-semibold text-slate-900">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function AnalyticsCard({
+  title,
+  data,
+  dataKey,
+}: {
   title: string;
   data: AnalyticsData[];
-  dataKey: keyof AnalyticsData;
-  stroke: string;
-};
-
-function AnalyticsChart({ title, data, dataKey, stroke }: AnalyticsChartProps) {
+  dataKey: 'view' | 'click';
+}) {
   return (
-    <div className="bg-gradient-to-br from-[#1F3B79]/80 to-[#2E60C3]/70 backdrop-blur-xl rounded-2xl p-6 shadow-inner shadow-[#2E60C3]/40 transition-all duration-300 hover:shadow-blue-500/40 hover:-translate-y-2 hover:shadow-2xl hover:bg-gradient-to-tr hover:from-[#2E60C3]/80 hover:to-[#1F3B79]/70">
-      <h3 className="text-lg font-semibold text-[#8B9AB2] mb-4">{title}</h3>
-      <ResponsiveContainer width="100%" height={250}>
+    <div className="
+      bg-white
+      border border-slate-200
+      rounded-xl
+      p-6
+    ">
+      <h3 className="text-sm font-medium text-slate-700 mb-4">
+        {title}
+      </h3>
+
+      <ResponsiveContainer width="100%" height={260}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2E60C3" />
-          <XAxis dataKey="date" stroke="#8B9AB2" />
-          <YAxis allowDecimals={false} stroke="#8B9AB2" />
-          <Tooltip
-            content={<GlassTooltip />}
+          <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" />
+          <XAxis dataKey="date" stroke="#64748B" />
+          <YAxis allowDecimals={false} stroke="#64748B" />
+          <Tooltip content={<GlassTooltip />} />
+          <Line
+            type="monotone"
+            dataKey={dataKey}
+            stroke="#52C4FF"
+            strokeWidth={2}
+            dot={{ r: 3 }}
           />
-          <Legend wrapperStyle={{ color: '#FFFFFF' }} />
-          <Line type="monotone" dataKey={dataKey} stroke={stroke} strokeWidth={3} dot={{ r: 4 }} />
         </LineChart>
       </ResponsiveContainer>
     </div>

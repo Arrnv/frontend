@@ -55,6 +55,21 @@ export default function AdminAnalyticsPage() {
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
   const [statusStats, setStatusStats] = useState<StatusStat[]>([]);
   const [topRevenueStats, setTopRevenueStats] = useState<RevenueStat[]>([]);
+  const getAuthConfig = () => {
+  const token = localStorage.getItem('authToken');
+
+  if (!token) {
+    throw new Error('No auth token found');
+  }
+
+  return {
+    withCredentials: false, // 🔥 IMPORTANT
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 
   useEffect(() => {
     fetchTopRated();
@@ -65,81 +80,93 @@ export default function AdminAnalyticsPage() {
     fetchTopRevenueStats();
   }, []);
 
-  const fetchTopRated = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-rated`, {
-        withCredentials: true,
-      });
-      const formatted = res.data.map((d: any) => ({
-        detail_id: d.detail_id,
-        name: d.name || d.details?.name || 'Unnamed',
-        avg_rating: d.avg_rating,
-      }));
-      setTopRated(formatted);
-    } catch (err) {
-      console.error('Error fetching top-rated services:', err);
-    }
-  };
+const fetchTopRated = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-rated`,
+      getAuthConfig()
+    );
 
-  const fetchMostViewed = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/most-viewed`, {
-        withCredentials: true,
-      });
-      const formatted = res.data.map((d: any) => ({
-        detail_id: d.detail_id,
-        name: d.name || d.details?.name || 'Unnamed',
-        total_views: d.total_views,
-      }));
-      setMostViewed(formatted);
-    } catch (err) {
-      console.error('Error fetching most viewed services:', err);
-    }
-  };
+    const formatted = res.data.map((d: any) => ({
+      detail_id: d.detail_id,
+      name: d.name || d.details?.name || 'Unnamed',
+      avg_rating: d.avg_rating,
+    }));
 
-  const fetchMonthlyStats = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/monthly`, {
-        withCredentials: true,
-      });
-      setMonthlyStats(res.data);
-    } catch (err) {
-      console.error('Error fetching monthly stats:', err);
-    }
-  };
+    setTopRated(formatted);
+  } catch (err) {
+    console.error('Error fetching top-rated services:', err);
+  }
+};
 
-  const fetchCategoryStats = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/by-category`, {
-        withCredentials: true,
-      });
-      setCategoryStats(res.data);
-    } catch (err) {
-      console.error('Error fetching category stats:', err);
-    }
-  };
 
-  const fetchStatusStats = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/status-summary`, {
-        withCredentials: true,
-      });
-      setStatusStats(res.data);
-    } catch (err) {
-      console.error('Error fetching status stats:', err);
-    }
-  };
+const fetchMostViewed = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/most-viewed`,
+      getAuthConfig()
+    );
 
-  const fetchTopRevenueStats = async () => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-revenue`, {
-        withCredentials: true,
-      });
-      setTopRevenueStats(res.data);
-    } catch (err) {
-      console.error('Error fetching top revenue stats:', err);
-    }
-  };
+    const formatted = res.data.map((d: any) => ({
+      detail_id: d.detail_id,
+      name: d.name || d.details?.name || 'Unnamed',
+      total_views: d.total_views,
+    }));
+
+    setMostViewed(formatted);
+  } catch (err) {
+    console.error('Error fetching most viewed services:', err);
+  }
+};
+
+const fetchMonthlyStats = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/monthly`,
+      getAuthConfig()
+    );
+    setMonthlyStats(res.data);
+  } catch (err) {
+    console.error('Error fetching monthly stats:', err);
+  }
+};
+
+const fetchCategoryStats = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/by-category`,
+      getAuthConfig()
+    );
+    setCategoryStats(res.data);
+  } catch (err) {
+    console.error('Error fetching category stats:', err);
+  }
+};
+
+const fetchStatusStats = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/status-summary`,
+      getAuthConfig()
+    );
+    setStatusStats(res.data);
+  } catch (err) {
+    console.error('Error fetching status stats:', err);
+  }
+};
+
+const fetchTopRevenueStats = async () => {
+  try {
+    const res = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-revenue`,
+      getAuthConfig()
+    );
+    setTopRevenueStats(res.data);
+  } catch (err) {
+    console.error('Error fetching top revenue stats:', err);
+  }
+};
+
 
   return (
     <div className="bg-[#0E1C2F] min-h-screen text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
