@@ -18,6 +18,117 @@ const containerStyle: React.CSSProperties = {
 };
 
 type LatLng = { lat: number; lng: number };
+const premiumMapStyle = [
+  /* Base land */
+  {
+    elementType: "geometry",
+    stylers: [{ color: "#EEF2F7" }],
+  },
+
+  /* Labels */
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#475569" }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ color: "#ffffff" }],
+  },
+
+  /* POI off (keeps focus) */
+  {
+    featureType: "poi",
+    stylers: [{ visibility: "off" }],
+  },
+
+/* HIGHWAYS */
+{
+  featureType: "road.highway",
+  elementType: "geometry",
+  stylers: [
+    { color: "#B6C3D1" },
+    { weight: 2.2 }
+  ],
+},
+{
+  featureType: "road.highway",
+  elementType: "geometry.stroke",
+  stylers: [
+    { color: "#64748B" },
+    { weight: 0.8 }
+  ],
+},
+
+/* HIGHWAY RAMPS / FLYOVERS */
+{
+  featureType: "road.highway.controlled_access",
+  elementType: "geometry",
+  stylers: [
+    { color: "#CBD5E1" },
+    { weight: 1.4 }
+  ],
+},
+
+/* MAJOR ROADS */
+{
+  featureType: "road.arterial",
+  elementType: "geometry",
+  stylers: [
+    { color: "#E2E8F0" },
+    { weight: 1.6 }
+  ],
+},
+
+/* LOCAL ROADS */
+{
+  featureType: "road.local",
+  elementType: "geometry",
+  stylers: [
+    { color: "#F8FAFC" },
+    { weight: 1 }
+  ],
+},
+
+
+  /* Water (clear but calm) */
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#DCEAFE" }],
+  },
+  /* Country border */
+{
+  featureType: "administrative.country",
+  elementType: "geometry.stroke",
+  stylers: [
+    { color: "#94A3B8" },
+    { weight: 1.2 }
+  ],
+},
+
+/* State border */
+{
+  featureType: "administrative.province",
+  elementType: "geometry.stroke",
+  stylers: [
+    { color: "#CBD5E1" },
+    { weight: 1 }
+  ],
+},
+
+/* County / district border */
+{
+  featureType: "administrative.locality",
+  elementType: "geometry.stroke",
+  stylers: [
+    { color: "#E2E8F0" },
+    { weight: 0.8 }
+  ],
+},
+
+];
+
+
 
 type Detail = {
   id: string;
@@ -186,11 +297,17 @@ useEffect(() => {
 />
 
 
-
+<div className="absolute inset-0 pointer-events-none z-[1] bg-gradient-to-b from-black/5 to-transparent" />
 <GoogleMap
   mapContainerStyle={containerStyle}
   center={vibeCityCoords || origin}
   zoom={11}
+  options={{
+    styles: premiumMapStyle,
+    disableDefaultUI: true,
+    zoomControl: true,
+    gestureHandling: "greedy",
+  }}
   onZoomChanged={() => {
     if (mapRef.current) {
       setMapZoom(mapRef.current.getZoom() || 11);
@@ -203,11 +320,51 @@ useEffect(() => {
   onIdle={detectVisibleMarkers}
 >
 
-        <Marker
-          position={userPosition}
-          label="You"
-          icon="http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-        />
+<OverlayView
+  position={userPosition}
+  mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+>
+  <div
+    draggable
+    onDragEnd={(e) => {
+      const lat = (e as any).latLng?.lat();
+      const lng = (e as any).latLng?.lng();
+      if (lat && lng) {
+        setUserPosition({ lat, lng });
+      }
+    }}
+    className="
+      relative
+      -translate-x-1/2
+      -translate-y-1/2
+      cursor-grab
+      active:cursor-grabbing
+    "
+  >
+    {/* Soft outer pulse */}
+    <div
+      className="
+        absolute
+        inset-[-10px]
+        rounded-full
+        bg-[#0099E8]/15
+        blur-md
+      "
+    />
+
+    {/* Core dot */}
+    <div
+      className="
+        w-5 h-5
+        rounded-full
+        bg-[#0099E8]
+        ring-4 ring-white
+        shadow-lg
+      "
+    />
+  </div>
+</OverlayView>
+
 
         {details.filter((d) => visibleIds.has(d.id)).map((d) => (
           <OverlayView
@@ -229,22 +386,18 @@ useEffect(() => {
     transition-transform duration-200
   "
 >
+<div
+  className="
+    w-13 h-13
+    rounded-2xl
+    bg-[#0099E8]
+    ring-2 ring-white
+    flex items-center justify-center
+    shadow-[0_10px_28px_rgba(37,99,235,0.32)]
+  "
+>
 
-
-
-
-  {/* Blue ring */}
-  <div
-    className="
-      w-13 h-13
-      rounded-2xl
-      bg-[#0099E8]
-      flex items-center justify-center
-      shadow-[0_10px_30px_rgba(37,99,235,0.35)]
-    "
-  >
-    {/* White card */}
-    <div
+     <div
       className="
         w-11 h-11
         rounded-xl
