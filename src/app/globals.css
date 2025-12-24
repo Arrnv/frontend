@@ -6,6 +6,7 @@
 
 @import 'slick-carousel/slick/slick.css';
 @import 'slick-carousel/slick/slick-theme.css';
+
 html,
 body {
   height: 100%;
@@ -109,4 +110,5 @@ h1, h2, h3 {
 }
 .animate-fadeIn {
   animation: fadeIn 200ms ease-out;
+
 }
