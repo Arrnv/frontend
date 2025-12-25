@@ -1,9 +1,20 @@
 'use client';
 
+/**
+ * Admin Analytics Page – CONSISTENT with Dashboard
+ * ------------------------------------------------
+ * Design aligned with:
+ * - Light surface (#F8FAFC)
+ * - White cards, slate borders
+ * - Subtle accent (#52C4FF)
+ * - Clear hierarchy & scannability
+ */
+
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import AdminNavbar from '@/components/AdminNavbar';
 import GlassTooltip from '@/components/GlassTooltip';
-import axios from 'axios';
+import { Skeleton } from '@/components/Skeleton';
 import {
   BarChart,
   Bar,
@@ -14,10 +25,12 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
-  Legend,
   LineChart,
   Line,
+  CartesianGrid,
 } from 'recharts';
+
+/* ---------------- TYPES ---------------- */
 
 interface StatEntry {
   detail_id: string;
@@ -46,7 +59,9 @@ interface RevenueStat {
   total_revenue: number;
 }
 
-const COLORS = ['#246BFD', '#00C49F', '#FFBB28', '#C44EFF', '#FF5E8A', '#32E3C6'];
+const COLORS = ['#52C4FF', '#34D399', '#FBBF24', '#A78BFA', '#F87171', '#2DD4BF'];
+
+/* ---------------- PAGE ---------------- */
 
 export default function AdminAnalyticsPage() {
   const [topRated, setTopRated] = useState<StatEntry[]>([]);
@@ -55,212 +70,154 @@ export default function AdminAnalyticsPage() {
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
   const [statusStats, setStatusStats] = useState<StatusStat[]>([]);
   const [topRevenueStats, setTopRevenueStats] = useState<RevenueStat[]>([]);
-  const getAuthConfig = () => {
-  const token = localStorage.getItem('authToken');
+  const [loading, setLoading] = useState(true);
 
-  if (!token) {
-    throw new Error('No auth token found');
-  }
-
-  return {
-    withCredentials: false, // 🔥 IMPORTANT
+  const getAuthConfig = () => ({
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
     },
-  };
-};
-
+  });
 
   useEffect(() => {
-    fetchTopRated();
-    fetchMostViewed();
-    fetchMonthlyStats();
-    fetchCategoryStats();
-    fetchStatusStats();
-    fetchTopRevenueStats();
+    Promise.all([
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-rated`, getAuthConfig()),
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/most-viewed`, getAuthConfig()),
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/monthly`, getAuthConfig()),
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/by-category`, getAuthConfig()),
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/status-summary`, getAuthConfig()),
+      axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-revenue`, getAuthConfig()),
+    ])
+      .then(([a, b, c, d, e, f]) => {
+        setTopRated(a.data);
+        setMostViewed(b.data);
+        setMonthlyStats(c.data);
+        setCategoryStats(d.data);
+        setStatusStats(e.data);
+        setTopRevenueStats(f.data);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-const fetchTopRated = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-rated`,
-      getAuthConfig()
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC]">
+        <AdminNavbar />
+        <div className="max-w-screen-2xl mx-auto p-6 space-y-6">
+          <Skeleton className="h-8 w-72" />
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-80 rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
     );
-
-    const formatted = res.data.map((d: any) => ({
-      detail_id: d.detail_id,
-      name: d.name || d.details?.name || 'Unnamed',
-      avg_rating: d.avg_rating,
-    }));
-
-    setTopRated(formatted);
-  } catch (err) {
-    console.error('Error fetching top-rated services:', err);
   }
-};
-
-
-const fetchMostViewed = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/most-viewed`,
-      getAuthConfig()
-    );
-
-    const formatted = res.data.map((d: any) => ({
-      detail_id: d.detail_id,
-      name: d.name || d.details?.name || 'Unnamed',
-      total_views: d.total_views,
-    }));
-
-    setMostViewed(formatted);
-  } catch (err) {
-    console.error('Error fetching most viewed services:', err);
-  }
-};
-
-const fetchMonthlyStats = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/monthly`,
-      getAuthConfig()
-    );
-    setMonthlyStats(res.data);
-  } catch (err) {
-    console.error('Error fetching monthly stats:', err);
-  }
-};
-
-const fetchCategoryStats = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/by-category`,
-      getAuthConfig()
-    );
-    setCategoryStats(res.data);
-  } catch (err) {
-    console.error('Error fetching category stats:', err);
-  }
-};
-
-const fetchStatusStats = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/status-summary`,
-      getAuthConfig()
-    );
-    setStatusStats(res.data);
-  } catch (err) {
-    console.error('Error fetching status stats:', err);
-  }
-};
-
-const fetchTopRevenueStats = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/admin/services/stats/top-revenue`,
-      getAuthConfig()
-    );
-    setTopRevenueStats(res.data);
-  } catch (err) {
-    console.error('Error fetching top revenue stats:', err);
-  }
-};
-
 
   return (
-    <div className="bg-[#0E1C2F] min-h-screen text-white bg-gradient-to-br from-[#0E1C2F] via-[#1F3B79] to-[#415CBB]">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <AdminNavbar />
-      <div className="px-6 py-10 max-w-7xl mx-auto space-y-12">
-        <h1 className="text-4xl font-bold">Analytics Dashboard</h1>
 
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-          <StatCard title="Top Rated Services">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <PieChart>
-                <Pie data={topRated} dataKey="avg_rating" nameKey="name" outerRadius={80} label>
-                  {topRated.map((_, i) => (
-                    <Cell key={`top-${i}`} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </StatCard>
+      <div className="max-w-screen-2xl mx-auto px-6 py-8 space-y-8">
+        <SectionHeader
+          title="Analytics"
+          subtitle="Service performance & platform insights"
+        />
 
-          <StatCard title="Most Viewed Services">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <BarChart data={mostViewed} className="rounded-2xl">
-                <XAxis dataKey="name" stroke="#8B9AB2" />
-                <YAxis stroke="#8B9AB2" />
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
-                <Legend />
-                <Bar dataKey="total_views" fill="#32E3C6" radius={[8, 8, 0, 0]} activeBar={{ fill: '#32E3C6' }} />
-              </BarChart>
-            </ResponsiveContainer>
-          </StatCard>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <ChartCard title="Top Rated Services">
+            <PieBlock data={topRated} dataKey="avg_rating" nameKey="name" />
+          </ChartCard>
 
-          <StatCard title="Monthly Growth">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <LineChart data={monthlyStats} className="rounded-2xl">
-                <XAxis dataKey="month" stroke="#8B9AB2" />
-                <YAxis stroke="#8B9AB2" />
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#C44EFF" strokeWidth={3} dot={{ r: 5 }} />
-              </LineChart>
-            </ResponsiveContainer>
-          </StatCard>
+          <ChartCard title="Most Viewed Services">
+            <BarBlock data={mostViewed} x="name" y="total_views" />
+          </ChartCard>
 
-          <StatCard title="Service by Category">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <PieChart>
-                <Pie data={categoryStats} dataKey="count" nameKey="category" outerRadius={80} label>
-                  {categoryStats.map((_, i) => (
-                    <Cell key={`cat-${i}`} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </StatCard>
+          <ChartCard title="Monthly Growth">
+            <LineBlock data={monthlyStats} x="month" y="count" />
+          </ChartCard>
 
-          <StatCard title="Status Breakdown">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <BarChart data={statusStats} className="rounded-2xl">
-                <XAxis dataKey="status" stroke="#8B9AB2" />
-                <YAxis stroke="#8B9AB2" />
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} />
-                <Legend />
-                <Bar dataKey="count" fill="#FF5E8A" radius={[8, 8, 0, 0]} activeBar={{ fill: '#FF5E8A' }} />
-              </BarChart>
-            </ResponsiveContainer>
-          </StatCard>
+          <ChartCard title="Services by Category">
+            <PieBlock data={categoryStats} dataKey="count" nameKey="category" />
+          </ChartCard>
 
-          <StatCard title="Top Revenue Services">
-            <ResponsiveContainer width="100%" height={250} className="rounded-2xl overflow-hidden">
-              <BarChart data={topRevenueStats} className="rounded-2xl">
-                <XAxis dataKey="name" stroke="#8B9AB2" />
-                <YAxis stroke="#8B9AB2" />
-                <Tooltip content={<GlassTooltip />} isAnimationActive={false} formatter={(v: number) => `₹${v.toLocaleString()}`} />
-                <Legend />
-                <Bar dataKey="total_revenue" fill="#AA77FF" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </StatCard>
+          <ChartCard title="Status Breakdown">
+            <BarBlock data={statusStats} x="status" y="count" />
+          </ChartCard>
+
+          <ChartCard title="Top Revenue Services">
+            <BarBlock
+              data={topRevenueStats}
+              x="name"
+              y="total_revenue"
+              formatter={(v: { toLocaleString: () => any; }) => `₹${v.toLocaleString()}`}
+            />
+          </ChartCard>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({ title, children }: { title: string; children: React.ReactNode }) {
+/* ---------------- PRIMITIVES ---------------- */
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <div className="bg-gradient-to-br from-[#1F3B79]/70 to-[#2E60C3]/70 backdrop-blur-xl border border-[#2E60C3]/30 hover:shadow-2xl hover:shadow-blue-500/50 hover:-translate-y-2 transition-all duration-500 ease-in-out rounded-[2rem] p-6">
-      <h2 className="text-xl font-semibold text-white mb-4">{title}</h2>
+    <div>
+      <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
+      <p className="text-sm text-slate-500 mt-1">{subtitle}</p>
+    </div>
+  );
+}
+
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-white border border-slate-200 rounded-xl p-6">
+      <h3 className="text-sm font-medium text-slate-700 mb-4">{title}</h3>
       {children}
     </div>
+  );
+}
+
+function PieBlock({ data, dataKey, nameKey }: any) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <PieChart>
+        <Pie data={data} dataKey={dataKey} nameKey={nameKey} outerRadius={80}>
+          {data.map((_: any, i: number) => (
+            <Cell key={i} fill={COLORS[i % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip content={<GlassTooltip />} />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+function BarBlock({ data, x, y, formatter }: any) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data}>
+        <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" />
+        <XAxis dataKey={x} stroke="#64748B" />
+        <YAxis stroke="#64748B" />
+        <Tooltip content={<GlassTooltip />} formatter={formatter} />
+        <Bar dataKey={y} fill="#52C4FF" radius={[6, 6, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function LineBlock({ data, x, y }: any) {
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <LineChart data={data}>
+        <CartesianGrid stroke="#E2E8F0" strokeDasharray="3 3" />
+        <XAxis dataKey={x} stroke="#64748B" />
+        <YAxis stroke="#64748B" />
+        <Tooltip content={<GlassTooltip />} />
+        <Line type="monotone" dataKey={y} stroke="#52C4FF" strokeWidth={2} dot={{ r: 3 }} />
+      </LineChart>
+    </ResponsiveContainer>
   );
 }

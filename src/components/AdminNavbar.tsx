@@ -15,8 +15,8 @@ const navLinks = [
   { label: 'Dashboard', path: '/admin/dashboard', icon: FaHome },
   { label: 'Analytics', path: '/admin/analytics', icon: FaChartBar },
   { label: 'Users', path: '/admin/users', icon: FaUsers },
-  { label: 'Reviews', path: '/admin/reviews', icon: FaStar },
-  { label: 'Settings', path: '/admin/settings', icon: FaCog },
+  { label: 'businesses', path: '/admin/businesses', icon: FaStar },
+  { label: 'Settings', path: '/settings', icon: FaCog },
 ];
 
 export default function AdminNavbar() {
