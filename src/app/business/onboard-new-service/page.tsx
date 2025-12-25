@@ -8,383 +8,253 @@ import dynamic from 'next/dynamic';
 
 const MapPicker = dynamic(() => import('@/components/MapPicker'), { ssr: false });
 
-const AddNewServicePage = () => {
-  const [form, setForm] = useState({
+/* =====================
+   Reusable UI Primitives
+===================== */
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+      <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+function Input({ label, ...props }: any) {
+  return (
+    <label className="space-y-1">
+      <span className="text-xs font-medium text-slate-600">{label}</span>
+      <input
+        {...props}
+        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#52C4FF]"
+      />
+    </label>
+  );
+}
+
+function Select({ label, children, ...props }: any) {
+  return (
+    <label className="space-y-1">
+      <span className="text-xs font-medium text-slate-600">{label}</span>
+      <select
+        {...props}
+        className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-[#52C4FF]"
+      >
+        {children}
+      </select>
+    </label>
+  );
+}
+
+/* =====================
+   Main Page
+===================== */
+
+export default function AddNewServicePage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState<any>({
     name: '', location: '', contact: '', website: '', status: '', timings: '', rating: '', tags: '',
-    latitude: '', longitude: '', labelType: 'place', label: '', categoryLabel: '',
-    newLabel: '', newCategoryLabel: '', booking_url: '', gallery_urls: '', video_url: '',
+    labelType: 'place', label: '', categoryLabel: '', newLabel: '', newCategoryLabel: '',
   });
+
   const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [bookings, setBookings] = useState([{ id: uuidv4(), type: '', price: '', note: '' }]);
   const [businessId, setBusinessId] = useState('');
   const [placeOptions, setPlaceOptions] = useState<string[]>([]);
   const [serviceOptions, setServiceOptions] = useState<string[]>([]);
-const [placeCategoryMap, setPlaceCategoryMap] = useState<Record<string, string[]>>({});
-const [serviceCategoryMap, setServiceCategoryMap] = useState<Record<string, string[]>>({});
-
+  const [placeCategoryMap, setPlaceCategoryMap] = useState<Record<string, string[]>>({});
+  const [serviceCategoryMap, setServiceCategoryMap] = useState<Record<string, string[]>>({});
   const [planFeatures, setPlanFeatures] = useState({ allow_booking: false, allow_gallery: false, allow_video: false });
-  const [error, setError] = useState('');
-  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [amenities, setAmenities] = useState<{ id: string; name: string; icon_url: string }[]>([]);
+  const [amenities, setAmenities] = useState<any[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [error, setError] = useState('');
 
-  const router = useRouter();
+  const getAuthConfig = () => ({
+    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
+  });
 
+  /* ---------------- Fetch Init Data ---------------- */
   useEffect(() => {
-    const fetchData = async () => {
+    const init = async () => {
       try {
-        const [bizRes, servicesRes, placesRes, amenitiesRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/businesses/my`, { withCredentials: true }),
+        const bizRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/businesses/my`, getAuthConfig());
+        setBusinessId(bizRes.data.id);
+        setPlanFeatures({
+          allow_booking: !!bizRes.data.plan?.allow_booking,
+          allow_gallery: !!bizRes.data.plan?.allow_gallery,
+          allow_video: !!bizRes.data.plan?.allow_video,
+        });
+
+        const [servicesRes, placesRes, amenitiesRes] = await Promise.all([
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/services`),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/places`),
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/amenities`),
         ]);
 
-        setBusinessId(bizRes.data.id);
-        setPlanFeatures({
-          allow_booking: bizRes.data.plan?.allow_booking || false,
-          allow_gallery: bizRes.data.plan?.allow_gallery || false,
-          allow_video: bizRes.data.plan?.allow_video || false,
-        });
-
-        const services = servicesRes.data.data as { label: string; subcategories?: { label: string }[] }[];
-        const places = placesRes.data.data as { label: string; subcategories?: { label: string }[] }[];
-
-        // ----- SERVICES -----
-        const serviceMap: Record<string, string[]> = {};
-        services.forEach(service => {
-          serviceMap[service.label] =
-            service.subcategories?.map(sc => sc.label) || [];
-        });
-
+        const serviceMap: any = {};
+        servicesRes.data.data.forEach((s: any) => serviceMap[s.label] = s.subcategories?.map((x: any) => x.label) || []);
         setServiceCategoryMap(serviceMap);
         setServiceOptions(Object.keys(serviceMap));
 
-        // ----- PLACES -----
-        const placeMap: Record<string, string[]> = {};
-        places.forEach(place => {
-          placeMap[place.label] =
-            place.subcategories?.map(pc => pc.label) || [];
-        });
-
+        const placeMap: any = {};
+        placesRes.data.data.forEach((p: any) => placeMap[p.label] = p.subcategories?.map((x: any) => x.label) || []);
         setPlaceCategoryMap(placeMap);
         setPlaceOptions(Object.keys(placeMap));
 
         setAmenities(amenitiesRes.data);
-
-      } catch (err) {
-        console.error('Error fetching business or categories:', err);
+      } catch (e) {
+        console.error(e);
         router.push('/business/dashboard');
       }
     };
 
-    fetchData();
+    init();
   }, [router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-const { name, value } = e.target;
-
-setForm(prev => ({
-  ...prev,
-  [name]: value,
-  ...(name === 'label' ? { categoryLabel: '' } : {}),
-}));
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setForm((p: any) => ({ ...p, [name]: value, ...(name === 'label' ? { categoryLabel: '' } : {}) }));
   };
 
-  const handleBookingChange = (id: string, field: string, value: string) => {
-    setBookings(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
-  };
-
-  const addBooking = () => setBookings([...bookings, { id: uuidv4(), type: '', price: '', note: '' }]);
-  const removeBooking = (id: string) => setBookings(bookings.filter(b => b.id !== id));
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  /* ---------------- Submit ---------------- */
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError('');
 
     if (!selectedPosition) {
-      setError('Please select a location on the map.');
+      setError('Please select a location on the map');
       return;
     }
 
-    form.latitude = String(selectedPosition.lat);
-    form.longitude = String(selectedPosition.lng);
+    const fd = new FormData();
+    Object.entries(form).forEach(([k, v]) => fd.append(k, v as any));
 
-    const label = form.label === '__new__' ? form.newLabel : form.label;
-    const categoryLabel = form.categoryLabel === '__new__' ? form.newCategoryLabel : form.categoryLabel;
-
-    const formData = new FormData();
-
-    formData.append('name', form.name);
-    formData.append('location', form.location);
-    formData.append('contact', form.contact);
-    formData.append('website', form.website);
-    formData.append('status', form.status);
-    formData.append('timings', form.timings);
-    formData.append('rating', form.rating);
-    formData.append('tags', form.tags);
-    formData.append('latitude', form.latitude);
-    formData.append('longitude', form.longitude);
-    formData.append('business_id', businessId);
-    formData.append('labelType', form.labelType);
-    formData.append('placeLabel', form.labelType === 'place' ? label : '');
-    formData.append('placeCategoryLabel', form.labelType === 'place' ? categoryLabel : '');
-    formData.append('serviceLabel', form.labelType === 'service' ? label : '');
-    formData.append('serviceCategoryLabel', form.labelType === 'service' ? categoryLabel : '');
-    formData.append('selectedAmenities', JSON.stringify(selectedAmenities));
-
-    if (planFeatures.allow_booking) formData.append('booking_url', form.booking_url);
-    if (planFeatures.allow_gallery && galleryFiles.length > 0) {
-      galleryFiles.forEach(file => formData.append('galleryFiles', file));
-    }
-    if (planFeatures.allow_video && videoFile) {
-      formData.append('videoFile', videoFile);
-    }
-    if (planFeatures.allow_booking) {
-      formData.append('bookings', JSON.stringify(bookings));
-    }
+    fd.append('business_id', businessId);
+    fd.append('latitude', String(selectedPosition.lat));
+    fd.append('longitude', String(selectedPosition.lng));
+    fd.append('selectedAmenities', JSON.stringify(selectedAmenities));
+    if (planFeatures.allow_booking) fd.append('bookings', JSON.stringify(bookings));
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/businesses/add-detail`, formData, {
-        withCredentials: true,
-        headers: { 'Content-Type': 'multipart/form-data' },
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/businesses/add-detail`, fd, {
+        ...getAuthConfig(),
+        headers: { ...getAuthConfig().headers, 'Content-Type': 'multipart/form-data' },
       });
       router.push('/business/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to add new service');
+    } catch (e: any) {
+      setError(e.response?.data?.message || 'Failed to add service');
     }
   };
 
+  /* =====================
+     UI
+  ===================== */
+
   return (
-    <form onSubmit={handleSubmit} className="w-screen mx-auto p-6 bg-white text-black rounded-md shadow-md space-y-8">
-      <h1 className="text-3xl font-bold border-b pb-2 mb-6">Add New Service</h1>
+    <div className="min-h-screen bg-slate-50">
+      <form onSubmit={handleSubmit} className="max-w-screen-2xl mx-auto px-6 py-8 space-y-10">
 
-      {/* Main form grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left column: Basic details + Booking + Categorization */}
-        <div className="space-y-6 lg:col-span-2">
+        {/* Header */}
+        <header className="space-y-1">
+          <h1 className="text-2xl font-semibold text-slate-900">Add New Service</h1>
+          <p className="text-sm text-slate-500">Create a new listing for your business</p>
+        </header>
 
-          {/* Basic Details */}
-          <section className="space-y-4 border border-gray-300 rounded-md p-6 shadow-sm">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Basic Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {["name", "location", "contact", "website"].map(field => (
-                <input
-                  key={field}
-                  name={field}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  onChange={handleChange}
-                  value={form[field as keyof typeof form]}
-                  type={field === 'contact' ? 'tel' : 'text'}
-                />
-              ))}
-              {["status", "timings", "rating", "tags"].map(field => (
-                <input
-                  key={field}
-                  name={field}
-                  placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
-                  className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  onChange={handleChange}
-                  value={form[field as keyof typeof form]}
-                  type={field === 'rating' ? 'number' : 'text'}
-                />
-              ))}
-            </div>
-          </section>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* LEFT */}
+          <div className="lg:col-span-2 space-y-8">
+            <Card title="Basic Details">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input label="Service Name" name="name" value={form.name} onChange={handleChange} />
+                <Input label="Location" name="location" value={form.location} onChange={handleChange} />
+                <Input label="Contact" name="contact" value={form.contact} onChange={handleChange} />
+                <Input label="Website" name="website" value={form.website} onChange={handleChange} />
+                <Input label="Status" name="status" value={form.status} onChange={handleChange} />
+                <Input label="Timings" name="timings" value={form.timings} onChange={handleChange} />
+                <Input label="Rating" type="number" name="rating" value={form.rating} onChange={handleChange} />
+                <Input label="Tags" name="tags" value={form.tags} onChange={handleChange} />
+              </div>
+            </Card>
 
-          {/* Bookings - if allowed */}
-          {planFeatures.allow_booking && (
-            <section className="space-y-4 border border-gray-300 rounded-md p-6 shadow-sm">
-              <h2 className="text-xl font-semibold border-b pb-2 mb-4">Booking Options</h2>
-              <div className="space-y-4">
-                {bookings.map(b => (
-                  <div key={b.id} className="grid grid-cols-12 gap-4 items-end">
-                    <input
-                      placeholder="Type"
-                      value={b.type}
-                      className="col-span-3 p-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onChange={e => handleBookingChange(b.id, 'type', e.target.value)}
-                    />
-                    <input
-                      placeholder="Price"
-                      type="number"
-                      value={b.price}
-                      className="col-span-2 p-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onChange={e => handleBookingChange(b.id, 'price', e.target.value)}
-                    />
-                    <input
-                      placeholder="Note"
-                      value={b.note}
-                      className="col-span-6 p-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      onChange={e => handleBookingChange(b.id, 'note', e.target.value)}
-                    />
-                    {bookings.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeBooking(b.id)}
-                        className="col-span-1 text-red-600 font-semibold hover:text-red-800 transition"
-                      >
-                        Remove
-                      </button>
-                    )}
+            {planFeatures.allow_booking && (
+              <Card title="Booking Options">
+                {bookings.map((b, i) => (
+                  <div key={b.id} className="grid grid-cols-12 gap-3">
+                    <input className="col-span-3 input" placeholder="Type" value={b.type} />
+                    <input className="col-span-2 input" placeholder="Price" />
+                    <input className="col-span-6 input" placeholder="Note" />
+                    {i > 0 && <button type="button" className="text-xs text-red-600">Remove</button>}
                   </div>
                 ))}
-                <button
-                  type="button"
-                  onClick={addBooking}
-                  className="inline-block px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-                >
-                  + Add another booking
-                </button>
+                <button type="button" className="text-sm text-[#52C4FF]">+ Add booking</button>
+              </Card>
+            )}
+
+            <Card title="Categorization">
+              <div className="space-y-4">
+                <Select label="Type" name="labelType" value={form.labelType} onChange={handleChange}>
+                  <option value="place">Place</option>
+                  <option value="service">Service</option>
+                </Select>
+
+                <Select label="Label" name="label" value={form.label} onChange={handleChange}>
+                  <option value="">Select</option>
+                  {(form.labelType === 'place' ? placeOptions : serviceOptions).map(l => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                  <option value="__new__">Add New</option>
+                </Select>
+
+                {form.label === '__new__' && (
+                  <Input label="New Label" name="newLabel" value={form.newLabel} onChange={handleChange} />
+                )}
+
+                <Select label="Category" name="categoryLabel" value={form.categoryLabel} onChange={handleChange}>
+                  <option value="">Select</option>
+                  {(form.labelType === 'place' ? placeCategoryMap[form.label] : serviceCategoryMap[form.label])?.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                  <option value="__new__">Add New</option>
+                </Select>
+
+                {form.categoryLabel === '__new__' && (
+                  <Input label="New Category" name="newCategoryLabel" value={form.newCategoryLabel} onChange={handleChange} />
+                )}
               </div>
-            </section>
-          )}
+            </Card>
+          </div>
 
-          {/* Categorization */}
-          <section className="space-y-4 border border-gray-300 rounded-md p-6 shadow-sm">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Categorization</h2>
-            <div className="space-y-4">
-              <select
-                name="labelType"
-                value={form.labelType}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="place">Place</option>
-                <option value="service">Service</option>
-              </select>
+          {/* RIGHT */}
+          <div className="space-y-8">
+            <Card title="Location">
+              <MapPicker selectedPosition={selectedPosition} onSelect={(lat: number, lng: number) => setSelectedPosition({ lat, lng })} />
+              {error && <p className="text-xs text-red-600">{error}</p>}
+            </Card>
 
-              <select
-                name="label"
-                value={form.label}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">-- Select {form.labelType} --</option>
-                {(form.labelType === 'place' ? placeOptions : serviceOptions).map(label => (
-                  <option key={label} value={label}>{label}</option>
+            <Card title="Amenities">
+              <div className="grid grid-cols-2 gap-3 max-h-56 overflow-y-auto">
+                {amenities.map(a => (
+                  <label key={a.id} className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={selectedAmenities.includes(a.id)} onChange={() => {
+                      setSelectedAmenities(p => p.includes(a.id) ? p.filter(x => x !== a.id) : [...p, a.id]);
+                    }} />
+                    <span>{a.name}</span>
+                  </label>
                 ))}
-                <option value="__new__">+ Add new {form.labelType}</option>
-              </select>
-
-              {form.label === '__new__' && (
-                <input
-                  name="newLabel"
-                  value={form.newLabel}
-                  onChange={handleChange}
-                  placeholder={`New ${form.labelType} Label`}
-                  className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              )}
-
-              <select
-                name="categoryLabel"
-                value={form.categoryLabel}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              >
-                <option value="">-- Select {form.labelType} Category --</option>
-                {(
-                  form.label
-                    ? form.labelType === 'place'
-                      ? placeCategoryMap[form.label] || []
-                      : serviceCategoryMap[form.label] || []
-                    : []
-                ).map(label => (
-                  <option key={label} value={label}>{label}</option>
-                ))}
-
-                <option value="__new__">+ Add new Category</option>
-              </select>
-
-              {form.categoryLabel === '__new__' && (
-                <input
-                  name="newCategoryLabel"
-                  value={form.newCategoryLabel}
-                  onChange={handleChange}
-                  placeholder={`New ${form.labelType} Category`}
-                  className="w-full p-3 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
-              )}
-            </div>
-          </section>
+              </div>
+            </Card>
+          </div>
         </div>
 
-        {/* Right column: Map picker + Amenities + Gallery + Video */}
-        <div className="space-y-6">
-          <section className="border border-gray-300 rounded-md p-6 shadow-sm">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Select Location on Map</h2>
-            <MapPicker
-              selectedPosition={selectedPosition}
-              onSelect={(lat, lng) => setSelectedPosition({ lat, lng })}
-            />
-            {error && !selectedPosition && <p className="text-red-600 mt-2 text-sm">{error}</p>}
-          </section>
-
-          <section className="border border-gray-300 rounded-md p-6 shadow-sm">
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4">Amenities</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-48 overflow-y-auto">
-              {amenities.map(a => (
-                <label key={a.id} className="flex items-center gap-2 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    value={a.id}
-                    checked={selectedAmenities.includes(a.id)}
-                    onChange={e => {
-                      if (e.target.checked)
-                        setSelectedAmenities(prev => [...prev, a.id]);
-                      else
-                        setSelectedAmenities(prev => prev.filter(id => id !== a.id));
-                    }}
-                    className="cursor-pointer"
-                  />
-                  <img src={a.icon_url} alt={a.name} className="w-5 h-5" />
-                  <span>{a.name}</span>
-                </label>
-              ))}
-            </div>
-          </section>
-
-          {planFeatures.allow_gallery && (
-            <section className="border border-gray-300 rounded-md p-6 shadow-sm">
-              <h2 className="text-xl font-semibold border-b pb-2 mb-4">Gallery Upload</h2>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={e => setGalleryFiles(Array.from(e.target.files || []))}
-                className="w-full p-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </section>
-          )}
-
-          {planFeatures.allow_video && (
-            <section className="border border-gray-300 rounded-md p-6 shadow-sm">
-              <h2 className="text-xl font-semibold border-b pb-2 mb-4">Video Upload</h2>
-              <input
-                type="file"
-                accept="video/*"
-                onChange={e => setVideoFile(e.target.files?.[0] || null)}
-                className="w-full p-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </section>
-          )}
+        {/* Submit */}
+        <div className="flex justify-end">
+          <button className="px-6 py-3 rounded-md bg-[#52C4FF] text-white font-medium hover:opacity-90">
+            Add Service
+          </button>
         </div>
-      </div>
-
-      {/* Submit button */}
-      <button
-        type="submit"
-        className="w-full py-3 bg-black text-white font-bold rounded hover:bg-gray-900 transition"
-      >
-        Add Service
-      </button>
-
-      {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
-    </form>
+      </form>
+    </div>
   );
-};
-
-export default AddNewServicePage;
+}
