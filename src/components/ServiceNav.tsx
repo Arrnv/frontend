@@ -58,6 +58,16 @@ type User = {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
 
+  // 🔒 TEMP: limit visible service categories (frontend only)
+  const ALLOWED_SERVICE_LABELS = [
+    'Cross Dock',
+    'Road Assistance',
+    'Truck & Trailer Repair',
+  ];
+
+  // toggle anytime
+const LIMIT_SERVICES = true;
+
 useEffect(() => {
   const type = searchParams.get("type") as 'services' | 'places' | null;
   const subcategory = searchParams.getAll("subcategory");
@@ -92,13 +102,27 @@ useEffect(() => {
           axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/places`),
         ]);
 
-        setServicesData((servicesRes.data.data || []).map((s: any) => ({
-          key: s.id,
-          label: s.label,
-          icon: s.icon || 'Wrench',
-          icon_url: s.icon_url || '',
-          subcategories: (s.subcategories || []).map((sc: any) => ({ key: sc.id, label: sc.label })),
-        })));
+const rawServices = servicesRes.data.data || [];
+
+const filteredServices = LIMIT_SERVICES
+  ? rawServices.filter((s: any) =>
+      ALLOWED_SERVICE_LABELS.includes(s.label)
+    )
+  : rawServices;
+
+setServicesData(
+  filteredServices.map((s: any) => ({
+    key: s.id,
+    label: s.label,
+    icon: s.icon || 'Wrench',
+    icon_url: s.icon_url || '',
+    subcategories: (s.subcategories || []).map((sc: any) => ({
+      key: sc.id,
+      label: sc.label,
+    })),
+  }))
+);
+
 
         setPlacesData((placesRes.data.data || []).map((p: any) => ({
           key: p.id,
